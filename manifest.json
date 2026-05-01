@@ -1,0 +1,22 @@
+{
+  "name": "Waaagh! Paint Collection",
+  "short_name": "Waaagh! Paint",
+  "description": "Warhammer 40k hobby paint collection manager",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
+  "icons": [
+    {
+      "src": "img/logo_sm.png",
+      "sizes": "600x400",
+      "type": "image/png"
+    },
+    {
+      "src": "img/logo_sm.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

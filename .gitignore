@@ -1,0 +1,7 @@
+# Personal data - not committed
+data/
+img/models/
+img/bench/
+
+# Claude Code session files
+.claude/

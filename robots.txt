@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin.php
+Disallow: /data/
+Disallow: /inventory/
+Disallow: /test.php
+
+Sitemap: https://waaagh.co/sitemap.xml
