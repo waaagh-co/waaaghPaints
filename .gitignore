@@ -12,8 +12,8 @@ inventory/*.csv
 !inventory/ttc.csv
 !inventory/conversions.csv
 
-# Claude Code session files
+# Local dev session files
 .claude/
 
-# Claude Build Notes
+# Local build notes
 CLAUDE.md
