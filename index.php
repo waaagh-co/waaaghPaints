@@ -72,6 +72,15 @@ $forcesData     = $hasForces ? (json_decode(file_get_contents($forcesFile), true
 $forcesDataJson = $hasForces ? json_encode($forcesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
 $cnt_forces     = count($forcesData);
 
+// Factions is opt-in: visible only when at least one entry has a faction field set
+$factionSet = [];
+foreach ($models   as $m)  { if (!empty($m['faction']))  $factionSet[trim($m['faction'])]  = true; }
+foreach ($planned  as $pl) { if (!empty($pl['faction'])) $factionSet[trim($pl['faction'])] = true; }
+if ($hasBench)   foreach ($benchData   as $b) { if (!empty($b['faction']))  $factionSet[trim($b['faction'])]  = true; }
+if ($hasRecipes) foreach ($recipesData as $r) { if (!empty($r['faction']))  $factionSet[trim($r['faction'])]  = true; }
+$factionCount = count($factionSet);
+$hasFactions  = $factionCount > 0;
+
 $wishlistFile     = __DIR__ . '/data/wishlist.json';
 $hasWishlist      = file_exists($wishlistFile);
 $wishlistData     = $hasWishlist ? (json_decode(file_get_contents($wishlistFile), true) ?? []) : [];
@@ -190,8 +199,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <button class="tab-btn tab-pipeline" data-tab="planned" title="The Pipeline">Planned</button>
     <?php if ($hasBench): ?><button class="tab-btn tab-pipeline" data-tab="bench" title="The Pipeline"><span class="tab-full">On the Bench</span><span class="tab-short">Bench</span></button><?php endif; ?>
     <!-- Your Armies -->
-    <button class="tab-btn tab-group-start" data-tab="factions" title="Your Armies">Factions</button>
-    <?php if ($hasForces): ?><button class="tab-btn" data-tab="forces" title="Your Armies">Forces</button><?php endif; ?>
+    <?php if ($hasFactions): ?><button class="tab-btn tab-group-start" data-tab="factions" title="Your Armies">Factions</button><?php endif; ?>
+    <?php if ($hasForces): ?><button class="tab-btn<?= $hasFactions ? '' : ' tab-group-start' ?>" data-tab="forces" title="Your Armies">Forces</button><?php endif; ?>
     <!-- The Workbench -->
     <button class="tab-btn tab-group-start" data-tab="inventory" title="The Workbench"><span class="tab-full">Paint Inventory</span><span class="tab-short">Inventory</span></button>
     <?php if ($hasBrushes): ?><button class="tab-btn" data-tab="brushes" title="The Workbench">Brushes</button><?php endif; ?>
@@ -381,13 +390,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
 
       <?php
-        $factionCount = 0;
-        $factionSet = [];
-        foreach ($models  as $m)  { if (!empty($m['faction']))  $factionSet[trim($m['faction'])]  = true; }
-        foreach ($planned as $pl) { if (!empty($pl['faction'])) $factionSet[trim($pl['faction'])] = true; }
-        if ($hasBench)   foreach ($benchData   as $b) { if (!empty($b['faction']))  $factionSet[trim($b['faction'])]  = true; }
-        if ($hasRecipes) foreach ($recipesData as $r) { if (!empty($r['faction']))  $factionSet[trim($r['faction'])]  = true; }
-        $factionCount = count($factionSet);
       ?>
       <div class="contents-grid">
 
@@ -427,13 +429,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
         <!-- ── Your Armies + The Workbench ── -->
         <div class="armies-workbench-row">
+          <?php if ($hasFactions || $hasForces): ?>
           <div class="armies-section">
             <div class="contents-section-title">Your Armies</div>
+            <?php if ($hasFactions): ?>
             <a class="contents-entry" data-jump="factions">
               <div class="contents-entry-name">Factions</div>
               <div class="contents-entry-blurb">Every army in one view - finished schemes, bench work, planned, and the full palette built for each faction.</div>
               <div class="contents-entry-count"><?= $factionCount ?> faction<?= $factionCount !== 1 ? 's' : '' ?> represented</div>
             </a>
+            <?php endif; ?>
             <?php if ($hasForces): ?>
               <a class="contents-entry" data-jump="forces">
                 <div class="contents-entry-name">Forces &amp; Rosters</div>
@@ -442,6 +447,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               </a>
             <?php endif; ?>
           </div>
+          <?php endif; ?>
           <div class="workbench-section">
             <div class="contents-section-title">The Workbench</div>
             <a class="contents-entry" data-jump="inventory">
@@ -772,6 +778,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div><!-- #tab-journals -->
   <?php endif; ?>
 
+  <?php if ($hasFactions): ?>
   <div id="tab-factions" class="tab-panel">
     <div id="factions-controls">
       <a class="tab-label" href="#" onclick="copyTabLink(event,'factions')" title="Copy link to this tab">Factions</a>
@@ -782,6 +789,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <div id="factions-wrap"></div>
     <div id="factions-empty" class="hidden">No factions yet - tag your schemes with a faction in admin and they'll show up here.</div>
   </div><!-- #tab-factions -->
+  <?php endif; ?>
 
   <div id="tab-equiv" class="tab-panel">
     <div id="equiv-controls">
