@@ -42,6 +42,30 @@ create the relevant data file via the Admin panel. Start simple and grow into th
 
 ---
 
+## Getting PHP (if you don't have a host yet)
+
+You have a few options depending on what you want to do:
+
+**Local use (your own computer)**
+
+The easiest way is [XAMPP](https://www.apachefriends.org/) - a free, one-click installer that
+gives you Apache + PHP on Windows, Mac, or Linux. Install it, drop the Waaagh! Paint files into
+the `htdocs` folder, and open `http://localhost/waaagh-paint/` in your browser. No internet
+connection required once installed.
+
+**Shared web hosting (accessible anywhere)**
+
+Any budget shared host that supports PHP 7.4+ will work - this covers virtually all of them
+(Namecheap, DreamHost, Hostinger, SiteGround, etc.). Upload the files via FTP or cPanel File
+Manager. No database or special server configuration needed.
+
+**Self-hosted VPS or home server**
+
+Install PHP via your package manager (e.g. `apt install php libapache2-mod-php` on Ubuntu) and
+point a virtual host at the folder. The app has no special requirements beyond PHP itself.
+
+---
+
 ## Quick Start
 
 1. Upload all files to your PHP-enabled web host
@@ -147,4 +171,4 @@ Version 0.9.0-rc.1 - 2026
 
 This project is not affiliated with or endorsed by Games Workshop. Warhammer, Warhammer 40,000,
 and all associated marks are trademarks of Games Workshop Ltd. Paint brand names (Citadel,
-Vallejo, Pro Acryl, Army Painter, etc.) belong to their respective owners.
+Vallejo, Pro Acryl, Two Thin Coats, Army Painter, etc.) belong to their respective owners.
