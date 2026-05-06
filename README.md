@@ -79,6 +79,15 @@ point a virtual host at the folder. The app has no special requirements beyond P
 
 ---
 
+## Documentation
+
+A full user guide is bundled with the app at `guide.php`. It covers every tab and every admin
+section in detail - how each feature works, what the fields mean, and tips for getting the most
+out of it. Open it from the **User Guide** link in the admin quicknav bar (you need to be logged
+in to access it).
+
+---
+
 ## Configuration
 
 All instance-specific settings live in `config.php` (which you create from the example and is
