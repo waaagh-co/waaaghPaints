@@ -73,9 +73,46 @@ point a virtual host at the folder. The app has no special requirements beyond P
 3. Edit `config.php` - set a strong admin password, your site name/domain, and optionally a
    GA4 Measurement ID
 4. Navigate to `admin.php` in your browser and log in
-5. Scroll to **Paint Inventory** and click **Import from CSVs** to load the bundled paint data,
-   or add paints manually
+5. Scroll to **Paint Inventory** and click **Import from CSVs** to get started - a sample Two
+   Thin Coats entry is included. Add your own paints manually, or build a CSV first (see below).
 6. Visit `index.php` to see the front-end collection view
+
+---
+
+## Building Your Paint List from a CSV
+
+The fastest way to bulk-load a collection is to create a pipe-delimited CSV and drop it in the
+`inventory/` folder, then import from admin.
+
+**Format** - five pipe-delimited fields, one paint per line:
+
+```
+Brand | Name | Color | Hue | Layer
+```
+
+- **Brand** - your paint brand name (e.g. `Citadel`, `Vallejo`, `Army Painter`)
+- **Name** - the paint name exactly as printed on the pot
+- **Color** - broad colour category: `White`, `Grey`, `Black`, `Brown`, `Red`, `Orange`,
+  `Yellow`, `Green`, `Blue`, `Purple`, `Pink`, `Metallic`, `Wash`, `Shade`, `Contrast`,
+  `Ink`, `Effect`, `Medium`, `Texture`, `Primer`, `Pigment`, `Fluid`, `Utility`,
+  `Fluorescent`, `Special`, or `Transparent`
+- **Hue** - a short descriptive variant, e.g. `Pure White` or `Warm Earth`
+- **Layer** - paint type or product line, e.g. `Base`, `Contrast`, `Shade`, `Air`,
+  `Technical`, `Metallic`, `Model Color`, `Speedpaint`
+
+**Example:**
+
+```
+Citadel | Mephiston Red | Red | Base Red | Base
+Citadel | Agrax Earthshade | Brown | Warm Brown | Shade
+Vallejo | Sunny Skin Tone | Pink | Warm Skin | Model Color
+Army Painter | Speed Primer Black | Black | Pure Black | Primer
+```
+
+Blank lines between colour groups are fine - the parser skips rows with fewer than five
+non-empty fields. Name your file anything ending in `.csv` and place it in `inventory/`.
+You will need to register it in `admin.php` inside `loadPaintsFromCsvs()` (a one-line
+addition) before it appears in the import.
 
 ---
 
