@@ -1,23 +1,25 @@
 <?php
+require_once __DIR__ . '/config.php';
 // ── Config ───────────────────────────────────────────
-define('ADMIN_PASSWORD', 'CHANGE_ME');
 define('MODELS_FILE',    __DIR__ . '/data/models.json');
 define('IMAGES_DIR',     __DIR__ . '/img/models/');
 define('IMAGES_WEB',     'img/models/');           // web-relative prefix stored in JSON
 define('MAX_FILE_BYTES', 25 * 1024 * 1024); // 25 MB - server resizes on upload
 define('PAINTS_FILE',    __DIR__ . '/data/paints.json');
 define('PLANNED_FILE',   __DIR__ . '/data/planned.json');
-define('WD_FILE',        __DIR__ . '/data/whitedwarf.json');
 define('BOOKS_FILE',     __DIR__ . '/data/books.json');
 define('BRUSHES_FILE',   __DIR__ . '/data/brushes.json');
 define('BENCH_FILE',     __DIR__ . '/data/bench.json');
 define('BENCH_IMG_DIR',  __DIR__ . '/img/bench/');
 define('BENCH_IMG_WEB',  'img/bench/');
 define('RECIPES_FILE',   __DIR__ . '/data/recipes.json');
+define('RECIPE_IMG_DIR', __DIR__ . '/img/recipes/');
+define('RECIPE_IMG_WEB', 'img/recipes/');
 define('JOURNAL_FILE',   __DIR__ . '/data/journal.json');
 define('SHAME_FILE',    __DIR__ . '/data/shame.json');
 define('FORCES_FILE',    __DIR__ . '/data/forces.json');
 define('WISHLIST_FILE',  __DIR__ . '/data/wishlist.json');
+define('GOALS_FILE',     __DIR__ . '/data/goals.json');
 
 // ── Helpers ───────────────────────────────────────────
 function e(string $s): string
@@ -29,14 +31,8 @@ function loadPaintsFromCsvs(): array
 {
   $paints = [];
   $seen   = [];
-  $paths  = [
-    __DIR__ . '/inventory/citadel.csv',
-    __DIR__ . '/inventory/proacryl.csv',
-    __DIR__ . '/inventory/vallejo.csv',
-    __DIR__ . '/inventory/armypainter.csv',
-    __DIR__ . '/inventory/oils.csv',
-  ];
-  foreach ($paths as $path) {
+  foreach (glob(__DIR__ . '/inventory/*.csv') ?: [] as $path) {
+    if (basename($path) === 'conversions.csv') continue;
     $fh = fopen($path, 'r');
     if (!$fh) continue;
     while (($line = fgets($fh)) !== false) {
@@ -169,7 +165,7 @@ function writeConversionsCsv(array $rows): void
 }
 
 // Ensure writable directories exist
-foreach ([__DIR__ . '/data', __DIR__ . '/img/models', __DIR__ . '/img/bench'] as $dir) {
+foreach ([__DIR__ . '/data', __DIR__ . '/img/models', __DIR__ . '/img/bench', __DIR__ . '/img/recipes'] as $dir) {
   if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
     die('Cannot create directory: ' . htmlspecialchars($dir));
   }
@@ -202,18 +198,16 @@ if (file_exists(PAINTS_FILE)) {
 }
 
 $planned = file_exists(PLANNED_FILE) ? (json_decode(file_get_contents(PLANNED_FILE), true) ?? []) : [];
-$hasWD    = file_exists(WD_FILE);
-$wdData   = $hasWD ? (json_decode(file_get_contents(WD_FILE), true) ?? []) : [];
 $hasBooks    = file_exists(BOOKS_FILE);
 $booksData   = $hasBooks ? (json_decode(file_get_contents(BOOKS_FILE), true) ?? []) : [];
 $codexOptions = [];
 foreach ($booksData as $b) {
-    $t = $b['type'] ?? 'novel';
-    if ($t === 'codex' || $t === 'supplement') {
-        $label = $b['title'];
-        if (!empty($b['series'])) $label .= ' (' . $b['series'] . ')';
-        $codexOptions[] = ['value' => $b['title'], 'label' => $label];
-    }
+  $t = $b['type'] ?? 'novel';
+  if ($t === 'codex' || $t === 'supplement') {
+    $label = $b['title'];
+    if (!empty($b['series'])) $label .= ' (' . $b['series'] . ')';
+    $codexOptions[] = ['value' => $b['title'], 'label' => $label];
+  }
 }
 usort($codexOptions, fn($a, $b) => strcmp($a['label'], $b['label']));
 $hasJournal  = file_exists(JOURNAL_FILE);
@@ -224,6 +218,7 @@ $hasBrushes  = file_exists(BRUSHES_FILE);
 $brushesData = $hasBrushes ? (json_decode(file_get_contents(BRUSHES_FILE), true) ?? []) : [];
 $hasBench    = file_exists(BENCH_FILE);
 $benchData   = $hasBench ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+$goalsData   = file_exists(GOALS_FILE) ? (json_decode(file_get_contents(GOALS_FILE), true) ?? []) : [];
 $hasRecipes  = file_exists(RECIPES_FILE);
 $recipesData = $hasRecipes ? (json_decode(file_get_contents(RECIPES_FILE), true) ?? []) : [];
 $hasForces    = file_exists(FORCES_FILE);
@@ -416,7 +411,6 @@ if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
   $faction      = trim($_POST['pl_faction']      ?? '');
   $system       = trim($_POST['pl_system']       ?? '');
   $description  = trim($_POST['pl_description']  ?? '');
-  $wd_source    = trim($_POST['pl_wd_source']    ?? '');
   $codex_source = trim($_POST['pl_codex_source'] ?? '');
   $colors       = array_values(array_filter($_POST['planned_colors'] ?? []));
   $recipes      = array_values(array_filter($_POST['planned_recipes'] ?? []));
@@ -427,7 +421,6 @@ if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
     if ($faction)      $entry['faction']      = $faction;
     if ($system)       $entry['system']       = $system;
     if ($description)  $entry['description']  = $description;
-    if ($wd_source)    $entry['wd_source']    = $wd_source;
     if ($codex_source) $entry['codex_source'] = $codex_source;
     if ($colors)       $entry['colors']       = $colors;
     if ($recipes)      $entry['recipes']      = $recipes;
@@ -447,7 +440,6 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_planned') {
   $faction      = trim($_POST['pl_faction']      ?? '');
   $system       = trim($_POST['pl_system']       ?? '');
   $description  = trim($_POST['pl_description']  ?? '');
-  $wd_source    = trim($_POST['pl_wd_source']    ?? '');
   $codex_source = trim($_POST['pl_codex_source'] ?? '');
   $colors       = array_values(array_filter($_POST['planned_colors'] ?? []));
   $recipes      = array_values(array_filter($_POST['planned_recipes'] ?? []));
@@ -460,7 +452,6 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_planned') {
         if ($faction)      $p['faction']      = $faction;
         if ($system)       $p['system']       = $system;
         if ($description)  $p['description']  = $description;
-        if ($wd_source)    $p['wd_source']    = $wd_source;
         if ($codex_source) $p['codex_source'] = $codex_source;
         if ($colors)       $p['colors']       = $colors;
         if ($recipes)      $p['recipes']      = $recipes;
@@ -488,67 +479,40 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_planned') {
   exit;
 }
 
-// ── White Dwarf handlers ──────────────────────────────
-if ($authed && ($_POST['action'] ?? '') === 'create_wd_file') {
-  file_put_contents(WD_FILE, '[]', LOCK_EX);
-  $_SESSION['flash'] = 'White Dwarf log started.';
-  header('Location: admin.php#section-wd');
-  exit;
-}
-
-if ($authed && ($_POST['action'] ?? '') === 'add_wd') {
-  $issue  = trim($_POST['wd_issue']  ?? '');
-  $format = trim($_POST['wd_format'] ?? 'physical');
-  $month  = trim($_POST['wd_month']  ?? '');
-  $notes  = trim($_POST['wd_notes']  ?? '');
-  if ($issue !== '') {
-    $all   = file_exists(WD_FILE) ? (json_decode(file_get_contents(WD_FILE), true) ?? []) : [];
-    $entry = ['id' => (string)time(), 'issue' => $issue, 'format' => $format];
-    if ($month !== '') $entry['month'] = $month;
-    if ($notes !== '') $entry['notes'] = $notes;
-    $all[] = $entry;
-    usort($all, fn($a, $b) => intval($b['issue']) - intval($a['issue']));
-    file_put_contents(WD_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-    $_SESSION['flash'] = 'Issue #' . htmlspecialchars($issue) . ' added.';
-  }
-  header('Location: admin.php#section-wd');
-  exit;
-}
-
-if ($authed && ($_POST['action'] ?? '') === 'edit_wd') {
-  $wid    = trim($_POST['wd_id']     ?? '');
-  $issue  = trim($_POST['wd_issue']  ?? '');
-  $format = trim($_POST['wd_format'] ?? 'physical');
-  $month  = trim($_POST['wd_month']  ?? '');
-  $notes  = trim($_POST['wd_notes']  ?? '');
-  if ($wid !== '' && $issue !== '') {
-    $all = file_exists(WD_FILE) ? (json_decode(file_get_contents(WD_FILE), true) ?? []) : [];
-    foreach ($all as &$e) {
-      if ($e['id'] === $wid) {
-        $e = ['id' => $wid, 'issue' => $issue, 'format' => $format];
-        if ($month !== '') $e['month'] = $month;
-        if ($notes !== '') $e['notes'] = $notes;
-        break;
-      }
+if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
+  header('Content-Type: application/json');
+  $pid = trim($_POST['planned_id'] ?? '');
+  if (!$pid) { echo json_encode(['ok' => false]); exit; }
+  $all = file_exists(PLANNED_FILE) ? (json_decode(file_get_contents(PLANNED_FILE), true) ?? []) : [];
+  $found = false;
+  $eName = $eFaction = $eSystem = '';
+  $eColors = $eRecipes = [];
+  foreach ($all as &$p) {
+    if ($p['id'] === $pid && empty($p['promoted_to'])) {
+      $p['promoted_to'] = 'bench';
+      $eName    = $p['name']    ?? '';
+      $eFaction = $p['faction'] ?? '';
+      $eSystem  = $p['system']  ?? '';
+      $eColors  = $p['colors']  ?? [];
+      $eRecipes = $p['recipes'] ?? [];
+      $found = true;
+      break;
     }
-    unset($e);
-    usort($all, fn($a, $b) => intval($b['issue']) - intval($a['issue']));
-    file_put_contents(WD_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-    $_SESSION['flash'] = 'Issue #' . htmlspecialchars($issue) . ' updated.';
   }
-  header('Location: admin.php#section-wd');
-  exit;
-}
-
-if ($authed && ($_POST['action'] ?? '') === 'delete_wd') {
-  $wid = trim($_POST['wd_id'] ?? '');
-  if ($wid !== '') {
-    $all = file_exists(WD_FILE) ? (json_decode(file_get_contents(WD_FILE), true) ?? []) : [];
-    $all = array_values(array_filter($all, fn($e) => $e['id'] !== $wid));
-    file_put_contents(WD_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-    $_SESSION['flash'] = 'Issue deleted.';
-  }
-  header('Location: admin.php#section-wd');
+  unset($p);
+  if (!$found) { echo json_encode(['ok' => false]); exit; }
+  file_put_contents(PLANNED_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  $newId = (string)(time() + rand(0, 9));
+  $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+  $entry = ['id' => $newId, 'name' => $eName, 'stage' => 'built', 'last_touched' => date('Y-m-d'), 'date_start' => date('Y-m-d')];
+  if ($eFaction) $entry['faction'] = $eFaction;
+  if ($eSystem)  $entry['system']  = $eSystem;
+  if ($eColors)  $entry['colors']  = $eColors;
+  if ($eRecipes) $entry['recipes'] = $eRecipes;
+  $bench[] = $entry;
+  benchSort($bench);
+  file_put_contents(BENCH_FILE, json_encode(array_values($bench), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  echo json_encode(['ok' => true]);
   exit;
 }
 
@@ -638,8 +602,9 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_book') {
   exit;
 }
 
-function journalSort(array &$entries): void {
-  usort($entries, function($a, $b) {
+function journalSort(array &$entries): void
+{
+  usort($entries, function ($a, $b) {
     $cmp = strcmp($b['date'] ?? '', $a['date'] ?? '');
     return $cmp !== 0 ? $cmp : strcmp($b['id'] ?? '', $a['id'] ?? '');
   });
@@ -693,8 +658,9 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_journal') {
 }
 
 // ── Pile of Shame handlers ────────────────────────────
-function shameSort(array &$arr): void {
-  usort($arr, function($a, $b) {
+function shameSort(array &$arr): void
+{
+  usort($arr, function ($a, $b) {
     $aq = $a['acquired'] ?? '';
     $bq = $b['acquired'] ?? '';
     if ($aq === '' && $bq !== '') return 1;
@@ -719,19 +685,28 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_shame', 'edit_shame'], tru
   $status  = trim($_POST['sh_status']   ?? 'sealed');
   $acq     = trim($_POST['sh_acquired'] ?? '');
   $notes   = trim($_POST['sh_notes']    ?? '');
-  if (!$name) { header('Location: admin.php#section-shame'); exit; }
-  if (!in_array($system, ['40k','30k / HH','AoS','Epic','Blood Bowl','Necromunda','Kill Team','OPR','Other'], true)) $system = 'Other';
-  if (!in_array($status, ['sealed','opened','partial'], true)) $status = 'sealed';
+  if (!$name) {
+    header('Location: admin.php#section-shame');
+    exit;
+  }
+  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = 'Other';
+  if (!in_array($status, ['sealed', 'opened', 'partial'], true)) $status = 'sealed';
   if ($acq && !preg_match('/^\d{4}-\d{2}$/', $acq)) $acq = '';
   $all = file_exists(SHAME_FILE) ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
   if ($sid !== '') {
     foreach ($all as &$e) {
       if ($e['id'] === $sid) {
-        $e['name'] = $name; $e['system'] = $system; $e['status'] = $status;
-        if ($faction) $e['faction'] = $faction; else unset($e['faction']);
-        if ($count > 0) $e['count'] = $count; else unset($e['count']);
-        if ($acq) $e['acquired'] = $acq; else unset($e['acquired']);
-        if ($notes) $e['notes'] = $notes; else unset($e['notes']);
+        $e['name'] = $name;
+        $e['system'] = $system;
+        $e['status'] = $status;
+        if ($faction) $e['faction'] = $faction;
+        else unset($e['faction']);
+        if ($count > 0) $e['count'] = $count;
+        else unset($e['count']);
+        if ($acq) $e['acquired'] = $acq;
+        else unset($e['acquired']);
+        if ($notes) $e['notes'] = $notes;
+        else unset($e['notes']);
         break;
       }
     }
@@ -765,7 +740,10 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_shame') {
   header('Content-Type: application/json');
   $sid  = trim($_POST['sh_id']      ?? '');
   $dest = trim($_POST['promote_to'] ?? '');
-  if (!$sid || !in_array($dest, ['planned', 'bench'], true)) { echo json_encode(['ok' => false]); exit; }
+  if (!$sid || !in_array($dest, ['planned', 'bench'], true)) {
+    echo json_encode(['ok' => false]);
+    exit;
+  }
   $all = file_exists(SHAME_FILE) ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
   $found = false;
   foreach ($all as &$e) {
@@ -778,7 +756,10 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_shame') {
     }
   }
   unset($e);
-  if (!$found) { echo json_encode(['ok' => false]); exit; }
+  if (!$found) {
+    echo json_encode(['ok' => false]);
+    exit;
+  }
   shameSort($all);
   file_put_contents(SHAME_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
   $newId = (string)(time() + rand(0, 9));
@@ -810,6 +791,38 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_shame') {
     }
   }
   echo json_encode(['ok' => true, 'promoted_to' => $dest]);
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'promote_wishlist') {
+  header('Content-Type: application/json');
+  $wid = trim($_POST['wl_id'] ?? '');
+  if (!$wid) { echo json_encode(['ok' => false]); exit; }
+  $all = file_exists(WISHLIST_FILE) ? (json_decode(file_get_contents(WISHLIST_FILE), true) ?? []) : [];
+  $found = false;
+  $eName = $eFaction = $eSystem = '';
+  foreach ($all as &$w) {
+    if ($w['id'] === $wid && ($w['type'] ?? '') === 'model' && empty($w['promoted_to'])) {
+      $w['promoted_to'] = 'shame';
+      $eName    = $w['name']    ?? '';
+      $eFaction = $w['faction'] ?? '';
+      $eSystem  = $w['system']  ?? '';
+      $found = true;
+      break;
+    }
+  }
+  unset($w);
+  if (!$found) { echo json_encode(['ok' => false]); exit; }
+  file_put_contents(WISHLIST_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  $newId = (string)(time() + rand(0, 9));
+  $shame = file_exists(SHAME_FILE) ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
+  $entry = ['id' => $newId, 'name' => $eName, 'status' => 'sealed', 'acquired' => date('Y-m')];
+  if ($eFaction) $entry['faction'] = $eFaction;
+  if ($eSystem)  $entry['system']  = $eSystem;
+  $shame[] = $entry;
+  shameSort($shame);
+  file_put_contents(SHAME_FILE, json_encode(array_values($shame), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  echo json_encode(['ok' => true]);
   exit;
 }
 
@@ -1099,6 +1112,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
     if ($brushes)    $entry['brushes']    = $brushes;
     if ($recipes)    $entry['recipes']    = $recipes;
     if ($images)     $entry['wip_images'] = $images;
+    if (!empty($existing['sessions'])) $entry['sessions'] = $existing['sessions'];
 
     if ($isEdit) {
       foreach ($all as &$b) if ($b['id'] === $bid) {
@@ -1138,6 +1152,50 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_bench') {
   exit;
 }
 
+if ($authed && ($_POST['action'] ?? '') === 'promote_bench') {
+  $bid = trim($_POST['bench_id'] ?? '');
+  if ($bid !== '') {
+    $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+    $found = false;
+    $newId = (string)time();
+    $eName = $eFaction = $eSystem = '';
+    $eColors = $eRecipes = [];
+    foreach ($bench as &$b) {
+      if ($b['id'] === $bid && empty($b['promoted_to'])) {
+        $b['promoted_to'] = 'gallery';
+        $b['promoted_id'] = $newId;
+        $eName    = $b['name']    ?? '';
+        $eFaction = $b['faction'] ?? '';
+        $eSystem  = $b['system']  ?? '';
+        $eColors  = $b['colors']  ?? [];
+        $eRecipes = $b['recipes'] ?? [];
+        $found = true;
+        break;
+      }
+    }
+    unset($b);
+    if ($found) {
+      file_put_contents(BENCH_FILE, json_encode(array_values($bench), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+      $models = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
+      $entry = array_filter([
+        'id'      => $newId,
+        'name'    => $eName,
+        'faction' => $eFaction,
+        'system'  => $eSystem,
+        'date'    => date('Y-m-d'),
+        'colors'  => $eColors,
+        'recipes' => $eRecipes,
+      ], fn($v) => $v !== '' && $v !== []);
+      $models[] = $entry;
+      file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+      header('Location: admin.php?edit=' . $newId . '#section-gallery');
+      exit;
+    }
+  }
+  header('Location: admin.php#section-bench');
+  exit;
+}
+
 if ($authed && ($_POST['action'] ?? '') === 'set_bench_stage') {
   header('Content-Type: application/json');
   $bid   = trim($_POST['bench_id'] ?? '');
@@ -1163,6 +1221,82 @@ if ($authed && ($_POST['action'] ?? '') === 'set_bench_stage') {
   exit;
 }
 
+if ($authed && ($_POST['action'] ?? '') === 'log_bench_session') {
+  header('Content-Type: application/json');
+  $bid      = trim($_POST['bench_id']       ?? '');
+  $sessDate = trim($_POST['sess_date']      ?? '');
+  $sessDur  = (int)($_POST['sess_duration'] ?? 0);
+  $sessNote = trim($_POST['sess_note']      ?? '');
+  if ($bid !== '' && $sessDate !== '') {
+    $all = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+    foreach ($all as &$b) {
+      if ($b['id'] === $bid) {
+        $sess = ['date' => $sessDate];
+        if ($sessDur > 0)    $sess['duration'] = $sessDur;
+        if ($sessNote !== '') $sess['note']    = $sessNote;
+        $b['sessions'][] = $sess;
+        $b['last_touched'] = date('Y-m-d');
+        break;
+      }
+    }
+    unset($b);
+    file_put_contents(BENCH_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'set_goal') {
+  header('Content-Type: application/json');
+  $year   = trim($_POST['goal_year']   ?? '');
+  $target = (int)($_POST['goal_target'] ?? 0);
+  $seed   = (int)($_POST['goal_seed']   ?? 0);
+  if (preg_match('/^\d{4}$/', $year)) {
+    $goals = file_exists(GOALS_FILE) ? (json_decode(file_get_contents(GOALS_FILE), true) ?? []) : [];
+    if ($target > 0) {
+      $goals[$year] = ['target' => $target, 'seed' => max(0, $seed)];
+    } else {
+      unset($goals[$year]);
+    }
+    file_put_contents(GOALS_FILE, json_encode($goals, JSON_PRETTY_PRINT), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'log_gallery_session') {
+  header('Content-Type: application/json');
+  $mid      = trim($_POST['model_id']       ?? '');
+  $sessDate = trim($_POST['sess_date']      ?? '');
+  $sessCount = (int)($_POST['sess_count']   ?? 0);
+  $sessNote = trim($_POST['sess_note']      ?? '');
+  if ($mid !== '' && $sessDate !== '' && $sessCount > 0) {
+    $all = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
+    foreach ($all as &$m) {
+      if (($m['id'] ?? '') === $mid) {
+        $sess = ['date' => $sessDate, 'count' => $sessCount];
+        if ($sessNote !== '') $sess['note'] = $sessNote;
+        $m['sessions'][] = $sess;
+        $existing = isset($m['count']) ? (int)$m['count'] : 0;
+        $newCount = $existing + $sessCount;
+        if ($newCount > 1) { $m['count'] = $newCount; }
+        elseif (isset($m['count'])) { unset($m['count']); }
+        break;
+      }
+    }
+    unset($m);
+    file_put_contents(MODELS_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
 // ── Recipe library handlers ──────────────────────────
 const RECIPE_TECHNIQUES = ['basecoat', 'wash', 'shade', 'layer', 'edge', 'highlight', 'glaze', 'drybrush', 'stipple', 'blend', 'special'];
 
@@ -1173,11 +1307,12 @@ function recipeSort(array &$arr): void
 
 function buildRecipeSteps(array $post): array
 {
-  $paints     = $post['step_paint']     ?? [];
-  $techniques = $post['step_technique'] ?? [];
-  $ratios     = $post['step_ratio']     ?? [];
-  $notes      = $post['step_note']      ?? [];
-  $brushes    = $post['step_brush']     ?? [];
+  $paints      = $post['step_paint']      ?? [];
+  $mixPaints   = $post['step_mix_paint']  ?? [];
+  $techniques  = $post['step_technique']  ?? [];
+  $ratios      = $post['step_ratio']      ?? [];
+  $notes       = $post['step_note']       ?? [];
+  $brushes     = $post['step_brush']      ?? [];
   $steps = [];
   $n = count($paints);
   for ($i = 0; $i < $n; $i++) {
@@ -1186,6 +1321,8 @@ function buildRecipeSteps(array $post): array
     if ($paint === '') continue;
     if (!in_array($tech, RECIPE_TECHNIQUES, true)) $tech = 'special';
     $s = ['paint' => $paint, 'technique' => $tech];
+    $mp = trim($mixPaints[$i] ?? '');
+    if ($mp !== '') $s['mix_paint'] = $mp;
     $r = trim($ratios[$i] ?? '');
     if ($r !== '') $s['ratio'] = $r;
     $nt = trim($notes[$i] ?? '');
@@ -1227,12 +1364,38 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_recipe', 'edit_recipe'], t
         $id = $ts . $n++;
       }
     }
+    // Preserve existing image on edit unless replaced or deleted
+    $existingImage = '';
+    if ($isEdit) {
+      foreach ($all as $r) if ($r['id'] === $rid) { $existingImage = $r['image'] ?? ''; break; }
+    }
+    $image = $existingImage;
+    if (($_POST['delete_rc_image'] ?? '0') === '1' && $existingImage !== '') {
+      $fp = __DIR__ . '/' . $existingImage;
+      if (file_exists($fp)) @unlink($fp);
+      $image = '';
+    } elseif (!empty($_FILES['rc_image']['name']) && $_FILES['rc_image']['error'] === UPLOAD_ERR_OK) {
+      $file = $_FILES['rc_image'];
+      $mime = mime_content_type($file['tmp_name']);
+      if (in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif']) && $file['size'] <= MAX_FILE_BYTES) {
+        $filename = $id . '_1.' . imageExt($mime);
+        if (saveModelImage($file['tmp_name'], RECIPE_IMG_DIR . $filename, $mime)) {
+          if ($existingImage !== '' && $existingImage !== RECIPE_IMG_WEB . $filename) {
+            $fp = __DIR__ . '/' . $existingImage;
+            if (file_exists($fp)) @unlink($fp);
+          }
+          $image = RECIPE_IMG_WEB . $filename;
+        }
+      }
+    }
+
     $entry = ['id' => $id, 'name' => $name];
     if ($category)    $entry['category']    = $category;
     if ($faction)     $entry['faction']     = $faction;
     if ($description) $entry['description'] = $description;
     $entry['steps'] = $steps;
     if ($notes)       $entry['notes']       = $notes;
+    if ($image !== '') $entry['image']      = $image;
 
     if ($isEdit) {
       foreach ($all as &$r) if ($r['id'] === $rid) {
@@ -1255,6 +1418,12 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_recipe') {
   $rid = trim($_POST['recipe_id'] ?? '');
   if ($rid !== '') {
     $all = file_exists(RECIPES_FILE) ? (json_decode(file_get_contents(RECIPES_FILE), true) ?? []) : [];
+    foreach ($all as $r) {
+      if ($r['id'] === $rid && !empty($r['image'])) {
+        $fp = __DIR__ . '/' . $r['image'];
+        if (file_exists($fp)) @unlink($fp);
+      }
+    }
     $all = array_values(array_filter($all, fn($r) => $r['id'] !== $rid));
     file_put_contents(RECIPES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Recipe deleted.';
@@ -1289,7 +1458,6 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'export_backup') 
     'brushes'    => __DIR__ . '/data/brushes.json',
     'bench'      => __DIR__ . '/data/bench.json',
     'recipes'    => __DIR__ . '/data/recipes.json',
-    'whitedwarf' => __DIR__ . '/data/whitedwarf.json',
     'books'      => __DIR__ . '/data/books.json',
     'journal'    => __DIR__ . '/data/journal.json',
     'tab_stats'  => __DIR__ . '/data/tab_stats.json',
@@ -1498,6 +1666,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
         if ($theme_hex !== '')   $entry['theme_hex']   = $theme_hex;
         if ($system !== '')      $entry['system']      = $system;
         if ($count > 1)          $entry['count']       = $count;
+        if (!empty($models[$idx]['sessions'])) $entry['sessions'] = $models[$idx]['sessions'];
         $models[$idx] = $entry;
         file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         $_SESSION['flash'] = 'Model "' . htmlspecialchars($name) . '" updated successfully.';
@@ -1543,7 +1712,11 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_force', 'edit_force'], tru
     if ($roster_url)     $entry['roster_url']    = $roster_url;
     if ($fmodels)        $entry['models']        = $fmodels;
     if ($isEdit) {
-      foreach ($all as &$f) if ($f['id'] === $fid) { if (!empty($f['pinned'])) $entry['pinned'] = true; $f = $entry; break; }
+      foreach ($all as &$f) if ($f['id'] === $fid) {
+        if (!empty($f['pinned'])) $entry['pinned'] = true;
+        $f = $entry;
+        break;
+      }
       unset($f);
     } else {
       $all[] = $entry;
@@ -1561,22 +1734,39 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_force', 'edit_force'], tru
 if ($authed && ($_POST['action'] ?? '') === 'toggle_force_pin') {
   header('Content-Type: application/json');
   $fid = trim($_POST['force_id'] ?? '');
-  if (!$fid || !file_exists(FORCES_FILE)) { echo json_encode(['ok' => false]); exit; }
+  if (!$fid || !file_exists(FORCES_FILE)) {
+    echo json_encode(['ok' => false]);
+    exit;
+  }
   $all = json_decode(file_get_contents(FORCES_FILE), true) ?? [];
   $targetIdx = -1;
-  foreach ($all as $i => $f) { if ($f['id'] === $fid) { $targetIdx = $i; break; } }
-  if ($targetIdx === -1) { echo json_encode(['ok' => false]); exit; }
+  foreach ($all as $i => $f) {
+    if ($f['id'] === $fid) {
+      $targetIdx = $i;
+      break;
+    }
+  }
+  if ($targetIdx === -1) {
+    echo json_encode(['ok' => false]);
+    exit;
+  }
   $nowPinned = empty($all[$targetIdx]['pinned']);
   $unpinnedId = null;
   if ($nowPinned) {
     $pinned = array_values(array_filter($all, fn($x) => !empty($x['pinned']) && $x['id'] !== $fid));
     if (count($pinned) >= 2) {
       $unpinnedId = $pinned[0]['id'];
-      foreach ($all as &$f2) { if ($f2['id'] === $unpinnedId) { unset($f2['pinned']); break; } }
+      foreach ($all as &$f2) {
+        if ($f2['id'] === $unpinnedId) {
+          unset($f2['pinned']);
+          break;
+        }
+      }
       unset($f2);
     }
   }
-  if ($nowPinned) $all[$targetIdx]['pinned'] = true; else unset($all[$targetIdx]['pinned']);
+  if ($nowPinned) $all[$targetIdx]['pinned'] = true;
+  else unset($all[$targetIdx]['pinned']);
   file_put_contents(FORCES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
   echo json_encode(['ok' => true, 'pinned' => $nowPinned, 'unpinned_id' => $unpinnedId]);
   exit;
@@ -1594,12 +1784,14 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_force') {
   exit;
 }
 
-function wishlistSort(array &$arr): void {
+function wishlistSort(array &$arr): void
+{
   $rank = ['high' => 0, 'medium' => 1, 'low' => 2];
-  usort($arr, fn($a, $b) =>
-    ($rank[$a['priority'] ?? 'medium'] <=> $rank[$b['priority'] ?? 'medium']) ?:
-    strcmp($a['type'] ?? '', $b['type'] ?? '') ?:
-    strcmp($a['name'] ?? '', $b['name'] ?? '')
+  usort(
+    $arr,
+    fn($a, $b) => ($rank[$a['priority'] ?? 'medium'] <=> $rank[$b['priority'] ?? 'medium']) ?:
+      strcmp($a['type'] ?? '', $b['type'] ?? '') ?:
+      strcmp($a['name'] ?? '', $b['name'] ?? '')
   );
 }
 
@@ -1612,18 +1804,25 @@ if ($authed && ($_POST['action'] ?? '') === 'create_wishlist_file') {
 }
 
 if ($authed && ($_POST['action'] ?? '') === 'add_wishlist_item') {
-  $wtype = in_array($_POST['wl_type'] ?? '', ['paint','model','brush','codex','wd']) ? $_POST['wl_type'] : 'paint';
+  $wtype = in_array($_POST['wl_type'] ?? '', ['paint', 'model', 'brush', 'codex', 'wd']) ? $_POST['wl_type'] : 'paint';
   $wname = trim($_POST['wl_name'] ?? '');
   if ($wname !== '') {
     $all = file_exists(WISHLIST_FILE) ? (json_decode(file_get_contents(WISHLIST_FILE), true) ?? []) : [];
     $entry = ['id' => (string)time(), 'type' => $wtype, 'name' => $wname];
-    $wbrand   = trim($_POST['wl_brand']   ?? ''); if ($wbrand   !== '') $entry['brand']    = $wbrand;
-    $wfaction = trim($_POST['wl_faction'] ?? ''); if ($wfaction !== '') $entry['faction']  = $wfaction;
-    $wsystem  = trim($_POST['wl_system']  ?? ''); if ($wsystem  !== '') $entry['system']   = $wsystem;
-    $wpri = in_array($_POST['wl_priority'] ?? '', ['high','medium','low']) ? $_POST['wl_priority'] : 'medium';
+    $wbrand   = trim($_POST['wl_brand']   ?? '');
+    if ($wbrand   !== '') $entry['brand']    = $wbrand;
+    $wfaction = trim($_POST['wl_faction'] ?? '');
+    if ($wfaction !== '') $entry['faction']  = $wfaction;
+    $wsystem  = trim($_POST['wl_system']  ?? '');
+    if ($wsystem  !== '') $entry['system']   = $wsystem;
+    $wpri = in_array($_POST['wl_priority'] ?? '', ['high', 'medium', 'low']) ? $_POST['wl_priority'] : 'medium';
     if ($wpri !== 'medium') $entry['priority'] = $wpri;
-    $wnotes = trim($_POST['wl_notes'] ?? ''); if ($wnotes !== '') $entry['notes'] = $wnotes;
-    $wurl   = trim($_POST['wl_url']   ?? ''); if ($wurl   !== '') $entry['url']   = $wurl;
+    $wnotes = trim($_POST['wl_notes'] ?? '');
+    if ($wnotes !== '') $entry['notes'] = $wnotes;
+    $wurl   = trim($_POST['wl_url']   ?? '');
+    if ($wurl   !== '') $entry['url']   = $wurl;
+    $wordered = trim($_POST['wl_ordered_date'] ?? '');
+    if ($wordered !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $wordered)) $entry['ordered_date'] = $wordered;
     $entry['added'] = date('Y-m-d');
     $all[] = $entry;
     wishlistSort($all);
@@ -1637,20 +1836,34 @@ if ($authed && ($_POST['action'] ?? '') === 'add_wishlist_item') {
 if ($authed && ($_POST['action'] ?? '') === 'edit_wishlist_item') {
   $wid   = trim($_POST['wl_id']   ?? '');
   $wname = trim($_POST['wl_name'] ?? '');
-  $wtype = in_array($_POST['wl_type'] ?? '', ['paint','model','brush','codex','wd']) ? $_POST['wl_type'] : 'paint';
+  $wtype = in_array($_POST['wl_type'] ?? '', ['paint', 'model', 'brush', 'codex', 'wd']) ? $_POST['wl_type'] : 'paint';
   if ($wid !== '' && $wname !== '' && file_exists(WISHLIST_FILE)) {
     $all = json_decode(file_get_contents(WISHLIST_FILE), true) ?? [];
     foreach ($all as &$w) {
       if ($w['id'] === $wid) {
         $w['type'] = $wtype;
         $w['name'] = $wname;
-        $wbrand   = trim($_POST['wl_brand']   ?? ''); if ($wbrand   !== '') $w['brand']    = $wbrand;   else unset($w['brand']);
-        $wfaction = trim($_POST['wl_faction'] ?? ''); if ($wfaction !== '') $w['faction']  = $wfaction; else unset($w['faction']);
-        $wsystem  = trim($_POST['wl_system']  ?? ''); if ($wsystem  !== '') $w['system']   = $wsystem;  else unset($w['system']);
-        $wpri = in_array($_POST['wl_priority'] ?? '', ['high','medium','low']) ? $_POST['wl_priority'] : 'medium';
-        if ($wpri !== 'medium') $w['priority'] = $wpri; else unset($w['priority']);
-        $wnotes = trim($_POST['wl_notes'] ?? ''); if ($wnotes !== '') $w['notes'] = $wnotes; else unset($w['notes']);
-        $wurl   = trim($_POST['wl_url']   ?? ''); if ($wurl   !== '') $w['url']   = $wurl;   else unset($w['url']);
+        $wbrand   = trim($_POST['wl_brand']   ?? '');
+        if ($wbrand   !== '') $w['brand']    = $wbrand;
+        else unset($w['brand']);
+        $wfaction = trim($_POST['wl_faction'] ?? '');
+        if ($wfaction !== '') $w['faction']  = $wfaction;
+        else unset($w['faction']);
+        $wsystem  = trim($_POST['wl_system']  ?? '');
+        if ($wsystem  !== '') $w['system']   = $wsystem;
+        else unset($w['system']);
+        $wpri = in_array($_POST['wl_priority'] ?? '', ['high', 'medium', 'low']) ? $_POST['wl_priority'] : 'medium';
+        if ($wpri !== 'medium') $w['priority'] = $wpri;
+        else unset($w['priority']);
+        $wnotes = trim($_POST['wl_notes'] ?? '');
+        if ($wnotes !== '') $w['notes'] = $wnotes;
+        else unset($w['notes']);
+        $wurl   = trim($_POST['wl_url']   ?? '');
+        if ($wurl   !== '') $w['url']   = $wurl;
+        else unset($w['url']);
+        $wordered = trim($_POST['wl_ordered_date'] ?? '');
+        if ($wordered !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $wordered)) $w['ordered_date'] = $wordered;
+        else unset($w['ordered_date']);
         break;
       }
     }
@@ -1672,6 +1885,32 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_wishlist_item') {
     $_SESSION['flash'] = 'Removed from wishlist.';
   }
   header('Location: admin.php#section-wishlist');
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'set_wishlist_ordered') {
+  $wid      = trim($_POST['wl_id']           ?? '');
+  $wordered = trim($_POST['wl_ordered_date'] ?? '');
+  if ($wid !== '' && file_exists(WISHLIST_FILE)) {
+    $all = json_decode(file_get_contents(WISHLIST_FILE), true) ?? [];
+    foreach ($all as &$w) {
+      if ($w['id'] === $wid) {
+        if ($wordered !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $wordered)) {
+          $w['ordered_date'] = $wordered;
+        } else {
+          unset($w['ordered_date']);
+        }
+        break;
+      }
+    }
+    unset($w);
+    file_put_contents(WISHLIST_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+  } else {
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => false, 'error' => 'not found']);
+  }
   exit;
 }
 
@@ -1749,24 +1988,26 @@ if ($authed && isset($_GET['edit_force'])) {
 <html lang="en">
 
 <head>
+<?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J9PVQM31KG"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars(GA4_ID) ?>"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-J9PVQM31KG');
+    gtag('config', '<?= htmlspecialchars(GA4_ID) ?>');
   </script>
+<?php endif; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Waaagh! Paint</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css?v=2">
 </head>
 
-<body<?php if ($authed && $editModel): ?> data-open-section="section-gallery"<?php elseif ($authed && $editForce): ?> data-open-section="section-forces"<?php endif; ?>>
+<body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
 
   <header>
     <a href="index.php"><img src="img/logo_sm.png" alt="Waaagh! Paint" class="logo"></a>
@@ -1804,6 +2045,8 @@ if ($authed && isset($_GET['edit_force'])) {
 
       <!-- ── Quick navigation ── -->
       <nav class="admin-quicknav">
+        <a href="#section-bench">On the Bench</a>
+        <?php if ($hasJournal): ?><a href="#section-journal">Scrap Notes</a><?php endif; ?>
         <a href="#section-gallery">Gallery Form</a>
         <a href="#section-entries">Entries</a>
         <a href="#section-inventory">Inventory</a>
@@ -1812,13 +2055,10 @@ if ($authed && isset($_GET['edit_force'])) {
         <a href="#section-conversions">Conversions</a>
         <?php if ($hasShame): ?><a href="#section-shame">Pile of Shame</a><?php endif; ?>
         <a href="#section-planned">Planned Schemes</a>
-        <a href="#section-bench">On the Bench</a>
         <?php if ($hasForces): ?><a href="#section-forces">Forces</a><?php endif; ?>
         <a href="#section-recipes">Recipes</a>
         <?php if ($hasWishlist): ?><a href="#section-wishlist">Wishlist</a><?php endif; ?>
-        <?php if ($hasWD): ?><a href="#section-wd">White Dwarf</a><?php endif; ?>
         <?php if ($hasBooks): ?><a href="#section-books">Codices</a><?php endif; ?>
-        <?php if ($hasJournal): ?><a href="#section-journal">Scrap Notes</a><?php endif; ?>
         <a href="#section-stats">Stats</a>
         <a href="guide.php" target="_blank">User Guide ↗</a>
       </nav>
@@ -1874,6 +2114,22 @@ if ($authed && isset($_GET['edit_force'])) {
         $byYear[$yr] = ($byYear[$yr] ?? 0) + max(1, (int)($m['count'] ?? 1));
       }
       krsort($byYear);
+
+      $sessionsByYear = [];
+      foreach ($models as $m) {
+        foreach ($m['sessions'] ?? [] as $s) {
+          $yr = !empty($s['date']) ? substr($s['date'], 0, 4) : null;
+          if ($yr) $sessionsByYear[$yr] = ($sessionsByYear[$yr] ?? 0) + max(1, (int)($s['count'] ?? 1));
+        }
+      }
+
+      $totalSessions = 0; $totalMinutes = 0;
+      foreach ($benchData as $b) {
+        foreach ($b['sessions'] ?? [] as $s) {
+          $totalSessions++;
+          $totalMinutes += (int)($s['duration'] ?? 0);
+        }
+      }
       ?>
 
       <div class="stats-grid">
@@ -1886,7 +2142,7 @@ if ($authed && isset($_GET['edit_force'])) {
           <div class="stat-label">Recorded Schemes</div>
         </div>
         <?php
-          $totalPainted = array_sum(array_map(fn($m) => max(1, (int)($m['count'] ?? 1)), $models));
+        $totalPainted = array_sum(array_map(fn($m) => max(1, (int)($m['count'] ?? 1)), $models));
         ?>
         <?php if ($totalPainted > count($models)): ?>
           <div class="stat-card">
@@ -1898,12 +2154,6 @@ if ($authed && isset($_GET['edit_force'])) {
           <div class="stat-num"><?= count($planned) ?></div>
           <div class="stat-label">Planned</div>
         </div>
-        <?php if ($hasWD): ?>
-          <div class="stat-card">
-            <div class="stat-num"><?= count($wdData) ?></div>
-            <div class="stat-label">WD Issues</div>
-          </div>
-        <?php endif; ?>
         <?php if ($hasBooks): ?>
           <div class="stat-card">
             <div class="stat-num"><?= count($booksData) ?></div>
@@ -1920,6 +2170,18 @@ if ($authed && isset($_GET['edit_force'])) {
           <div class="stat-card">
             <div class="stat-num"><?= count($recipesData) ?></div>
             <div class="stat-label">Recipes</div>
+          </div>
+        <?php endif; ?>
+        <?php if ($totalSessions > 0): ?>
+          <div class="stat-card">
+            <div class="stat-num"><?= $totalSessions ?></div>
+            <div class="stat-label">Sessions</div>
+          </div>
+        <?php endif; ?>
+        <?php if ($totalMinutes > 0): ?>
+          <div class="stat-card">
+            <div class="stat-num"><?= floor($totalMinutes / 60) ?>h <?= $totalMinutes % 60 ?>m</div>
+            <div class="stat-label">Hobby Hours</div>
           </div>
         <?php endif; ?>
         <?php if ($wantedCount > 0): ?>
@@ -1971,12 +2233,49 @@ if ($authed && isset($_GET['edit_force'])) {
                 <span class="stats-faction-count"><?= $noFaction ?></span>
               </div>
             <?php endif; ?>
-            <?php if (count($byYear) > 1 || (count($byYear) === 1 && !array_key_exists('Undated', $byYear))): ?>
+            <?php
+              $curYr = date('Y');
+              $displayYears = $byYear;
+              if (!array_key_exists($curYr, $displayYears)) $displayYears[$curYr] = 0;
+              krsort($displayYears);
+            ?>
+            <?php if (count($displayYears) > 1 || (count($displayYears) === 1 && !array_key_exists('Undated', $displayYears))): ?>
               <div class="stats-sub-heading" style="margin-top:18px">By Year</div>
-              <?php foreach ($byYear as $year => $cnt): ?>
-                <div class="stats-faction-row">
-                  <span class="stats-faction-name"><?= e($year) ?></span>
-                  <span class="stats-faction-count"><?= $cnt ?></span>
+              <?php foreach ($displayYears as $year => $cnt):
+                if ($year === 'Undated') {
+                  ?>
+                  <div class="stats-faction-row">
+                    <span class="stats-faction-name" style="color:#3a2a10;font-style:italic">Undated</span>
+                    <span class="stats-faction-count"><?= $cnt ?></span>
+                  </div>
+                  <?php continue;
+                }
+                $rawGoal = $goalsData[$year] ?? null;
+                $target  = is_array($rawGoal) ? (int)($rawGoal['target'] ?? 0) : (int)($rawGoal ?? 0);
+                $seed    = is_array($rawGoal) ? (int)($rawGoal['seed']   ?? 0) : 0;
+                $sessCount = $seed + ($sessionsByYear[$year] ?? 0);
+                $displayCount = $target > 0 ? $sessCount : $cnt;
+                $pct    = $target > 0 ? min(100, (int)round($sessCount / $target * 100)) : 0;
+              ?>
+                <div class="stats-year-row" id="year-row-<?= e($year) ?>">
+                  <div class="stats-year-main">
+                    <span class="stats-year-label"><?= e($year) ?></span>
+                    <span class="stats-year-count"><?= $displayCount ?><?= $target > 0 ? ' / ' . $target : '' ?></span>
+                    <button class="stats-goal-btn" onclick="toggleGoalForm('<?= e($year) ?>')"><?= $target > 0 ? '&#9998;' : '+ Goal' ?></button>
+                    <?php if ($target > 0): ?>
+                      <button class="stats-goal-del" onclick="deleteGoal('<?= e($year) ?>')" title="Remove goal">&times;</button>
+                    <?php endif; ?>
+                  </div>
+                  <?php if ($target > 0): ?>
+                    <div class="stats-goal-bar-wrap"><div class="stats-goal-bar-fill" style="width:<?= $pct ?>%"></div></div>
+                    <?php if ($pct >= 100): ?><div class="stats-goal-complete">Goal reached!</div><?php endif; ?>
+                  <?php endif; ?>
+                  <div class="stats-goal-form" id="goal-form-<?= e($year) ?>" style="display:none">
+                    <input type="number" class="stats-goal-input" id="goal-input-<?= e($year) ?>" min="1" placeholder="target" value="<?= $target ?: '' ?>">
+                    <input type="number" class="stats-goal-input" id="goal-seed-<?= e($year) ?>" min="0" placeholder="baseline (already painted)" value="<?= $seed ?: '' ?>" style="margin-left:6px">
+                    <button onclick="saveGoal('<?= e($year) ?>')" class="btn btn-sm">Save</button>
+                    <button onclick="toggleGoalForm('<?= e($year) ?>')" class="btn btn-sm" style="background:#1a1a1a">Cancel</button>
+                  </div>
                 </div>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -2011,7 +2310,6 @@ if ($authed && isset($_GET['edit_force'])) {
           'equiv'     => 'Equivalency',
           'planned'   => 'Planned',
           'brushes'   => 'Brushes',
-          'wd'        => 'White Dwarf',
           'books'     => 'Codices',
         ];
         arsort($tabStats);
@@ -2061,8 +2359,8 @@ if ($authed && isset($_GET['edit_force'])) {
             <label for="sys_game">Game System</label>
             <select id="sys_game" name="system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
               <option value="">- none -</option>
-              <?php foreach(['40k'=>'Warhammer 40,000','30k / HH'=>'Horus Heresy / 30k','AoS'=>'Age of Sigmar','Kill Team'=>'Kill Team','Blood Bowl'=>'Blood Bowl','Necromunda'=>'Necromunda','OPR'=>'One Page Rules','Other'=>'Other'] as $sv=>$sl): ?>
-              <option value="<?= e($sv) ?>"<?= ($editModel['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
+              <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
+                <option value="<?= e($sv) ?>" <?= ($editModel['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -2131,7 +2429,7 @@ if ($authed && isset($_GET['edit_force'])) {
             <select id="codex_source" name="codex_source">
               <option value="">- none -</option>
               <?php foreach ($codexOptions as $opt): $sel = ($editModel && ($editModel['codex_source'] ?? '') === $opt['value']) ? ' selected' : ''; ?>
-              <option value="<?= e($opt['value']) ?>"<?= $sel ?>><?= e($opt['label']) ?></option>
+                <option value="<?= e($opt['value']) ?>" <?= $sel ?>><?= e($opt['label']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -2219,7 +2517,8 @@ if ($authed && isset($_GET['edit_force'])) {
               <div class="model-row-info">
                 <div class="model-row-name">
                   <?= e($m['name']) ?>
-                  <?php $cnt = max(1, (int)($m['count'] ?? 1)); if ($cnt > 1): ?>
+                  <?php $cnt = max(1, (int)($m['count'] ?? 1));
+                  if ($cnt > 1): ?>
                     <span class="model-count-badge" title="<?= $cnt ?> miniatures painted under this scheme">&times;<?= $cnt ?></span>
                   <?php endif; ?>
                 </div>
@@ -2231,6 +2530,10 @@ if ($authed && isset($_GET['edit_force'])) {
                   &nbsp;&nbsp;<?= count($m['images'] ?? []) ?> image<?= count($m['images'] ?? []) !== 1 ? 's' : '' ?>
                 </div>
               </div>
+              <button type="button" class="btn btn-sm"
+                data-mid="<?= e($m['id'] ?? '') ?>"
+                data-mname="<?= e($m['name'] ?? '') ?>"
+                onclick="openGallerySessionModal(this)">+ Log</button>
               <a href="admin.php?edit=<?= e($m['id'] ?? '') ?>" class="btn btn-sm" style="text-decoration:none;<?= ($editModel && ($editModel['id'] ?? '') === ($m['id'] ?? '')) ? 'border-color:#c9a227;' : '' ?>">Edit</a>
               <form method="post" onsubmit="return confirm('Delete this entry?')">
                 <input type="hidden" name="action" value="delete_model">
@@ -2898,11 +3201,11 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php if ($shameData): ?>
           <div class="model-list">
             <?php
-            $shameSystems = ['40k'=>['#8a2020','#f08080'],'30k / HH'=>['#4a3a10','#d4a840'],'AoS'=>['#1a2a5a','#7090d8'],'Kill Team'=>['#0a3a3a','#70c8d8'],'Blood Bowl'=>['#2a1a4a','#9a70d8'],'Necromunda'=>['#1a3a3a','#70c8c8'],'Epic'=>['#1a3a1a','#70b870'],'OPR'=>['#1a2a3a','#708090'],'Other'=>['#2a2a2a','#909090']];
+            $shameSystems = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Other' => ['#2a2a2a', '#909090']];
             foreach ($shameData as $sh):
               $shAcq     = $sh['acquired'] ?? '';
               $shPromote = $sh['promoted_to'] ?? '';
-              $sysBg     = $shameSystems[$sh['system'] ?? ''] ?? ['#2a2a2a','#909090'];
+              $sysBg     = $shameSystems[$sh['system'] ?? ''] ?? ['#2a2a2a', '#909090'];
             ?>
               <div class="model-row" id="shame-row-<?= e($sh['id']) ?>">
                 <div class="model-row-info">
@@ -2915,13 +3218,13 @@ if ($authed && isset($_GET['edit_force'])) {
                   </div>
                   <div class="model-row-meta">
                     <?php if (!empty($sh['faction'])): ?><?= e($sh['faction']) ?> &middot; <?php endif; ?>
-                    <?php
-                    $statusLabel = ['sealed'=>'Sealed','opened'=>'Opened','partial'=>'Partial'][$sh['status'] ?? 'sealed'] ?? 'Sealed';
-                    $statusBg    = ['sealed'=>'#1a1a1a','opened'=>'#2a1808','partial'=>'#1e1808'][$sh['status'] ?? 'sealed'];
-                    $statusFg    = ['sealed'=>'#7a7a7a','opened'=>'#c87a30','partial'=>'#c9a227'][$sh['status'] ?? 'sealed'];
-                    ?>
-                    <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= $statusBg ?>;color:<?= $statusFg ?>"><?= $statusLabel ?></span>
-                    <?php if (!empty($sh['count'])): ?> &middot; <?= (int)$sh['count'] ?> models<?php endif; ?>
+                  <?php
+                  $statusLabel = ['sealed' => 'Sealed', 'opened' => 'Opened', 'partial' => 'Partial'][$sh['status'] ?? 'sealed'] ?? 'Sealed';
+                  $statusBg    = ['sealed' => '#1a1a1a', 'opened' => '#2a1808', 'partial' => '#1e1808'][$sh['status'] ?? 'sealed'];
+                  $statusFg    = ['sealed' => '#7a7a7a', 'opened' => '#c87a30', 'partial' => '#c9a227'][$sh['status'] ?? 'sealed'];
+                  ?>
+                  <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= $statusBg ?>;color:<?= $statusFg ?>"><?= $statusLabel ?></span>
+                  <?php if (!empty($sh['count'])): ?> &middot; <?= (int)$sh['count'] ?> models<?php endif; ?>
                     <?php if ($shAcq): ?> &middot; <span style="color:#c9a227;font-family:'Cinzel',serif;font-size:11px"><?= e($shAcq) ?></span><?php endif; ?>
                   </div>
                   <?php if (!empty($sh['notes'])): ?><div style="font-size:11px;color:#5a4a28;margin-top:3px"><?= e(mb_substr($sh['notes'], 0, 100)) ?><?= mb_strlen($sh['notes']) > 100 ? '…' : '' ?></div><?php endif; ?>
@@ -2994,15 +3297,11 @@ if ($authed && isset($_GET['edit_force'])) {
               </select>
             </div>
             <div>
-              <label for="pl_wd_source">WD Issue</label>
-              <input type="text" id="pl_wd_source" name="pl_wd_source" placeholder="e.g. 513" maxlength="20">
-            </div>
-            <div>
               <label for="pl_codex_source">Codex Reference</label>
               <select id="pl_codex_source" name="pl_codex_source">
                 <option value="">- none -</option>
                 <?php foreach ($codexOptions as $opt): ?>
-                <option value="<?= e($opt['value']) ?>"><?= e($opt['label']) ?></option>
+                  <option value="<?= e($opt['value']) ?>"><?= e($opt['label']) ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -3050,6 +3349,11 @@ if ($authed && isset($_GET['edit_force'])) {
                   &nbsp;&nbsp;<?= count($pl['colors'] ?? []) ?> colour<?= count($pl['colors'] ?? []) !== 1 ? 's' : '' ?>
                 </div>
               </div>
+              <?php if (empty($pl['promoted_to'])): ?>
+                <button type="button" class="btn btn-sm" onclick="promotePlanned('<?= e($pl['id']) ?>')" style="font-size:10px">&rarr; Bench</button>
+              <?php else: ?>
+                <span style="font-size:10px;color:#c9a227;font-family:'Cinzel',serif">Promoted &rarr; <?= ucfirst(e($pl['promoted_to'])) ?></span>
+              <?php endif; ?>
               <button class="btn btn-sm"
                 data-id="<?= e($pl['id']) ?>"
                 data-name="<?= e($pl['name']) ?>"
@@ -3059,7 +3363,6 @@ if ($authed && isset($_GET['edit_force'])) {
                 data-colors="<?= e(json_encode($pl['colors'] ?? [])) ?>"
                 data-recipes="<?= e(json_encode($pl['recipes'] ?? [])) ?>"
                 data-system="<?= e($pl['system'] ?? '') ?>"
-                data-wd_source="<?= e($pl['wd_source'] ?? '') ?>"
                 data-codex_source="<?= e($pl['codex_source'] ?? '') ?>"
                 onclick="openPlannedEdit(this)">Edit</button>
               <form method="post" onsubmit="return confirm('Delete this planned scheme?')" style="margin:0">
@@ -3151,7 +3454,7 @@ if ($authed && isset($_GET['edit_force'])) {
                 <select id="bn_codex_source" name="bn_codex_source">
                   <option value="">- none -</option>
                   <?php foreach ($codexOptions as $opt): ?>
-                  <option value="<?= e($opt['value']) ?>"><?= e($opt['label']) ?></option>
+                    <option value="<?= e($opt['value']) ?>"><?= e($opt['label']) ?></option>
                   <?php endforeach; ?>
                 </select>
               </div>
@@ -3232,17 +3535,17 @@ if ($authed && isset($_GET['edit_force'])) {
                     <?php if ($lt): ?>&nbsp;&middot;&nbsp;touched <?= e($lt) ?><?php endif; ?>
                   </div>
                   <?php if (!empty($bn['history'])): ?>
-                  <details class="bench-hist-details">
-                    <summary><?= count($bn['history']) ?> stage transition<?= count($bn['history']) !== 1 ? 's' : '' ?></summary>
-                    <?php foreach (array_reverse($bn['history']) as $h): ?>
-                      <div class="bench-hist-adm-row">
-                        <span><?= e($stageLabel[$h['from']] ?? $h['from']) ?></span>
-                        <span class="bench-hist-arrow">→</span>
-                        <span><?= e($stageLabel[$h['to']] ?? $h['to']) ?></span>
-                        <span class="bench-hist-adm-date"><?= !empty($h['date']) ? e(date('M j, Y', strtotime($h['date']))) : '' ?></span>
-                      </div>
-                    <?php endforeach; ?>
-                  </details>
+                    <details class="bench-hist-details">
+                      <summary><?= count($bn['history']) ?> stage transition<?= count($bn['history']) !== 1 ? 's' : '' ?></summary>
+                      <?php foreach (array_reverse($bn['history']) as $h): ?>
+                        <div class="bench-hist-adm-row">
+                          <span><?= e($stageLabel[$h['from']] ?? $h['from']) ?></span>
+                          <span class="bench-hist-arrow">→</span>
+                          <span><?= e($stageLabel[$h['to']] ?? $h['to']) ?></span>
+                          <span class="bench-hist-adm-date"><?= !empty($h['date']) ? e(date('M j, Y', strtotime($h['date']))) : '' ?></span>
+                        </div>
+                      <?php endforeach; ?>
+                    </details>
                   <?php endif; ?>
                 </div>
                 <button type="button"
@@ -3250,6 +3553,10 @@ if ($authed && isset($_GET['edit_force'])) {
                   data-bid="<?= e($bn['id']) ?>"
                   data-stage="<?= e($st) ?>"
                   onclick="cycleBenchStage(this)"><?= e($stageLabel[$st] ?? $st) ?></button>
+                <button type="button" class="btn btn-sm"
+                  data-bid="<?= e($bn['id']) ?>"
+                  data-bname="<?= e($bn['name']) ?>"
+                  onclick="openSessionModal(this)">+ Session</button>
                 <button class="btn btn-sm"
                   data-id="<?= e($bn['id']) ?>"
                   data-name="<?= e($bn['name']) ?>"
@@ -3264,6 +3571,15 @@ if ($authed && isset($_GET['edit_force'])) {
                   data-recipes="<?= e(json_encode($bn['recipes'] ?? [])) ?>"
                   data-images="<?= e(json_encode($bn['wip_images'] ?? [])) ?>"
                   onclick="openBenchEdit(this)">Edit</button>
+                <?php if (empty($bn['promoted_to'])): ?>
+                  <form method="post" style="display:inline" onsubmit="return confirm('Archive to Gallery? A draft gallery entry will be created - you can add images and description in the edit form.')">
+                    <input type="hidden" name="action" value="promote_bench">
+                    <input type="hidden" name="bench_id" value="<?= e($bn['id']) ?>">
+                    <button type="submit" class="btn btn-sm" style="font-size:10px">&rarr; Gallery</button>
+                  </form>
+                <?php else: ?>
+                  <span style="font-size:10px;color:#c9a227;font-family:'Cinzel',serif">Promoted &rarr; <?= ucfirst(e($bn['promoted_to'])) ?></span>
+                <?php endif; ?>
                 <form method="post" onsubmit="return confirm('Delete this bench entry and its photos?')" style="margin:0">
                   <input type="hidden" name="action" value="delete_bench">
                   <input type="hidden" name="bench_id" value="<?= e($bn['id']) ?>">
@@ -3284,126 +3600,126 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       </h2>
       <div>
-      <?php if (!$hasForces): ?>
-        <form method="post" style="margin-top:12px">
-          <input type="hidden" name="action" value="create_forces_file">
-          <button class="btn">Start Forces &amp; Rosters</button>
-        </form>
-        <p style="color:#5a4a28;font-size:13px;margin-top:8px">Group your painted schemes into named rosters for Kill Team, OPR, Blood Bowl, Necromunda, and other game systems.</p>
-      <?php else: ?>
-
-        <!-- Add / Edit form -->
-        <div style="margin-bottom:24px">
-          <h3 style="font-family:'Cinzel',serif;font-size:14px;color:#9a8a6a;margin:0 0 12px"><?= $editForce ? 'Edit Force' : 'Add Force' ?></h3>
-          <form method="post" action="admin.php">
-            <input type="hidden" name="action" value="<?= $editForce ? 'edit_force' : 'add_force' ?>">
-            <?php if ($editForce): ?><input type="hidden" name="force_id" value="<?= e($editForce['id']) ?>"><?php endif; ?>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-              <div>
-                <label for="fo_name">Name *</label>
-                <input type="text" id="fo_name" name="fo_name" required placeholder="e.g. Contagion Protocol Kill Team"
-                  value="<?= e($editForce['name'] ?? '') ?>">
-              </div>
-              <div>
-                <label for="fo_system">Game System</label>
-                <select id="fo_system" name="fo_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
-                  <option value="">- none -</option>
-                  <?php foreach(['40k'=>'Warhammer 40,000','30k / HH'=>'Horus Heresy / 30k','AoS'=>'Age of Sigmar','Kill Team'=>'Kill Team','Blood Bowl'=>'Blood Bowl','Necromunda'=>'Necromunda','OPR'=>'One Page Rules','Other'=>'Other'] as $sv=>$sl): ?>
-                  <option value="<?= e($sv) ?>"<?= ($editForce['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div>
-                <label for="fo_faction">Faction</label>
-                <input type="text" id="fo_faction" name="fo_faction" placeholder="e.g. Death Guard"
-                  value="<?= e($editForce['faction'] ?? '') ?>">
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div>
-                  <label for="fo_target_count">Target Models</label>
-                  <input type="number" id="fo_target_count" name="fo_target_count" min="0" placeholder="e.g. 10"
-                    value="<?= e($editForce['target_count'] ?? '') ?>" style="width:100%">
-                </div>
-                <div>
-                  <label for="fo_target_points">Target Pts</label>
-                  <input type="number" id="fo_target_points" name="fo_target_points" min="0" placeholder="e.g. 250"
-                    value="<?= e($editForce['target_points'] ?? '') ?>" style="width:100%">
-                </div>
-              </div>
-            </div>
-            <div style="margin-bottom:10px">
-              <label for="fo_roster_url">Roster URL</label>
-              <input type="url" id="fo_roster_url" name="fo_roster_url" placeholder="https://ktdash.app/rosters/… or Google Drive PDF link"
-                value="<?= e($editForce['roster_url'] ?? '') ?>">
-            </div>
-            <div style="margin-bottom:10px">
-              <label for="fo_notes">Notes</label>
-              <textarea id="fo_notes" name="fo_notes" rows="2" placeholder="Roster notes, list version, campaign context…" style="width:100%;resize:vertical"><?= e($editForce['notes'] ?? '') ?></textarea>
-            </div>
-            <?php if (!empty($models)): ?>
-            <div style="margin-bottom:14px">
-              <label>Schemes in this Force</label>
-              <div style="max-height:220px;overflow-y:auto;border:1px solid #2a2010;background:#0e0d09;padding:8px 12px;border-radius:3px">
-                <?php foreach ($models as $m): ?>
-                <label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:12px;color:#9a8a6a">
-                  <input type="checkbox" name="force_models[]" value="<?= e($m['id']) ?>"
-                    <?= in_array($m['id'], $editForce['models'] ?? []) ? 'checked' : '' ?>>
-                  <span><?= e($m['name']) ?><?= !empty($m['faction']) ? '<span style="color:#5a4a28"> &mdash; ' . e($m['faction']) . '</span>' : '' ?></span>
-                </label>
-                <?php endforeach; ?>
-              </div>
-            </div>
-            <?php endif; ?>
-            <div style="display:flex;gap:8px;align-items:center">
-              <button class="btn" type="submit"><?= $editForce ? 'Save Changes' : 'Add Force' ?></button>
-              <?php if ($editForce): ?><a href="admin.php#section-forces" style="color:#5a4a28;font-size:12px">Cancel</a><?php endif; ?>
-            </div>
+        <?php if (!$hasForces): ?>
+          <form method="post" style="margin-top:12px">
+            <input type="hidden" name="action" value="create_forces_file">
+            <button class="btn">Start Forces &amp; Rosters</button>
           </form>
-        </div>
+          <p style="color:#5a4a28;font-size:13px;margin-top:8px">Group your painted schemes into named rosters for Kill Team, OPR, Blood Bowl, Necromunda, and other game systems.</p>
+        <?php else: ?>
 
-        <!-- Forces list -->
-        <?php if (empty($forcesData)): ?>
-          <p style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em;padding:12px 0">No forces yet. Add one above.</p>
-        <?php else:
-          $foModelById = array_column($models, null, 'id');
-        ?>
-          <div class="model-list" style="max-height:min(80vh,1200px);overflow-y:auto">
-          <?php foreach ($forcesData as $fo): ?>
-            <?php
-              $foSchemes = count($fo['models'] ?? []);
-              $foPainted = array_sum(array_map(fn($mid) => max(1, (int)(($foModelById[$mid] ?? [])['count'] ?? 1)), $fo['models'] ?? []));
-              $foTarget  = $fo['target_count'] ?? 0;
-              $foSystem  = $fo['system'] ?? '';
-            ?>
-            <div class="model-list-item" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #1a1408">
-              <div style="flex:1">
-                <div style="font-family:'Cinzel',serif;font-size:13px;color:#c9a227"><?= e($fo['name']) ?></div>
-                <div style="font-size:11px;color:#5a4a28;margin-top:3px">
-                  <?= $foSystem ? '<span style="margin-right:8px">' . e($foSystem) . '</span>' : '' ?>
-                  <?= !empty($fo['faction']) ? e($fo['faction']) . ' &middot; ' : '' ?>
-                  <?= $foSchemes ?> scheme<?= $foSchemes !== 1 ? 's' : '' ?><?= $foPainted !== $foSchemes ? ' &middot; ' . $foPainted . ' model' . ($foPainted !== 1 ? 's' : '') : '' ?> painted
-                  <?= $foTarget ? ' / ' . $foTarget . ' target' : '' ?>
-                  <?= !empty($fo['target_points']) ? ' &middot; ' . e($fo['target_points']) . ' pts' : '' ?>
+          <!-- Add / Edit form -->
+          <div style="margin-bottom:24px">
+            <h3 style="font-family:'Cinzel',serif;font-size:14px;color:#9a8a6a;margin:0 0 12px"><?= $editForce ? 'Edit Force' : 'Add Force' ?></h3>
+            <form method="post" action="admin.php">
+              <input type="hidden" name="action" value="<?= $editForce ? 'edit_force' : 'add_force' ?>">
+              <?php if ($editForce): ?><input type="hidden" name="force_id" value="<?= e($editForce['id']) ?>"><?php endif; ?>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+                <div>
+                  <label for="fo_name">Name *</label>
+                  <input type="text" id="fo_name" name="fo_name" required placeholder="e.g. Contagion Protocol Kill Team"
+                    value="<?= e($editForce['name'] ?? '') ?>">
                 </div>
-                <?php if (!empty($fo['notes'])): ?>
-                  <div style="font-size:11px;color:#3a2a10;margin-top:2px"><?= e(mb_strimwidth($fo['notes'], 0, 80, '…')) ?></div>
-                <?php endif; ?>
+                <div>
+                  <label for="fo_system">Game System</label>
+                  <select id="fo_system" name="fo_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+                    <option value="">- none -</option>
+                    <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
+                      <option value="<?= e($sv) ?>" <?= ($editForce['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+                <div>
+                  <label for="fo_faction">Faction</label>
+                  <input type="text" id="fo_faction" name="fo_faction" placeholder="e.g. Death Guard"
+                    value="<?= e($editForce['faction'] ?? '') ?>">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                  <div>
+                    <label for="fo_target_count">Target Models</label>
+                    <input type="number" id="fo_target_count" name="fo_target_count" min="0" placeholder="e.g. 10"
+                      value="<?= e($editForce['target_count'] ?? '') ?>" style="width:100%">
+                  </div>
+                  <div>
+                    <label for="fo_target_points">Target Pts</label>
+                    <input type="number" id="fo_target_points" name="fo_target_points" min="0" placeholder="e.g. 250"
+                      value="<?= e($editForce['target_points'] ?? '') ?>" style="width:100%">
+                  </div>
+                </div>
               </div>
-              <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-                <button type="button" class="btn btn-sm fo-pin-btn<?= !empty($fo['pinned']) ? ' fo-pin-active' : '' ?>" data-id="<?= e($fo['id']) ?>" title="<?= !empty($fo['pinned']) ? 'Unpin' : 'Pin to top' ?>">★</button>
-                <a href="admin.php?edit_force=<?= e($fo['id']) ?>#section-forces" class="btn btn-sm">Edit</a>
-                <form method="post" onsubmit="return confirm('Delete this force?')" style="margin:0">
-                  <input type="hidden" name="action" value="delete_force">
-                  <input type="hidden" name="force_id" value="<?= e($fo['id']) ?>">
-                  <button class="btn btn-sm btn-danger" type="submit">&times;</button>
-                </form>
+              <div style="margin-bottom:10px">
+                <label for="fo_roster_url">Roster URL</label>
+                <input type="url" id="fo_roster_url" name="fo_roster_url" placeholder="https://ktdash.app/rosters/… or Google Drive PDF link"
+                  value="<?= e($editForce['roster_url'] ?? '') ?>">
               </div>
-            </div>
-          <?php endforeach; ?>
+              <div style="margin-bottom:10px">
+                <label for="fo_notes">Notes</label>
+                <textarea id="fo_notes" name="fo_notes" rows="2" placeholder="Roster notes, list version, campaign context…" style="width:100%;resize:vertical"><?= e($editForce['notes'] ?? '') ?></textarea>
+              </div>
+              <?php if (!empty($models)): ?>
+                <div style="margin-bottom:14px">
+                  <label>Schemes in this Force</label>
+                  <div style="max-height:220px;overflow-y:auto;border:1px solid #2a2010;background:#0e0d09;padding:8px 12px;border-radius:3px">
+                    <?php foreach ($models as $m): ?>
+                      <label style="display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;font-size:12px;color:#9a8a6a">
+                        <input type="checkbox" name="force_models[]" value="<?= e($m['id']) ?>"
+                          <?= in_array($m['id'], $editForce['models'] ?? []) ? 'checked' : '' ?>>
+                        <span><?= e($m['name']) ?><?= !empty($m['faction']) ? '<span style="color:#5a4a28"> &mdash; ' . e($m['faction']) . '</span>' : '' ?></span>
+                      </label>
+                    <?php endforeach; ?>
+                  </div>
+                </div>
+              <?php endif; ?>
+              <div style="display:flex;gap:8px;align-items:center">
+                <button class="btn" type="submit"><?= $editForce ? 'Save Changes' : 'Add Force' ?></button>
+                <?php if ($editForce): ?><a href="admin.php#section-forces" style="color:#5a4a28;font-size:12px">Cancel</a><?php endif; ?>
+              </div>
+            </form>
           </div>
-        <?php endif; ?>
 
-      <?php endif; ?>
+          <!-- Forces list -->
+          <?php if (empty($forcesData)): ?>
+            <p style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em;padding:12px 0">No forces yet. Add one above.</p>
+          <?php else:
+            $foModelById = array_column($models, null, 'id');
+          ?>
+            <div class="model-list" style="max-height:min(80vh,1200px);overflow-y:auto">
+              <?php foreach ($forcesData as $fo): ?>
+                <?php
+                $foSchemes = count($fo['models'] ?? []);
+                $foPainted = array_sum(array_map(fn($mid) => max(1, (int)(($foModelById[$mid] ?? [])['count'] ?? 1)), $fo['models'] ?? []));
+                $foTarget  = $fo['target_count'] ?? 0;
+                $foSystem  = $fo['system'] ?? '';
+                ?>
+                <div class="model-list-item" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #1a1408">
+                  <div style="flex:1">
+                    <div style="font-family:'Cinzel',serif;font-size:13px;color:#c9a227"><?= e($fo['name']) ?></div>
+                    <div style="font-size:11px;color:#5a4a28;margin-top:3px">
+                      <?= $foSystem ? '<span style="margin-right:8px">' . e($foSystem) . '</span>' : '' ?>
+                      <?= !empty($fo['faction']) ? e($fo['faction']) . ' &middot; ' : '' ?>
+                      <?= $foSchemes ?> scheme<?= $foSchemes !== 1 ? 's' : '' ?><?= $foPainted !== $foSchemes ? ' &middot; ' . $foPainted . ' model' . ($foPainted !== 1 ? 's' : '') : '' ?> painted
+                      <?= $foTarget ? ' / ' . $foTarget . ' target' : '' ?>
+                      <?= !empty($fo['target_points']) ? ' &middot; ' . e($fo['target_points']) . ' pts' : '' ?>
+                    </div>
+                    <?php if (!empty($fo['notes'])): ?>
+                      <div style="font-size:11px;color:#3a2a10;margin-top:2px"><?= e(mb_strimwidth($fo['notes'], 0, 80, '…')) ?></div>
+                    <?php endif; ?>
+                  </div>
+                  <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+                    <button type="button" class="btn btn-sm fo-pin-btn<?= !empty($fo['pinned']) ? ' fo-pin-active' : '' ?>" data-id="<?= e($fo['id']) ?>" title="<?= !empty($fo['pinned']) ? 'Unpin' : 'Pin to top' ?>">★</button>
+                    <a href="admin.php?edit_force=<?= e($fo['id']) ?>#section-forces" class="btn btn-sm">Edit</a>
+                    <form method="post" onsubmit="return confirm('Delete this force?')" style="margin:0">
+                      <input type="hidden" name="action" value="delete_force">
+                      <input type="hidden" name="force_id" value="<?= e($fo['id']) ?>">
+                      <button class="btn btn-sm btn-danger" type="submit">&times;</button>
+                    </form>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+
+        <?php endif; ?>
       </div>
 
       <!-- ── Recipe Library ── -->
@@ -3451,7 +3767,7 @@ if ($authed && isset($_GET['edit_force'])) {
 
         <div class="paint-form-wrap" id="recipeFormWrap" style="display:none">
           <div class="paint-form-title" id="recipeFormTitle">Add Recipe</div>
-          <form method="post" id="recipeForm">
+          <form method="post" id="recipeForm" enctype="multipart/form-data">
             <input type="hidden" name="action" value="add_recipe" id="recipeAction">
             <input type="hidden" name="recipe_id" id="recipeId" value="">
             <div class="form-grid">
@@ -3485,6 +3801,16 @@ if ($authed && isset($_GET['edit_force'])) {
                 <label for="rc_notes">Notes</label>
                 <textarea id="rc_notes" name="rc_notes" rows="2" placeholder="End-of-recipe freeform notes" style="width:100%;resize:vertical;font-size:13px;background:#130f08;color:#c4b49a;border:1px solid #2a2010;border-radius:4px;padding:6px 10px;font-family:inherit"></textarea>
               </div>
+              <div class="form-full">
+                <label>Reference Photo <span style="font-size:10px;color:#4a3a1a">(optional - finished result)</span></label>
+                <div id="rc_image_preview" style="display:none;margin-bottom:6px">
+                  <img id="rc_image_thumb" src="" alt="" style="height:80px;width:80px;object-fit:cover;border-radius:3px;border:1px solid #2a2010;display:block;margin-bottom:4px">
+                  <label style="font-size:11px;color:#4a3a1a;display:flex;align-items:center;gap:5px;cursor:pointer">
+                    <input type="checkbox" name="delete_rc_image" id="delete_rc_image" value="1" onchange="if(this.checked){document.getElementById('rc_image_preview').style.display='none'}"> Remove photo
+                  </label>
+                </div>
+                <input type="file" name="rc_image" id="rc_image_file" accept="image/*">
+              </div>
             </div>
             <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
               <button type="submit" class="btn" id="recipeSubmitBtn">Add Recipe</button>
@@ -3515,6 +3841,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   data-description="<?= e($rc['description'] ?? '') ?>"
                   data-steps="<?= e(json_encode($rc['steps'] ?? [])) ?>"
                   data-notes="<?= e($rc['notes'] ?? '') ?>"
+                  data-image="<?= e($rc['image'] ?? '') ?>"
                   onclick="openRecipeEdit(this)">Edit</button>
                 <form method="post" onsubmit="return confirm('Delete this recipe? Any schemes referencing it will silently drop it.')" style="margin:0">
                   <input type="hidden" name="action" value="delete_recipe">
@@ -3562,7 +3889,6 @@ if ($authed && isset($_GET['edit_force'])) {
                   <option value="model">Model / Kit</option>
                   <option value="brush">Brush</option>
                   <option value="codex">Codex / Book</option>
-                  <option value="wd">White Dwarf Issue</option>
                 </select>
               </div>
               <div>
@@ -3619,6 +3945,10 @@ if ($authed && isset($_GET['edit_force'])) {
                 <label for="wl_notes">Notes <span style="font-weight:normal;opacity:.6">(optional)</span></label>
                 <input type="text" id="wl_notes" name="wl_notes" placeholder="e.g. for Ork boyz skin" style="width:100%;max-width:480px">
               </div>
+              <div class="form-full">
+                <label for="wl_ordered_date">Order Date <span style="font-weight:normal;opacity:.6">(optional - set when you place the order)</span></label>
+                <input type="date" id="wl_ordered_date" name="wl_ordered_date" max="<?= date('Y-m-d') ?>" style="width:180px">
+              </div>
             </div>
             <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
               <button type="submit" class="btn" id="wishlistSubmitBtn">Add Item</button>
@@ -3628,18 +3958,18 @@ if ($authed && isset($_GET['edit_force'])) {
         </div>
         <?php if ($wishlistData): ?>
           <?php
-            $wTypeLabels = ['paint' => 'Paint', 'model' => 'Model', 'brush' => 'Brush', 'codex' => 'Codex', 'wd' => 'WD'];
-            $wTypeColors = ['paint' => '#1a4a4a', 'model' => '#1a3a1a', 'brush' => '#3a1a10', 'codex' => '#2a1a4a', 'wd' => '#3a2a08'];
-            $wPriColors  = ['high' => ['bg' => 'rgba(239,68,68,.18)', 'txt' => '#ef4444'], 'medium' => ['bg' => 'rgba(249,115,22,.14)', 'txt' => '#f97316'], 'low' => ['bg' => 'rgba(80,80,80,.2)', 'txt' => '#7a7a7a']];
+          $wTypeLabels = ['paint' => 'Paint', 'model' => 'Model', 'brush' => 'Brush', 'codex' => 'Codex', 'wd' => 'WD'];
+          $wTypeColors = ['paint' => '#1a4a4a', 'model' => '#1a3a1a', 'brush' => '#3a1a10', 'codex' => '#2a1a4a', 'wd' => '#3a2a08'];
+          $wPriColors  = ['high' => ['bg' => 'rgba(239,68,68,.18)', 'txt' => '#ef4444'], 'medium' => ['bg' => 'rgba(249,115,22,.14)', 'txt' => '#f97316'], 'low' => ['bg' => 'rgba(80,80,80,.2)', 'txt' => '#7a7a7a']];
           ?>
           <div class="model-list">
             <?php foreach ($wishlistData as $w): ?>
               <?php
-                $wtype     = $w['type'] ?? 'paint';
-                $wpri      = $w['priority'] ?? 'medium';
-                $typeColor = $wTypeColors[$wtype] ?? '#1a4a4a';
-                $typeLabel = $wTypeLabels[$wtype]  ?? 'Item';
-                $priC      = $wPriColors[$wpri] ?? $wPriColors['medium'];
+              $wtype     = $w['type'] ?? 'paint';
+              $wpri      = $w['priority'] ?? 'medium';
+              $typeColor = $wTypeColors[$wtype] ?? '#1a4a4a';
+              $typeLabel = $wTypeLabels[$wtype]  ?? 'Item';
+              $priC      = $wPriColors[$wpri] ?? $wPriColors['medium'];
               ?>
               <div class="model-row" id="wish-row-<?= e($w['id']) ?>" style="border-left:3px solid <?= $typeColor ?>">
                 <div class="model-row-info">
@@ -3649,13 +3979,25 @@ if ($authed && isset($_GET['edit_force'])) {
                     <strong><?= e($w['name']) ?></strong>
                   </div>
                   <div class="model-row-meta">
-                    <?php $meta = array_filter([e($w['brand'] ?? ''), e($w['faction'] ?? ''), e($w['system'] ?? '')]); echo implode(' &middot; ', $meta); ?>
+                    <?php $meta = array_filter([e($w['brand'] ?? ''), e($w['faction'] ?? ''), e($w['system'] ?? '')]);
+                    echo implode(' &middot; ', $meta); ?>
                     <?php if (!empty($w['added'])): ?><span style="margin-left:8px;opacity:.5;font-size:10px">added <?= e($w['added']) ?></span><?php endif; ?>
                   </div>
                   <?php if (!empty($w['notes'])): ?><div style="font-size:11px;color:#5a4a28;margin-top:2px"><?= e(mb_substr($w['notes'], 0, 120)) ?></div><?php endif; ?>
                   <?php if (!empty($w['url'])): ?><div style="margin-top:3px"><a href="<?= e($w['url']) ?>" target="_blank" rel="noopener" style="font-size:11px;color:#6a8a6a;text-decoration:none" title="<?= e($w['url']) ?>">&#128279; Link</a></div><?php endif; ?>
                 </div>
                 <div class="model-row-actions">
+                  <?php if (empty($w['ordered_date'])): ?>
+                    <button type="button" class="btn btn-sm btn-ordered" onclick="markOrdered('<?= e($w['id']) ?>')" style="font-size:10px">Mark Ordered</button>
+                  <?php else: ?>
+                    <span class="wish-ordered-badge" style="display:inline-block">Ordered <?= e($w['ordered_date']) ?></span>
+                    <button type="button" class="btn-ordered-clear" onclick="clearOrdered('<?= e($w['id']) ?>')">Clear</button>
+                  <?php endif; ?>
+                  <?php if ($wtype === 'model' && empty($w['promoted_to'])): ?>
+                    <button type="button" class="btn btn-sm" onclick="promoteWishlist('<?= e($w['id']) ?>')" style="font-size:10px">&rarr; Shame</button>
+                  <?php elseif (!empty($w['promoted_to'])): ?>
+                    <span style="font-size:10px;color:#c9a227;font-family:'Cinzel',serif">Promoted &rarr; <?= ucfirst(e($w['promoted_to'])) ?></span>
+                  <?php endif; ?>
                   <button type="button" class="btn btn-sm" onclick="openWishlistEdit(this)"
                     data-id="<?= e($w['id']) ?>"
                     data-type="<?= e($wtype) ?>"
@@ -3665,7 +4007,8 @@ if ($authed && isset($_GET['edit_force'])) {
                     data-system="<?= e($w['system'] ?? '') ?>"
                     data-priority="<?= e($wpri) ?>"
                     data-notes="<?= e($w['notes'] ?? '') ?>"
-                    data-url="<?= e($w['url'] ?? '') ?>">&#10000; Edit</button>
+                    data-url="<?= e($w['url'] ?? '') ?>"
+                    data-ordered-date="<?= e($w['ordered_date'] ?? '') ?>">&#10000; Edit</button>
                   <form method="post" style="display:inline" onsubmit="return confirm('Remove from wishlist?')">
                     <input type="hidden" name="action" value="delete_wishlist_item">
                     <input type="hidden" name="wl_id" value="<?= e($w['id']) ?>">
@@ -3677,104 +4020,6 @@ if ($authed && isset($_GET['edit_force'])) {
           </div>
         <?php else: ?>
           <p style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em;padding:12px 0">No items yet. Add anything you want to acquire.</p>
-        <?php endif; ?>
-      <?php endif; ?>
-
-      <!-- ── White Dwarf Log ── -->
-      <h2 id="section-wd" style="margin-top:40px">White Dwarf Log
-        <?php if ($hasWD): ?>
-          <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($wdData) ?> issue<?= count($wdData) !== 1 ? 's' : '' ?></span>
-        <?php endif; ?>
-      </h2>
-
-      <?php if (!$hasWD): ?>
-        <p style="font-size:12px;color:#6a5a30;margin-bottom:14px;line-height:1.6">
-          Your White Dwarf log is not active yet. Click below to start one - it won't appear on the main site until you enable it here.
-        </p>
-        <form method="post">
-          <input type="hidden" name="action" value="create_wd_file">
-          <button type="submit" class="btn btn-sm">Start White Dwarf Log</button>
-        </form>
-      <?php else: ?>
-        <div style="margin-bottom:14px">
-          <button type="button" class="btn btn-sm" onclick="openWdAdd()">+ Add Issue</button>
-        </div>
-
-        <!-- Add / Edit form -->
-        <div class="paint-form-wrap" id="wdFormWrap" style="display:none">
-          <div class="paint-form-title" id="wdFormTitle">Add Issue</div>
-          <form method="post" id="wdForm">
-            <input type="hidden" name="action" value="add_wd" id="wdAction">
-            <input type="hidden" name="wd_id" id="wdId" value="">
-            <div class="form-grid">
-              <div>
-                <label for="wd_issue">Issue # *</label>
-                <input type="text" id="wd_issue" name="wd_issue" required placeholder="e.g. 500">
-              </div>
-              <div>
-                <label for="wd_format">Format</label>
-                <select id="wd_format" name="wd_format" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
-                  <option value="physical">Physical</option>
-                  <option value="digital">Digital</option>
-                  <option value="both">Both</option>
-                </select>
-              </div>
-              <div>
-                <label for="wd_month">Month (optional - YYYY-MM)</label>
-                <input type="text" id="wd_month" name="wd_month" placeholder="e.g. 2026-04" pattern="\d{4}-\d{2}" maxlength="7">
-              </div>
-              <div class="form-full">
-                <label for="wd_notes">Notes</label>
-                <textarea id="wd_notes" name="wd_notes" rows="5"
-                  placeholder="p.42 - Blood Angels scheme: Mephiston Red base, Agrax wash&#10;p.67 - Terrain painting guide&#10;p.90 - Army of the Month: Orks"
-                  style="width:100%;resize:vertical;font-size:13px;background:#130f08;color:#c4b49a;border:1px solid #2a2010;border-radius:4px;padding:6px 10px;font-family:inherit"></textarea>
-              </div>
-            </div>
-            <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
-              <button type="submit" class="btn" id="wdSubmitBtn">Add Issue</button>
-              <button type="button" class="btn btn-sm" id="wdCancelBtn">Cancel</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- Issue list -->
-        <?php if ($wdData): ?>
-          <div class="model-list">
-            <?php foreach ($wdData as $wd): ?>
-              <?php
-              $wdFmt   = $wd['format'] ?? 'physical';
-              $wdLabel = $wdFmt === 'physical' ? 'Physical' : ($wdFmt === 'digital' ? 'Digital' : 'Both');
-              $wdMonth = !empty($wd['month']) ? date('M Y', strtotime($wd['month'] . '-01')) : '';
-              $wdPrev  = !empty($wd['notes']) ? mb_substr($wd['notes'], 0, 80) . (mb_strlen($wd['notes']) > 80 ? '…' : '') : '';
-              ?>
-              <div class="model-row">
-                <div class="model-row-info">
-                  <div class="model-row-name" style="display:flex;align-items:center;gap:8px">
-                    #<?= e($wd['issue']) ?>
-                    <span class="wd-admin-fmt wd-fmt-<?= e($wdFmt) ?>"><?= e($wdLabel) ?></span>
-                    <?php if ($wdMonth): ?><span style="font-size:11px;color:#4a3a1a;font-family:'Cinzel',serif;letter-spacing:.04em"><?= e($wdMonth) ?></span><?php endif; ?>
-                  </div>
-                  <?php if ($wdPrev): ?>
-                    <div class="wd-notes-preview"><?= e($wdPrev) ?></div>
-                  <?php endif; ?>
-                </div>
-                <button class="btn btn-sm"
-                  data-id="<?= e($wd['id']) ?>"
-                  data-issue="<?= e($wd['issue']) ?>"
-                  data-format="<?= e($wdFmt) ?>"
-                  data-month="<?= e($wd['month'] ?? '') ?>"
-                  data-notes="<?= e($wd['notes'] ?? '') ?>"
-                  onclick="openWdEdit(this)">Edit</button>
-                <form method="post" onsubmit="return confirm('Delete issue #<?= e($wd['issue']) ?>?')" style="margin:0">
-                  <input type="hidden" name="action" value="delete_wd">
-                  <input type="hidden" name="wd_id" value="<?= e($wd['id']) ?>">
-                  <button type="submit" class="btn btn-sm btn-danger">&times;</button>
-                </form>
-              </div>
-            <?php endforeach; ?>
-          </div>
-        <?php else: ?>
-          <p style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em;padding:12px 0">No issues logged yet.</p>
         <?php endif; ?>
       <?php endif; ?>
 
@@ -3960,8 +4205,8 @@ if ($authed && isset($_GET['edit_force'])) {
               $jnPrev    = !empty($jn['body']) ? mb_substr($jn['body'], 0, 100) . (mb_strlen($jn['body']) > 100 ? '…' : '') : '';
               $jnMood    = $jn['mood'] ?? '';
               $jnDateFmt = !empty($jn['date']) ? date('M j, Y', strtotime($jn['date'])) : '';
-              $moodMap   = ['great' => ['#1c3a1c','#7ad678'], 'good' => ['#1c2a1a','#a0c878'], 'okay' => ['#3a2d10','#e8b060'], 'rough' => ['#3a1c1c','#e88080']];
-              [$jnMoodBg, $jnMoodFg] = $moodMap[$jnMood] ?? ['#1c2a3a','#7ab0e8'];
+              $moodMap   = ['great' => ['#1c3a1c', '#7ad678'], 'good' => ['#1c2a1a', '#a0c878'], 'okay' => ['#3a2d10', '#e8b060'], 'rough' => ['#3a1c1c', '#e88080']];
+              [$jnMoodBg, $jnMoodFg] = $moodMap[$jnMood] ?? ['#1c2a3a', '#7ab0e8'];
               $jnSearch  = ($jn['date'] ?? '') . ' ' . ($jn['title'] ?? '') . ' ' . ($jn['body'] ?? '');
               ?>
               <div class="model-row" data-jnsearch="<?= e($jnSearch) ?>">
@@ -4233,7 +4478,6 @@ if ($authed && isset($_GET['edit_force'])) {
         document.getElementById('pl_faction').value = '';
         document.getElementById('pl_system').value = '';
         document.getElementById('pl_description').value = '';
-        document.getElementById('pl_wd_source').value = '';
         document.getElementById('pl_codex_source').value = '';
         document.getElementById('plannedSubmitBtn').textContent = 'Add Scheme';
         buildListPl('');
@@ -4259,7 +4503,6 @@ if ($authed && isset($_GET['edit_force'])) {
         document.getElementById('pl_faction').value = btn.dataset.faction;
         document.getElementById('pl_system').value = btn.dataset.system || '';
         document.getElementById('pl_description').value = btn.dataset.description;
-        document.getElementById('pl_wd_source').value = btn.dataset.wd_source || '';
         document.getElementById('pl_codex_source').value = btn.dataset.codex_source || '';
         document.getElementById('plannedSubmitBtn').textContent = 'Save Changes';
         buildListPl('');
@@ -4436,49 +4679,6 @@ if ($authed && isset($_GET['edit_force'])) {
         document.getElementById('checkerResults').innerHTML = '';
       }
 
-      // ── White Dwarf ──────────────────────────────────────────
-      <?php if ($hasWD): ?>
-
-        function openWdAdd() {
-          document.getElementById('wdFormTitle').textContent = 'Add Issue';
-          document.getElementById('wdAction').value = 'add_wd';
-          document.getElementById('wdId').value = '';
-          document.getElementById('wd_issue').value = '';
-          document.getElementById('wd_format').value = 'physical';
-          document.getElementById('wd_month').value = '';
-          document.getElementById('wd_notes').value = '';
-          document.getElementById('wdSubmitBtn').textContent = 'Add Issue';
-          const wrap = document.getElementById('wdFormWrap');
-          wrap.style.display = 'block';
-          document.getElementById('wd_issue').focus();
-          wrap.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest'
-          });
-        }
-
-        function openWdEdit(btn) {
-          document.getElementById('wdFormTitle').textContent = 'Edit Issue';
-          document.getElementById('wdAction').value = 'edit_wd';
-          document.getElementById('wdId').value = btn.dataset.id;
-          document.getElementById('wd_issue').value = btn.dataset.issue;
-          document.getElementById('wd_format').value = btn.dataset.format;
-          document.getElementById('wd_month').value = btn.dataset.month;
-          document.getElementById('wd_notes').value = btn.dataset.notes;
-          document.getElementById('wdSubmitBtn').textContent = 'Save Changes';
-          const wrap = document.getElementById('wdFormWrap');
-          wrap.style.display = 'block';
-          wrap.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest'
-          });
-        }
-
-        document.getElementById('wdCancelBtn')?.addEventListener('click', () => {
-          document.getElementById('wdFormWrap').style.display = 'none';
-        });
-      <?php endif; ?>
-
       // ── Black Library ────────────────────────────────────────
       <?php if ($hasBooks): ?>
 
@@ -4496,7 +4696,10 @@ if ($authed && isset($_GET['edit_force'])) {
           const wrap = document.getElementById('bookFormWrap');
           wrap.style.display = 'block';
           document.getElementById('bk_title').focus();
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          wrap.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
         }
 
         function openBookEdit(btn) {
@@ -4512,7 +4715,10 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('bookSubmitBtn').textContent = 'Save Changes';
           const wrap = document.getElementById('bookFormWrap');
           wrap.style.display = 'block';
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          wrap.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
         }
 
         document.getElementById('bookCancelBtn')?.addEventListener('click', () => {
@@ -4522,6 +4728,7 @@ if ($authed && isset($_GET['edit_force'])) {
 
       // ── Hobby Journal ──────────────────────────────────────────
       <?php if ($hasJournal): ?>
+
         function openJournalAdd() {
           document.getElementById('journalFormTitle').textContent = 'Add Journal Entry';
           document.getElementById('journalAction').value = 'add_journal';
@@ -4534,7 +4741,10 @@ if ($authed && isset($_GET['edit_force'])) {
           const wrap = document.getElementById('journalFormWrap');
           wrap.style.display = 'block';
           document.getElementById('jn_body').focus();
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          wrap.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
         }
 
         function openJournalEdit(btn) {
@@ -4548,7 +4758,10 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('journalSubmitBtn').textContent = 'Save Changes';
           const wrap = document.getElementById('journalFormWrap');
           wrap.style.display = 'block';
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          wrap.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
         }
 
         document.getElementById('journalCancelBtn')?.addEventListener('click', () => {
@@ -4568,133 +4781,238 @@ if ($authed && isset($_GET['edit_force'])) {
           if (countEl) countEl.textContent = term ? shown + ' of <?= count($journalData) ?> entries' : '<?= count($journalData) ?> entries';
         }
 
-      <?php if ($hasShame): ?>
-        function openShameAdd() {
-          document.getElementById('shameFormTitle').textContent = 'Add Box';
-          document.getElementById('shameAction').value = 'add_shame';
-          document.getElementById('shId').value = '';
-          document.getElementById('sh_name').value = '';
-          document.getElementById('sh_system').value = '40k';
-          document.getElementById('sh_faction').value = '';
-          document.getElementById('sh_count').value = '';
-          document.getElementById('sh_status').value = 'sealed';
-          document.getElementById('sh_acquired').value = '';
-          document.getElementById('sh_notes').value = '';
-          document.getElementById('shameSubmitBtn').textContent = 'Add Box';
-          const wrap = document.getElementById('shameFormWrap');
-          wrap.style.display = 'block';
-          document.getElementById('sh_name').focus();
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
+        <?php if ($hasShame): ?>
 
-        function openShameEdit(btn) {
-          document.getElementById('shameFormTitle').textContent = 'Edit Box';
-          document.getElementById('shameAction').value = 'edit_shame';
-          document.getElementById('shId').value = btn.dataset.id;
-          document.getElementById('sh_name').value = btn.dataset.name || '';
-          document.getElementById('sh_system').value = btn.dataset.system || '40k';
-          document.getElementById('sh_faction').value = btn.dataset.faction || '';
-          document.getElementById('sh_count').value = btn.dataset.count > 0 ? btn.dataset.count : '';
-          document.getElementById('sh_status').value = btn.dataset.status || 'sealed';
-          document.getElementById('sh_acquired').value = btn.dataset.acquired || '';
-          document.getElementById('sh_notes').value = btn.dataset.notes || '';
-          document.getElementById('shameSubmitBtn').textContent = 'Save Changes';
-          const wrap = document.getElementById('shameFormWrap');
-          wrap.style.display = 'block';
-          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        document.getElementById('shameCancelBtn')?.addEventListener('click', () => {
-          document.getElementById('shameFormWrap').style.display = 'none';
-        });
-
-        async function promoteShame(id, dest) {
-          const label = dest === 'planned' ? 'Planned' : 'On the Bench';
-          if (!confirm('Promote this box to ' + label + '? A new entry will be created there.')) return;
-          const fd = new FormData();
-          fd.append('action', 'promote_shame');
-          fd.append('sh_id', id);
-          fd.append('promote_to', dest);
-          try {
-            const r = await fetch('admin.php', { method: 'POST', body: fd });
-            const j = await r.json();
-            if (j.ok) {
-              location.href = 'admin.php#section-' + dest;
-            } else {
-              alert('Promote failed: ' + (j.error || 'unknown error'));
-            }
-          } catch (e) {
-            alert('Promote failed (bad response): ' + e.message);
-          }
-        }
-      <?php endif; ?>
-
-        // @mention picker for jn_body
-        (function() {
-          const JN_MENTIONABLES = [
-            <?php foreach ($models as $m): ?>
-            { type: 'scheme', id: '<?= e($m['id']) ?>', label: '<?= addslashes(e($m['name'])) ?>' },
-            <?php endforeach; ?>
-            <?php if ($hasRecipes): foreach ($recipesData as $r): ?>
-            { type: 'recipe', id: '<?= e($r['id']) ?>', label: '<?= addslashes(e($r['name'])) ?>' },
-            <?php endforeach; endif; ?>
-            <?php if ($hasWD): foreach ($wdData as $w): ?>
-            { type: 'wd', id: '<?= e($w['issue']) ?>', label: 'WD #<?= e($w['issue']) ?>' },
-            <?php endforeach; endif; ?>
-            <?php if ($hasBench): foreach ($benchData as $b): ?>
-            { type: 'bench', id: '<?= e($b['id']) ?>', label: '<?= addslashes(e($b['name'])) ?>' },
-            <?php endforeach; endif; ?>
-          ];
-
-          const TYPE_LABEL = { scheme: 'Scheme', recipe: 'Recipe', wd: 'WD', bench: 'Bench' };
-          const TYPE_COLOR = { scheme: '#3a6080', recipe: '#4a2a6a', wd: '#7a5a10', bench: '#2a5a3a' };
-
-          const textarea = document.getElementById('jn_body');
-          const picker   = document.getElementById('jnMentionPicker');
-          const list     = document.getElementById('jnMentionList');
-          let atPos = -1;
-
-          function openPicker(q) {
-            const lower = q.toLowerCase();
-            const hits  = JN_MENTIONABLES.filter(m => m.label.toLowerCase().includes(lower) || m.type.includes(lower)).slice(0, 12);
-            if (!hits.length) { closePicker(); return; }
-            list.innerHTML = hits.map((m, i) => `<div class="jnmp-row" data-idx="${i}" style="padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1e1a10"><span style="font-size:10px;padding:2px 6px;border-radius:3px;background:${TYPE_COLOR[m.type]};color:#e8d8a0;font-family:'Cinzel',serif;letter-spacing:.04em">${TYPE_LABEL[m.type]}</span><span style="font-size:12px;color:#c4b49a">${m.label}</span></div>`).join('');
-            list.querySelectorAll('.jnmp-row').forEach((row, i) => {
-              row.addEventListener('mouseenter', () => list.querySelectorAll('.jnmp-row').forEach((r,j) => r.style.background = j===i?'#1c1608':''));
-              row.addEventListener('mouseleave', () => row.style.background = '');
-              row.addEventListener('mousedown', ev => { ev.preventDefault(); insertMention(hits[i]); });
+          function openShameAdd() {
+            document.getElementById('shameFormTitle').textContent = 'Add Box';
+            document.getElementById('shameAction').value = 'add_shame';
+            document.getElementById('shId').value = '';
+            document.getElementById('sh_name').value = '';
+            document.getElementById('sh_system').value = '40k';
+            document.getElementById('sh_faction').value = '';
+            document.getElementById('sh_count').value = '';
+            document.getElementById('sh_status').value = 'sealed';
+            document.getElementById('sh_acquired').value = '';
+            document.getElementById('sh_notes').value = '';
+            document.getElementById('shameSubmitBtn').textContent = 'Add Box';
+            const wrap = document.getElementById('shameFormWrap');
+            wrap.style.display = 'block';
+            document.getElementById('sh_name').focus();
+            wrap.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest'
             });
-            const rect = textarea.getBoundingClientRect();
-            const wrap = textarea.closest('.form-full');
-            picker.style.top  = (textarea.offsetTop + textarea.offsetHeight + 4) + 'px';
-            picker.style.left = '0';
-            picker.style.display = 'block';
           }
 
-          function closePicker() { picker.style.display = 'none'; atPos = -1; }
-
-          function insertMention(m) {
-            const val   = textarea.value;
-            const token = `@[${m.type}:${m.id}|${m.label}]`;
-            textarea.value = val.slice(0, atPos) + token + val.slice(textarea.selectionEnd);
-            const cur = atPos + token.length;
-            textarea.setSelectionRange(cur, cur);
-            textarea.focus();
-            closePicker();
+          function openShameEdit(btn) {
+            document.getElementById('shameFormTitle').textContent = 'Edit Box';
+            document.getElementById('shameAction').value = 'edit_shame';
+            document.getElementById('shId').value = btn.dataset.id;
+            document.getElementById('sh_name').value = btn.dataset.name || '';
+            document.getElementById('sh_system').value = btn.dataset.system || '40k';
+            document.getElementById('sh_faction').value = btn.dataset.faction || '';
+            document.getElementById('sh_count').value = btn.dataset.count > 0 ? btn.dataset.count : '';
+            document.getElementById('sh_status').value = btn.dataset.status || 'sealed';
+            document.getElementById('sh_acquired').value = btn.dataset.acquired || '';
+            document.getElementById('sh_notes').value = btn.dataset.notes || '';
+            document.getElementById('shameSubmitBtn').textContent = 'Save Changes';
+            const wrap = document.getElementById('shameFormWrap');
+            wrap.style.display = 'block';
+            wrap.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest'
+            });
           }
 
-          textarea.addEventListener('keyup', ev => {
-            const pos  = textarea.selectionStart;
-            const text = textarea.value.slice(0, pos);
-            const at   = text.lastIndexOf('@');
-            if (at === -1 || text.slice(at).includes(' ') || text.slice(at).includes('\n')) { closePicker(); return; }
-            atPos = at;
-            openPicker(text.slice(at + 1));
+          document.getElementById('shameCancelBtn')?.addEventListener('click', () => {
+            document.getElementById('shameFormWrap').style.display = 'none';
           });
 
-          textarea.addEventListener('keydown', ev => { if (ev.key === 'Escape') closePicker(); });
-          document.addEventListener('click', ev => { if (!picker.contains(ev.target) && ev.target !== textarea) closePicker(); });
-        })();
+          async function promoteShame(id, dest) {
+            const label = dest === 'planned' ? 'Planned' : 'On the Bench';
+            if (!confirm('Promote this box to ' + label + '? A new entry will be created there.')) return;
+            const fd = new FormData();
+            fd.append('action', 'promote_shame');
+            fd.append('sh_id', id);
+            fd.append('promote_to', dest);
+            try {
+              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.ok) {
+                location.href = 'admin.php#section-' + dest;
+              } else {
+                alert('Promote failed: ' + (j.error || 'unknown error'));
+              }
+            } catch (e) {
+              alert('Promote failed (bad response): ' + e.message);
+            }
+          }
+
+          async function promoteWishlist(id) {
+            if (!confirm('Mark as purchased and add to Pile of Shame?')) return;
+            const fd = new FormData();
+            fd.append('action', 'promote_wishlist');
+            fd.append('wl_id', id);
+            try {
+              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.ok) {
+                const row = document.getElementById('wish-row-' + id);
+                const btn = row?.querySelector('button[onclick*="promoteWishlist"]');
+                if (btn) btn.outerHTML = '<span style="font-size:10px;color:#c9a227;font-family:\'Cinzel\',serif">Promoted &rarr; Shame</span>';
+              } else {
+                alert('Promote failed: ' + (j.error || 'unknown error'));
+              }
+            } catch (e) {
+              alert('Promote failed: ' + e.message);
+            }
+          }
+
+          async function markOrdered(id) {
+            const fd = new FormData();
+            fd.append('action', 'set_wishlist_ordered');
+            fd.append('wl_id', id);
+            fd.append('wl_ordered_date', new Date().toISOString().slice(0, 10));
+            try {
+              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.ok) location.reload();
+              else alert('Failed: ' + (j.error || 'unknown error'));
+            } catch (e) { alert('Failed: ' + e.message); }
+          }
+
+          async function clearOrdered(id) {
+            const fd = new FormData();
+            fd.append('action', 'set_wishlist_ordered');
+            fd.append('wl_id', id);
+            fd.append('wl_ordered_date', '');
+            try {
+              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.ok) location.reload();
+              else alert('Failed: ' + (j.error || 'unknown error'));
+            } catch (e) { alert('Failed: ' + e.message); }
+          }
+
+          async function promotePlanned(id) {
+            if (!confirm('Start painting this scheme? A new Bench entry will be created at stage: Built.')) return;
+            const fd = new FormData();
+            fd.append('action', 'promote_planned');
+            fd.append('planned_id', id);
+            try {
+              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const j = await r.json();
+              if (j.ok) {
+                location.href = 'admin.php#section-bench';
+              } else {
+                alert('Promote failed: ' + (j.error || 'unknown error'));
+              }
+            } catch (e) {
+              alert('Promote failed: ' + e.message);
+            }
+          }
+        <?php endif; ?>
+
+          // @mention picker for jn_body
+          (function() {
+            const JN_MENTIONABLES = [
+              <?php foreach ($models as $m): ?> {
+                  type: 'scheme',
+                  id: '<?= e($m['id']) ?>',
+                  label: '<?= addslashes($m['name']) ?>'
+                },
+              <?php endforeach; ?>
+              <?php if ($hasRecipes): foreach ($recipesData as $r): ?> {
+                    type: 'recipe',
+                    id: '<?= e($r['id']) ?>',
+                    label: '<?= addslashes($r['name']) ?>'
+                  },
+              <?php endforeach;
+              endif; ?>
+              <?php if ($hasBench): foreach ($benchData as $b): ?> {
+                    type: 'bench',
+                    id: '<?= e($b['id']) ?>',
+                    label: '<?= addslashes($b['name']) ?>'
+                  },
+              <?php endforeach;
+              endif; ?>
+            ];
+
+            const TYPE_LABEL = {
+              scheme: 'Scheme',
+              recipe: 'Recipe',
+              wd: 'WD',
+              bench: 'Bench'
+            };
+            const TYPE_COLOR = {
+              scheme: '#3a6080',
+              recipe: '#4a2a6a',
+              wd: '#7a5a10',
+              bench: '#2a5a3a'
+            };
+
+            const textarea = document.getElementById('jn_body');
+            const picker = document.getElementById('jnMentionPicker');
+            const list = document.getElementById('jnMentionList');
+            let atPos = -1;
+
+            function openPicker(q) {
+              const lower = q.toLowerCase();
+              const hits = JN_MENTIONABLES.filter(m => m.label.toLowerCase().includes(lower) || m.type.includes(lower)).slice(0, 12);
+              if (!hits.length) {
+                closePicker();
+                return;
+              }
+              list.innerHTML = hits.map((m, i) => `<div class="jnmp-row" data-idx="${i}" style="padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1e1a10"><span style="font-size:10px;padding:2px 6px;border-radius:3px;background:${TYPE_COLOR[m.type]};color:#e8d8a0;font-family:'Cinzel',serif;letter-spacing:.04em">${TYPE_LABEL[m.type]}</span><span style="font-size:12px;color:#c4b49a">${m.label}</span></div>`).join('');
+              list.querySelectorAll('.jnmp-row').forEach((row, i) => {
+                row.addEventListener('mouseenter', () => list.querySelectorAll('.jnmp-row').forEach((r, j) => r.style.background = j === i ? '#1c1608' : ''));
+                row.addEventListener('mouseleave', () => row.style.background = '');
+                row.addEventListener('mousedown', ev => {
+                  ev.preventDefault();
+                  insertMention(hits[i]);
+                });
+              });
+              const rect = textarea.getBoundingClientRect();
+              const wrap = textarea.closest('.form-full');
+              picker.style.top = (textarea.offsetTop + textarea.offsetHeight + 4) + 'px';
+              picker.style.left = '0';
+              picker.style.display = 'block';
+            }
+
+            function closePicker() {
+              picker.style.display = 'none';
+              atPos = -1;
+            }
+
+            function insertMention(m) {
+              const val = textarea.value;
+              const token = `@[${m.type}:${m.id}|${m.label}]`;
+              textarea.value = val.slice(0, atPos) + token + val.slice(textarea.selectionEnd);
+              const cur = atPos + token.length;
+              textarea.setSelectionRange(cur, cur);
+              textarea.focus();
+              closePicker();
+            }
+
+            textarea.addEventListener('keyup', ev => {
+              const pos = textarea.selectionStart;
+              const text = textarea.value.slice(0, pos);
+              const at = text.lastIndexOf('@');
+              if (at === -1 || text.slice(at).includes(' ') || text.slice(at).includes('\n')) {
+                closePicker();
+                return;
+              }
+              atPos = at;
+              openPicker(text.slice(at + 1));
+            });
+
+            textarea.addEventListener('keydown', ev => {
+              if (ev.key === 'Escape') closePicker();
+            });
+            document.addEventListener('click', ev => {
+              if (!picker.contains(ev.target) && ev.target !== textarea) closePicker();
+            });
+          })();
       <?php endif; ?>
 
       // ── Brush Inventory ──────────────────────────────────────────
@@ -4843,11 +5161,17 @@ if ($authed && isset($_GET['edit_force'])) {
             const fd = new FormData();
             fd.append('action', 'toggle_force_pin');
             fd.append('force_id', this.dataset.id);
-            const data = await fetch('admin.php', { method: 'POST', body: fd }).then(r => r.json());
+            const data = await fetch('admin.php', {
+              method: 'POST',
+              body: fd
+            }).then(r => r.json());
             if (!data.ok) return;
             if (data.unpinned_id) {
               const other = document.querySelector('.fo-pin-btn[data-id="' + data.unpinned_id + '"]');
-              if (other) { other.classList.remove('fo-pin-active'); other.title = 'Pin to top'; }
+              if (other) {
+                other.classList.remove('fo-pin-active');
+                other.title = 'Pin to top';
+              }
             }
             this.classList.toggle('fo-pin-active', data.pinned);
             this.title = data.pinned ? 'Unpin' : 'Pin to top';
@@ -5038,6 +5362,36 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('benchFormWrap').style.display = 'none';
         });
 
+        function toggleGoalForm(year) {
+          const f = document.getElementById('goal-form-' + year);
+          if (!f) return;
+          const open = f.style.display === 'none';
+          f.style.display = open ? 'flex' : 'none';
+          if (open) document.getElementById('goal-input-' + year)?.focus();
+        }
+        async function saveGoal(year) {
+          const input = document.getElementById('goal-input-' + year);
+          const target = input ? +input.value : 0;
+          if (!target || target < 1) { if (input) input.focus(); return; }
+          const seedInput = document.getElementById('goal-seed-' + year);
+          const seed = seedInput ? Math.max(0, +seedInput.value || 0) : 0;
+          const fd = new FormData();
+          fd.append('action', 'set_goal');
+          fd.append('goal_year', year);
+          fd.append('goal_target', target);
+          fd.append('goal_seed', seed);
+          await fetch('admin.php', { method: 'POST', body: fd });
+          window.location.href = 'admin.php#section-stats';
+        }
+        async function deleteGoal(year) {
+          const fd = new FormData();
+          fd.append('action', 'set_goal');
+          fd.append('goal_year', year);
+          fd.append('goal_target', 0);
+          await fetch('admin.php', { method: 'POST', body: fd });
+          window.location.href = 'admin.php#section-stats';
+        }
+
         async function cycleBenchStage(btn) {
           const bid = btn.dataset.bid;
           const cur = btn.dataset.stage;
@@ -5069,11 +5423,12 @@ if ($authed && isset($_GET['edit_force'])) {
           const esc = s => String(s ?? '').replace(/"/g, '&quot;');
           return `<div class="rc-step">
             <span class="rc-step-num"></span>
-            <input type="text" list="rc_paintList" name="step_paint[]"  value="${esc(step.paint)}" placeholder="Brand|Name|Layer">
+            <input type="text" list="rc_paintList" name="step_paint[]"      value="${esc(step.paint)}"     placeholder="Brand|Name|Layer">
+            <input type="text" list="rc_paintList" name="step_mix_paint[]"  value="${esc(step.mix_paint)}" placeholder="+ mix paint (opt)">
             <select name="step_technique[]">${techOpts}</select>
-            <input type="text" name="step_ratio[]" value="${esc(step.ratio)}" placeholder="ratio">
+            <input type="text" name="step_ratio[]" value="${esc(step.ratio)}" placeholder="ratio (e.g. 3:1)">
             <input type="text" name="step_note[]"  value="${esc(step.note)}"  placeholder="note">
-            <input type="text" list="rc_brushList" name="step_brush[]" value="${esc(step.brush)}" placeholder="brush id (opt)">
+            <input type="text" list="rc_brushList" name="step_brush[]" value="${esc(step.brush)}" placeholder="brush (opt)">
             <div class="rc-step-actions">
               <button type="button" onclick="rcStepUp(this)" title="Move up">▲</button>
               <button type="button" onclick="rcStepDown(this)" title="Move down">▼</button>
@@ -5121,6 +5476,9 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('rc_description').value = '';
           document.getElementById('rc_notes').value = '';
           document.getElementById('rc_steps').innerHTML = '';
+          document.getElementById('rc_image_preview').style.display = 'none';
+          document.getElementById('rc_image_file').value = '';
+          document.getElementById('delete_rc_image').checked = false;
           addRecipeStep();
           document.getElementById('recipeSubmitBtn').textContent = 'Add Recipe';
           const wrap = document.getElementById('recipeFormWrap');
@@ -5145,6 +5503,16 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('rc_steps').innerHTML = '';
           if (steps.length) steps.forEach(s => addRecipeStep(s));
           else addRecipeStep();
+          const img = btn.dataset.image || '';
+          const preview = document.getElementById('rc_image_preview');
+          document.getElementById('delete_rc_image').checked = false;
+          document.getElementById('rc_image_file').value = '';
+          if (img) {
+            document.getElementById('rc_image_thumb').src = img;
+            preview.style.display = 'block';
+          } else {
+            preview.style.display = 'none';
+          }
           document.getElementById('recipeSubmitBtn').textContent = 'Save Changes';
           const wrap = document.getElementById('recipeFormWrap');
           wrap.style.display = 'block';
@@ -5281,12 +5649,14 @@ if ($authed && isset($_GET['edit_force'])) {
           h2.classList.remove('collapsed');
           body.classList.remove('collapsed');
         }
+
         function collapse(h2) {
           const body = h2.nextElementSibling;
           if (!body || !body.classList.contains('admin-section-body')) return;
           h2.classList.add('collapsed');
           body.classList.add('collapsed');
         }
+
         function collapseAll() {
           document.querySelectorAll('h2.collapsible').forEach(collapse);
         }
@@ -5320,7 +5690,9 @@ if ($authed && isset($_GET['edit_force'])) {
           expand(openTarget);
           // Re-scroll after expand so the anchor jump lands correctly
           setTimeout(function() {
-            openTarget.scrollIntoView({ block: 'start' });
+            openTarget.scrollIntoView({
+              block: 'start'
+            });
           }, 0);
         }
       });
@@ -5345,6 +5717,133 @@ if ($authed && isset($_GET['edit_force'])) {
   <?php endif; ?>
 
   <button id="back-to-top" title="Back to top">↑</button>
+
+  <?php if ($authed && $hasBench): ?>
+    <div class="adm-shop-overlay" id="sess-modal-overlay" onclick="if(event.target===this)closeSessionModal()">
+      <div class="adm-shop-sheet">
+        <div class="adm-shop-title">Log Session</div>
+        <div class="adm-shop-subtitle" id="sess-modal-project"></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin:14px 0 4px">
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Date *
+            <input type="date" id="sess-date" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px">
+          </label>
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Duration (minutes, optional)
+            <input type="number" id="sess-duration" min="1" placeholder="e.g. 90" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px">
+          </label>
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Notes (optional)
+            <textarea id="sess-note" rows="3" placeholder="What did you work on?" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px;resize:vertical"></textarea>
+          </label>
+        </div>
+        <div class="adm-shop-actions">
+          <button class="btn btn-sm" onclick="submitSessionLog()">Log Session</button>
+          <button class="btn btn-sm" onclick="closeSessionModal()" style="background:#1a1a1a">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let _sessModalBid = '';
+      function openSessionModal(btn) {
+        _sessModalBid = btn.dataset.bid;
+        document.getElementById('sess-modal-project').textContent = btn.dataset.bname || '';
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('sess-date').value = today;
+        document.getElementById('sess-duration').value = '';
+        document.getElementById('sess-note').value = '';
+        document.getElementById('sess-modal-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('sess-duration').focus();
+      }
+      function closeSessionModal() {
+        document.getElementById('sess-modal-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+      async function submitSessionLog() {
+        const date = document.getElementById('sess-date').value.trim();
+        if (!date) { document.getElementById('sess-date').focus(); return; }
+        const fd = new FormData();
+        fd.append('action', 'log_bench_session');
+        fd.append('bench_id', _sessModalBid);
+        fd.append('sess_date', date);
+        const dur = document.getElementById('sess-duration').value.trim();
+        if (dur) fd.append('sess_duration', dur);
+        const note = document.getElementById('sess-note').value.trim();
+        if (note) fd.append('sess_note', note);
+        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) closeSessionModal();
+      }
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.getElementById('sess-modal-overlay').classList.contains('open')) closeSessionModal();
+      });
+    </script>
+  <?php endif; ?>
+
+  <?php if ($authed): ?>
+    <div class="adm-shop-overlay" id="gallery-sess-overlay" onclick="if(event.target===this)closeGallerySessionModal()">
+      <div class="adm-shop-sheet">
+        <div class="adm-shop-title">Log Painted Models</div>
+        <div class="adm-shop-subtitle" id="gallery-sess-project"></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin:14px 0 4px">
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Date *
+            <input type="date" id="gallery-sess-date" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px">
+          </label>
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Models painted *
+            <input type="number" id="gallery-sess-count" min="1" placeholder="e.g. 3" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px">
+          </label>
+          <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
+            Notes (optional)
+            <textarea id="gallery-sess-note" rows="3" placeholder="What did you finish?" style="display:block;margin-top:4px;width:100%;background:#1a1508;border:1px solid #3a2a10;color:#c4b49a;padding:6px 8px;border-radius:3px;font-size:13px;resize:vertical"></textarea>
+          </label>
+        </div>
+        <div class="adm-shop-actions">
+          <button class="btn btn-sm" onclick="submitGallerySessionLog()">Log</button>
+          <button class="btn btn-sm" onclick="closeGallerySessionModal()" style="background:#1a1a1a">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      let _galSessMid = '';
+      function openGallerySessionModal(btn) {
+        _galSessMid = btn.dataset.mid;
+        document.getElementById('gallery-sess-project').textContent = btn.dataset.mname || '';
+        const today = new Date().toISOString().slice(0, 10);
+        document.getElementById('gallery-sess-date').value = today;
+        document.getElementById('gallery-sess-count').value = '';
+        document.getElementById('gallery-sess-note').value = '';
+        document.getElementById('gallery-sess-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('gallery-sess-count').focus();
+      }
+      function closeGallerySessionModal() {
+        document.getElementById('gallery-sess-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+      async function submitGallerySessionLog() {
+        const date = document.getElementById('gallery-sess-date').value.trim();
+        const count = +document.getElementById('gallery-sess-count').value;
+        if (!date) { document.getElementById('gallery-sess-date').focus(); return; }
+        if (!count || count < 1) { document.getElementById('gallery-sess-count').focus(); return; }
+        const fd = new FormData();
+        fd.append('action', 'log_gallery_session');
+        fd.append('model_id', _galSessMid);
+        fd.append('sess_date', date);
+        fd.append('sess_count', count);
+        const note = document.getElementById('gallery-sess-note').value.trim();
+        if (note) fd.append('sess_note', note);
+        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) closeGallerySessionModal();
+      }
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.getElementById('gallery-sess-overlay').classList.contains('open')) closeGallerySessionModal();
+      });
+    </script>
+  <?php endif; ?>
 
   <?php if ($authed && $missingPlanned > 0): ?>
     <div class="adm-shop-overlay" id="adm-shop-overlay" onclick="if(event.target===this)closeAdmShopModal()">
@@ -5407,17 +5906,28 @@ if ($authed && isset($_GET['edit_force'])) {
 
       function wishlistTypeChange() {
         const t = document.getElementById('wl_type') ? document.getElementById('wl_type').value : 'paint';
-        const nameLabs = {paint:'Paint Name *',model:'Kit / Model Name *',brush:'Series & Size *',codex:'Title *',wd:'Issue Number *'};
-        const nl = document.getElementById('wl_name_label'); if (nl) nl.textContent = nameLabs[t] || 'Name *';
-        const show = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? '' : 'none'; };
-        show('wl_brand_row',   t === 'paint' || t === 'brush');
+        const nameLabs = {
+          paint: 'Paint Name *',
+          model: 'Kit / Model Name *',
+          brush: 'Series & Size *',
+          codex: 'Title *',
+          wd: 'Issue Number *'
+        };
+        const nl = document.getElementById('wl_name_label');
+        if (nl) nl.textContent = nameLabs[t] || 'Name *';
+        const show = (id, vis) => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = vis ? '' : 'none';
+        };
+        show('wl_brand_row', t === 'paint' || t === 'brush');
         show('wl_faction_row', t === 'model' || t === 'codex');
-        show('wl_system_row',  t === 'model');
+        show('wl_system_row', t === 'model');
       }
       wishlistTypeChange();
 
       function openWishlistAdd() {
-        const fw = document.getElementById('wishlistFormWrap'); if (!fw) return;
+        const fw = document.getElementById('wishlistFormWrap');
+        if (!fw) return;
         fw.style.display = '';
         document.getElementById('wishlistFormTitle').textContent = 'Add Item';
         document.getElementById('wishlistAction').value = 'add_wishlist_item';
@@ -5425,14 +5935,20 @@ if ($authed && isset($_GET['edit_force'])) {
         document.getElementById('wishlistSubmitBtn').textContent = 'Add Item';
         document.getElementById('wl_type').value = 'paint';
         document.getElementById('wl_priority').value = 'medium';
-        ['wl_name','wl_brand','wl_faction','wl_notes','wl_url'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-        const sys = document.getElementById('wl_system'); if (sys) sys.value = '';
+        ['wl_name', 'wl_brand', 'wl_faction', 'wl_notes', 'wl_url', 'wl_ordered_date'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        const sys = document.getElementById('wl_system');
+        if (sys) sys.value = '';
         wishlistTypeChange();
-        const nm = document.getElementById('wl_name'); if (nm) nm.focus();
+        const nm = document.getElementById('wl_name');
+        if (nm) nm.focus();
       }
 
       function openWishlistEdit(btn) {
-        const fw = document.getElementById('wishlistFormWrap'); if (!fw) return;
+        const fw = document.getElementById('wishlistFormWrap');
+        if (!fw) return;
         fw.style.display = '';
         document.getElementById('wishlistFormTitle').textContent = 'Edit Item';
         document.getElementById('wishlistAction').value = 'edit_wishlist_item';
@@ -5443,20 +5959,26 @@ if ($authed && isset($_GET['edit_force'])) {
         document.getElementById('wl_name').value = btn.dataset.name || '';
         document.getElementById('wl_brand').value = btn.dataset.brand || '';
         document.getElementById('wl_faction').value = btn.dataset.faction || '';
-        const sys = document.getElementById('wl_system'); if (sys) sys.value = btn.dataset.system || '';
+        const sys = document.getElementById('wl_system');
+        if (sys) sys.value = btn.dataset.system || '';
         document.getElementById('wl_notes').value = btn.dataset.notes || '';
         document.getElementById('wl_url').value = btn.dataset.url || '';
+        const od = document.getElementById('wl_ordered_date');
+        if (od) od.value = btn.dataset.orderedDate || '';
         wishlistTypeChange();
-        fw.scrollIntoView({behavior:'smooth'});
+        fw.scrollIntoView({
+          behavior: 'smooth'
+        });
       }
 
       function cancelWishlistEdit() {
-        const fw = document.getElementById('wishlistFormWrap'); if (fw) fw.style.display = 'none';
+        const fw = document.getElementById('wishlistFormWrap');
+        if (fw) fw.style.display = 'none';
         document.getElementById('wishlistAction').value = 'add_wishlist_item';
         document.getElementById('wlId').value = '';
       }
     </script>
   <?php endif; ?>
-</body>
+  </body>
 
 </html>

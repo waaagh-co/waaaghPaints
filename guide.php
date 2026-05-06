@@ -239,13 +239,13 @@ if (empty($_SESSION['admin'])) {
       <li><strong>The Handbook</strong> - Recipes, featured prominently at the top since it's the heart of the technique library</li>
       <li><strong>The Work</strong> - Paint Schemes, Factions, Pile of Shame, Planned, On the Bench</li>
       <li><strong>The Collection</strong> - Paint Inventory, Brushes</li>
-      <li><strong>Reference Tools</strong> - Equivalency, Colour Match</li>
-      <li><strong>Reading &amp; Inspiration</strong> - White Dwarf, Codices, Scrap Notes</li>
+      <li><strong>Reference Tools</strong> - Equivalency</li>
+      <li><strong>Reading &amp; Inspiration</strong> - Codices, Scrap Notes</li>
     </ul>
-    <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, White Dwarf, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
+    <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
 
     <h3>Global Search</h3>
-    <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, White Dwarf issues, codices, and journal entries.</p>
+    <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, codices, and journal entries.</p>
     <ul>
       <li><strong>Open with</strong> Ctrl+K (Windows/Linux), Cmd+K (Mac), the <strong>/</strong> key when not typing in a field, or the gold magnifier button fixed at the top-right of the page</li>
       <li>Results are grouped by type (Scheme, Recipe, Paint, Planned, etc.), each capped at 8 results per type</li>
@@ -327,7 +327,6 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Readiness filter pills</strong> - All / Ready / Almost / Needs Work; filter to exactly what you're looking for</li>
       <li><strong>Search box</strong> - filters cards by name, faction, kit, or description</li>
       <li><strong>Game System filter</strong> - dropdown to filter by 40k, Kill Team, etc.</li>
-      <li><strong>WD source badge</strong> - if a scheme was inspired by a White Dwarf issue, a gold <em>WD #NNN</em> badge appears on the card; click it to jump straight to that issue's notes in the White Dwarf tab</li>
       <li><strong>Shopping List button</strong> - aggregates every missing or low paint across <em>all</em> planned schemes into one printable/copyable list, grouped by brand and split into "Must Buy" and "Consider Restocking"</li>
     </ul>
 
@@ -365,15 +364,6 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Pull Sheet</strong> on any scheme that uses recipes becomes a <em>sequenced step-by-step guide</em> - each recipe as a numbered section, each step labelled with technique + paint + ratio/note. Paints not covered by a recipe fall under &quot;Other paints.&quot;</li>
     </ul>
 
-    <h3>White Dwarf tab</h3>
-    <p>A personal reference log of your White Dwarf issues - only visible if the log has been started in Admin.</p>
-    <ul>
-      <li><strong>Search box</strong> - searches across issue numbers and all notes instantly; matched terms are highlighted in gold</li>
-      <li>Each entry shows the issue number, format badge (Physical / Digital / Both), month, and your full notes</li>
-      <li>Category headers in your notes (lines ending in <strong>:</strong> such as "Paint Schemes:") are rendered in gold to aid scanning</li>
-      <li>Entries are sorted newest issue first</li>
-    </ul>
-
     <h3>Codices tab</h3>
     <p>A reference shelf for your Codexes and Supplements - only visible if the Codex Library has been started in Admin.</p>
     <ul>
@@ -392,7 +382,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Month navigation</strong> - the tab shows one calendar month at a time. Use the <strong>&lsaquo;</strong> and <strong>&rsaquo;</strong> arrows to step back or forward a month. Click the month label to jump to a specific year</li>
       <li><strong>Search box</strong> - type anything to search across all months at once (date, title, body). Clearing the search returns to month view</li>
       <li>Entries within a month are sorted newest first</li>
-      <li><strong>@mentions</strong> - in the body, type <code>@</code> to get a picker that lets you tag a Paint Scheme, Recipe, White Dwarf issue, or On the Bench project. The tag renders as a clickable coloured badge that jumps straight to the referenced entry</li>
+      <li><strong>@mentions</strong> - in the body, type <code>@</code> to get a picker that lets you tag a Paint Scheme, Recipe, or On the Bench project. The tag renders as a clickable coloured badge that jumps straight to the referenced entry</li>
     </ul>
     <div class="tip">The journal is the narrative thread the rest of the app lacks. On the Bench notes are tied to a specific project and go away when it's done. Journal entries are for everything else - sessions, discoveries, reflections across multiple projects at once.</div>
 
@@ -413,15 +403,16 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Match quality badges</strong> tell you how close the conversion is: <em>near identical</em>, <em>usable</em>, or <em>avoid</em></li>
     </ul>
 
-    <h3>Colour Match tab</h3>
-    <p>Drop a reference photo (Eavy Metal page, Instagram screenshot, real model) and the app extracts the dominant colours and finds the closest paints in this collection. Pure client-side - no upload, no server processing.</p>
-    <p><strong>Personal ballpark tool</strong> - accuracy approaches ~90% with an accurate, well-lit, white-balanced reference photo. Lighting, screen calibration, and photo quality all affect results. Treat suggestions as starting points, not gospel.</p>
+    <h3>Wishlist tab</h3>
+    <p>Track everything you want to acquire - paints, kits, brushes, and codices. Only visible once started in Admin.</p>
     <ul>
-      <li><strong>Pick a photo</strong> - on mobile this opens the camera; on desktop, a file picker</li>
-      <li><strong>Six dominant colour tiles</strong> appear, sorted by how much of the image they take up</li>
-      <li>Each tile shows the colour swatch + percentage + the top 3 closest paint matches from the inventory</li>
-      <li>Each suggestion shows the paint hex swatch, brand &middot; layer, ownership/stock dot, and a distance label: <em>very close</em>, <em>close</em>, or <em>rough</em></li>
-      <li>Only paints with a hex value participate - the count "N of M paints matchable" appears in the controls bar; add hex values in admin to expand coverage</li>
+      <li>Cards show a coloured vertical spine (type), priority badge, name, brand/faction/system, notes, and a product link if set</li>
+      <li><strong>Type filter pills</strong> - filter to just Paints, Models, Brushes, or Codices</li>
+      <li><strong>In Transit pill</strong> - shows only items you've already ordered but haven't received yet</li>
+      <li><strong>Priority filter pills</strong> - High / Medium / Low to focus on what matters right now</li>
+      <li><strong>Search box</strong> - filters across name, brand, faction, system, notes, type, and order date</li>
+      <li><strong>Stock dot</strong> (paint-type items) - shows whether you already own the paint and at what stock level</li>
+      <li><strong>Copy / Print buttons</strong> - export the current wishlist as plain text, grouped by type, for shopping</li>
     </ul>
 
     <h3>Installing as an App</h3>
@@ -433,17 +424,18 @@ if (empty($_SESSION['admin'])) {
   <!-- ══════════════ ADMIN ══════════════ -->
   <div class="page-section">
     <div class="page-section-title"><span class="section-icon">⚙️</span> Admin (admin.php)</div>
-    <p>A sticky quick-nav bar at the top lets you jump to any section instantly. Links for Brushes, White Dwarf, Codices, and Scrap Notes only appear in the nav when those features are active.</p>
+    <p>A sticky quick-nav bar at the top lets you jump to any section instantly. Links for Brushes, Codices, and Scrap Notes only appear in the nav when those features are active.</p>
     <p>All sections are <strong>collapsed by default</strong> - click a section heading or a quicknav link to expand it. Only one section is open at a time.</p>
 
     <h3>Hobby Stats</h3>
     <p>The first thing you see after logging in - a live summary computed from your data:</p>
     <ul>
-      <li><strong>Key numbers</strong> - paints owned, recorded schemes, models painted (shown when total across all schemes exceeds the scheme count), planned schemes, WD issues logged, books read, active brushes, recipes, journal entries (cards only appear for active features). Also: <strong>Low / Out</strong> (paints needing a restock) and <strong>Missing (Planned)</strong> (unique paints referenced in planned schemes you don't own yet - click the card to see a full list grouped by brand)</li>
+      <li><strong>Key numbers</strong> - paints owned, recorded schemes, models painted (shown when total across all schemes exceeds the scheme count), planned schemes, books read, active brushes, recipes, journal entries (cards only appear for active features). Also: <strong>Low / Out</strong> (paints needing a restock) and <strong>Missing (Planned)</strong> (unique paints referenced in planned schemes you don't own yet - click the card to see a full list grouped by brand)</li>
       <li><strong>Collection by Brand</strong> - horizontal bars showing how many paints you own per brand</li>
       <li><strong>Gallery by Faction</strong> - scheme counts per faction with model counts; year breakdown appears once you have schemes across multiple years</li>
       <li><strong>Most Used Paints</strong> - top 8 paints ranked by how many gallery schemes reference them</li>
       <li><strong>Tab Visits</strong> - horizontal bars showing how many times each tab has been clicked; appears automatically once you've used the site (no setup needed)</li>
+      <li><strong>Annual Goals (By Year)</strong> - each year row has a <strong>+ Goal</strong> (or pencil) button that opens an inline form with two fields: <em>Target</em> (how many models you want to paint this year) and <em>Baseline</em> (models you'd already painted before you started logging sessions - use this if you back-logged entries and need an accurate starting count). Saving writes a progress bar + painted/target count beneath the year. The current year always shows even if nothing is logged yet. When your session count hits the target, a <strong>Goal reached!</strong> badge appears and the bar fills gold. The goal also shows as a slim progress strip on the landing page of the main site. Remove a goal with the <strong>&times;</strong> button.</li>
     </ul>
 
     <h3>Gallery Form</h3>
@@ -462,7 +454,13 @@ if (empty($_SESSION['admin'])) {
     </ul>
 
     <h3>Existing Entries</h3>
-    <p>A scrollable list of all gallery entries with thumbnail, name, faction, and paint counts. Click <strong>Edit</strong> to modify any entry or <strong>Delete</strong> to remove it.</p>
+    <p>A scrollable list of all gallery entries with thumbnail, name, faction, and paint counts.</p>
+    <ul>
+      <li><strong>+ Log</strong> - records a painting session against that gallery entry: date, how many models you finished in that session, and an optional note. Session counts accumulate toward your annual goal progress. This is different from the "Models Painted" count field on the entry itself (which is a lifetime total) - sessions are how you track what you completed <em>this year</em></li>
+      <li><strong>Edit</strong> - modify the entry; all logged sessions are preserved</li>
+      <li><strong>Delete</strong> - removes the entry with confirmation</li>
+    </ul>
+    <div class="tip">The annual goal on the Stats page is driven by session logs (+ Baseline seed), not by the entry date or the "Models Painted" count. Log a session each time you finish a batch of models to keep your progress accurate.</div>
 
     <h3>Paint Inventory</h3>
     <p>Manage your full paint list.</p>
@@ -497,6 +495,17 @@ if (empty($_SESSION['admin'])) {
     </ul>
     <p>Each paint gets a status: ✓ owned, ▲ low stock, ✗ out, ◇ wanted, or ✗ not found. For missing or unavailable paints the checker suggests the closest substitute you <em>do</em> own - checking the equivalency table first, then falling back to same-colour-category matches from another brand.</p>
 
+    <h3>Hobby Wishlist</h3>
+    <p>Click <strong>Start Hobby Wishlist</strong> to activate it. Once active:</p>
+    <ul>
+      <li>Add items of any type (Paint, Model, Brush, Codex, WD) with name, brand/faction/system (type-dependent), priority, product URL, and notes</li>
+      <li><strong>Mark Ordered button</strong> - click on any wishlist row to stamp today's date as the order date, without opening the edit form. The row switches to show an amber "Ordered YYYY-MM-DD" badge so you know it's in transit. Click <em>Clear</em> to remove the order date if it arrives or you cancel</li>
+      <li><strong>Order Date field</strong> - also available in the add/edit form if you want to back-date an order or set a specific date</li>
+      <li><strong>Promote to Shame</strong> (model-type items only) - when the kit arrives, promote it directly to the Pile of Shame. The wishlist entry is kept with a gold "Promoted" badge for history</li>
+      <li>All items are visible in the Wishlist tab on the main site, where they can be filtered by type, priority, or "In Transit" status</li>
+    </ul>
+    <div class="tip">The workflow: Add to Wishlist &rarr; click "Mark Ordered" when you buy it &rarr; when the box arrives, promote models to Pile of Shame (or clear the order date for paints/brushes and update your inventory separately).</div>
+
     <h3>Pile of Shame</h3>
     <p>Click <strong>Start Pile of Shame</strong> to activate it. Once active:</p>
     <ul>
@@ -511,7 +520,6 @@ if (empty($_SESSION['admin'])) {
     <p>Build a paint scheme for a model you haven't started yet.</p>
     <ul>
       <li>Add a name, kit, faction, game system, notes, and tag paints from the colour picker</li>
-      <li><strong>WD Issue field</strong> - optionally link a scheme to a White Dwarf issue number; a gold badge appears on the main site card and clicking it jumps to that issue's notes</li>
       <li><strong>Recipes</strong> - optionally link recipes the same way as gallery entries</li>
       <li>Plans appear on the Planned tab of the main site and feed into the Shopping List</li>
       <li>Edit or delete any scheme from the list below the form</li>
@@ -523,6 +531,7 @@ if (empty($_SESSION['admin'])) {
     <ul>
       <li><strong>+ Add Bench Entry</strong> - name (required), faction, game system, current stage, date started, notes, paint queue (same picker style as planned schemes), brushes (multi-select pills, non-retired only), and up to 8 WIP photos in the photo grid</li>
       <li><strong>Stage cycle button</strong> on each entry - click to advance: Built &rarr; Primed &rarr; Basecoated &rarr; Washed &rarr; Highlighted &rarr; Based &rarr; Varnished &rarr; Done &rarr; back to Built; cycles in place without a page reload, stamps "last touched" automatically, and logs the transition to a stage history on the entry</li>
+      <li><strong>+ Session</strong> on each bench entry - logs a painting session for that project: date, duration in minutes (optional), and notes. This tracks <em>time spent</em> on a WIP project and feeds the "Sessions" and "Hobby Hours" stat cards. It does <em>not</em> affect your annual model count goal - use <strong>+ Log</strong> on Existing Entries (gallery) for that</li>
       <li><strong>Stage colours</strong> match the front-end: Built (grey) &rarr; Primed (light grey) &rarr; Basecoated/Washed (blue) &rarr; Highlighted (gold) &rarr; Based (brown) &rarr; Varnished (cream) &rarr; Done (green)</li>
       <li><strong>WIP photos</strong> - 8 positional slots. Upload to a slot to add, tick the Delete checkbox in a slot to clear it</li>
       <li><strong>Edit / &times;</strong> - update or remove any entry; deleting also removes the photo files</li>
@@ -551,15 +560,6 @@ if (empty($_SESSION['admin'])) {
     </ul>
     <div class="tip">Keep recipes <em>universal</em> where possible (&quot;Ork Skin,&quot; &quot;NMM Gold&quot;) so they compose across models. Scheme-specific variants (&quot;Death Guard Armour&quot;) work fine too - use the category/faction fields to tell them apart.</div>
 
-    <h3>White Dwarf Log</h3>
-    <p>Click <strong>Start White Dwarf Log</strong> to activate it - creates the data file and makes the tab appear on the main site. Once active:</p>
-    <ul>
-      <li><strong>+ Add Issue</strong> - enter issue number, format (Physical / Digital / Both), month (YYYY-MM), and freeform notes</li>
-      <li>Notes are the main value: record page numbers, paint scheme names, battle report highlights - anything you'll want to search later</li>
-      <li><strong>Edit / &times;</strong> - update or remove any entry</li>
-    </ul>
-    <div class="tip">Structure your notes with category headers ending in a colon (e.g. <strong>Paint Schemes:</strong>) - they render in gold on the main site, making issues much easier to scan.</div>
-
     <h3>Codex Library</h3>
     <p>Click <strong>Start Codex Library</strong> to activate it. Codex-only reference shelf. Once active:</p>
     <ul>
@@ -578,14 +578,14 @@ if (empty($_SESSION['admin'])) {
     <ul>
       <li><strong>+ Add Entry</strong> - date (defaults to today), optional mood (Great / Good / Okay / Rough), optional title, and the entry body (required)</li>
       <li>Use the body for anything: what you painted, a technique discovery, a session debrief across multiple projects, or just a note that you sat down and it didn't go anywhere</li>
-      <li>Type <code>@</code> in the body to open the mention picker - tag a Paint Scheme, Recipe, White Dwarf issue, or On the Bench project by name</li>
+      <li>Type <code>@</code> in the body to open the mention picker - tag a Paint Scheme, Recipe, or On the Bench project by name</li>
       <li>Entries sort newest first; the entry list is scroll-capped in admin so it doesn't swamp the page</li>
       <li><strong>Filter box</strong> above the entry list - type a date or keyword to find a specific entry instantly without scrolling through everything</li>
       <li><strong>Edit / &times;</strong> - update or remove any entry</li>
     </ul>
 
     <h3>Export Backup</h3>
-    <p>The <strong>Export Backup</strong> button in the top-right of the admin page (next to Log Out) downloads a single JSON file containing all your data - paints, schemes, planned schemes, bench projects, recipes, brushes, journal, White Dwarf log, Codex Library, and tab stats. Images are not included. Keep a copy somewhere safe; restoring means putting the JSON files back in the <code>data/</code> folder.</p>
+    <p>The <strong>Export Backup</strong> button in the top-right of the admin page (next to Log Out) downloads a single JSON file containing all your data - paints, schemes, planned schemes, bench projects, recipes, brushes, journal, Codex Library, and tab stats. Images are not included. Keep a copy somewhere safe; restoring means putting the JSON files back in the <code>data/</code> folder.</p>
 
     <div class="tip">The main site is read-only - all edits and additions go through admin.</div>
   </div>

@@ -693,44 +693,6 @@
       border-color: #1a3a5a;
     }
 
-    /* ── White Dwarf ── */
-    .wd-admin-fmt {
-      display: inline-block;
-      font-size: 9px;
-      font-family: 'Cinzel', serif;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 1px 6px;
-      border-radius: 3px;
-    }
-
-    .wd-fmt-physical {
-      background: #0e130a;
-      color: #5a8a3a;
-      border: 1px solid #2a4a1a;
-    }
-
-    .wd-fmt-digital {
-      background: #0a0e18;
-      color: #4a6a9a;
-      border: 1px solid #1a2a4a;
-    }
-
-    .wd-fmt-both {
-      background: #130e1a;
-      color: #7a5a9a;
-      border: 1px solid #3a1a5a;
-    }
-
-    .wd-notes-preview {
-      font-size: 11px;
-      color: #4a3a1a;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 280px;
-    }
-
     .bk-status-reading {
       font-size: 9px;
       font-family: 'Cinzel', serif;
@@ -969,7 +931,7 @@
     /* Recipe step builder */
     .rc-step {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 2fr 1fr auto;
+      grid-template-columns: 2fr 2fr 1fr 1fr 2fr 1fr auto;
       gap: 6px;
       align-items: start;
       padding: 6px 0;
@@ -1416,6 +1378,20 @@
       font-size: 11px;
     }
 
+    .stats-year-row { display: flex; flex-direction: column; padding: 4px 0; border-bottom: 1px solid #1a1406; gap: 3px; }
+    .stats-year-main { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+    .stats-year-label { color: #b8a88a; flex-shrink: 0; }
+    .stats-year-count { color: #c9a227; font-family: 'Cinzel', serif; font-size: 11px; margin-left: auto; }
+    .stats-goal-btn { background: none; border: none; cursor: pointer; color: #6a5a2a; font-size: 11px; padding: 0 2px; line-height: 1; }
+    .stats-goal-btn:hover { color: #c9a227; }
+    .stats-goal-del { background: none; border: none; cursor: pointer; color: #5a2a2a; font-size: 13px; padding: 0 2px; line-height: 1; }
+    .stats-goal-del:hover { color: #c05050; }
+    .stats-goal-bar-wrap { width: 100%; height: 4px; background: #1a1406; border-radius: 2px; overflow: hidden; }
+    .stats-goal-bar-fill { height: 4px; background: #c9a227; border-radius: 2px; transition: width .3s; }
+    .stats-goal-complete { font-family: 'Cinzel', serif; font-size: 9px; color: #5a9a5a; letter-spacing: .06em; text-transform: uppercase; }
+    .stats-goal-form { display: none; align-items: center; gap: 5px; margin-top: 2px; }
+    .stats-goal-input { background: #1a1508; border: 1px solid #3a2a10; color: #c4b49a; padding: 3px 6px; border-radius: 3px; font-size: 12px; width: 80px; }
+
     .stats-top-paints {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1484,4 +1460,29 @@
       font-size: 9px;
       margin-left: 4px;
     }
-  
+
+    /* ── Wishlist ordered status ── */
+    .wish-ordered-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: #2a1800;
+      color: #f0a030;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+    }
+    .btn-ordered {
+      background: #2a1800;
+      color: #f0a030;
+      border: 1px solid #f0a030;
+    }
+    .btn-ordered:hover { background: #3a2200; }
+    .btn-ordered-clear {
+      background: none;
+      color: #5a4a28;
+      border: none;
+      font-size: 10px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0 2px;
+    }

@@ -1,7 +1,19 @@
+# Personal config - never commit your real config.php
+config.php
+
 # Personal data - not committed
 data/
 img/models/
 img/bench/
+img/recipes/
+
+# Inventory CSVs - only the sample files are committed
+inventory/*.csv
+!inventory/ttc.csv
+!inventory/conversions.csv
 
 # Claude Code session files
 .claude/
+
+# Claude Build Notes
+CLAUDE.md

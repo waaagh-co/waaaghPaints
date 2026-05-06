@@ -1,17 +1,12 @@
 <?php
+require_once __DIR__ . '/config.php';
 $paintsJsonFile = __DIR__ . '/data/paints.json';
 if (file_exists($paintsJsonFile)) {
   $paints = json_decode(file_get_contents($paintsJsonFile), true) ?? [];
 } else {
   $paints = [];
-  $files = [
-    __DIR__ . '/inventory/citadel.csv',
-    __DIR__ . '/inventory/proacryl.csv',
-    __DIR__ . '/inventory/vallejo.csv',
-    __DIR__ . '/inventory/armypainter.csv',
-    __DIR__ . '/inventory/oils.csv',
-  ];
-  foreach ($files as $path) {
+  foreach (glob(__DIR__ . '/inventory/*.csv') ?: [] as $path) {
+    if (basename($path) === 'conversions.csv') continue;
     $fh = fopen($path, 'r');
     if (!$fh) continue;
     while (($line = fgets($fh)) !== false) {
@@ -39,11 +34,6 @@ $modelsJson = json_encode($models, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT 
 $plannedFile = __DIR__ . '/data/planned.json';
 $planned     = file_exists($plannedFile) ? (json_decode(file_get_contents($plannedFile), true) ?? []) : [];
 $plannedJson = json_encode($planned, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-
-$wdFile     = __DIR__ . '/data/whitedwarf.json';
-$hasWD      = file_exists($wdFile);
-$wdData     = $hasWD ? (json_decode(file_get_contents($wdFile), true) ?? []) : [];
-$wdDataJson = $hasWD ? json_encode($wdData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
 
 $booksFile     = __DIR__ . '/data/books.json';
 $hasBooks      = file_exists($booksFile);
@@ -87,6 +77,22 @@ $hasWishlist      = file_exists($wishlistFile);
 $wishlistData     = $hasWishlist ? (json_decode(file_get_contents($wishlistFile), true) ?? []) : [];
 $wishlistDataJson = $hasWishlist ? json_encode($wishlistData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
 
+$goalsData    = file_exists(__DIR__ . '/data/goals.json') ? (json_decode(file_get_contents(__DIR__ . '/data/goals.json'), true) ?? []) : [];
+$curYear      = date('Y');
+$rawGoal      = $goalsData[$curYear] ?? null;
+$curYearGoal  = is_array($rawGoal) ? (int)($rawGoal['target'] ?? 0) : (int)($rawGoal ?? 0);
+$curYearSeed  = is_array($rawGoal) ? (int)($rawGoal['seed']   ?? 0) : 0;
+$curYearCount = $curYearSeed;
+if ($curYearGoal > 0) {
+  foreach ($models as $m) {
+    foreach ($m['sessions'] ?? [] as $s) {
+      if (!empty($s['date']) && substr($s['date'], 0, 4) === $curYear)
+        $curYearCount += max(1, (int)($s['count'] ?? 1));
+    }
+  }
+}
+$goalPct = $curYearGoal > 0 ? min(100, (int)round($curYearCount / $curYearGoal * 100)) : 0;
+
 // Load conversions for equivalency tab
 $conversionsData = [];
 $convPath = __DIR__ . '/inventory/conversions.csv';
@@ -115,7 +121,7 @@ $conversionsDataJson = json_encode($conversionsData, JSON_HEX_TAG | JSON_HEX_APO
 if (($_POST['action'] ?? '') === 'track_tab') {
   header('Content-Type: application/json');
   $tab     = trim($_POST['tab'] ?? '');
-  $allowed = ['contents', 'inventory', 'brushes', 'gallery', 'factions', 'equiv', 'match', 'recipes', 'planned', 'bench', 'shame', 'wd', 'books', 'journals'];
+  $allowed = ['contents', 'inventory', 'brushes', 'gallery', 'factions', 'equiv', 'recipes', 'planned', 'bench', 'shame', 'wd', 'books', 'journals'];
   if (in_array($tab, $allowed, true)) {
     $file  = __DIR__ . '/data/tab_stats.json';
     $stats = file_exists($file) ? (json_decode(file_get_contents($file), true) ?? []) : [];
@@ -130,14 +136,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 <html lang="en">
 
 <head>
+<?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J9PVQM31KG"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars(GA4_ID) ?>"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-J9PVQM31KG');
+    gtag('config', '<?= htmlspecialchars(GA4_ID) ?>');
   </script>
+<?php endif; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waaagh! Paint Collection</title>
@@ -149,21 +157,21 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Waaagh! Paint">
   <link rel="apple-touch-icon" href="img/logo_sm.png">
-  <link rel="canonical" href="https://waaagh.co/">
+  <link rel="canonical" href="<?= htmlspecialchars(SITE_URL) ?>">
   <meta name="description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
   <meta property="og:type"        content="website">
-  <meta property="og:url"         content="https://waaagh.co/">
+  <meta property="og:url"         content="<?= htmlspecialchars(SITE_URL) ?>">
   <meta property="og:title"       content="Waaagh! Paint Collection">
   <meta property="og:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
-  <meta property="og:image"       content="https://waaagh.co/img/logo_sm.png">
+  <meta property="og:image"       content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <meta name="twitter:card"        content="summary">
   <meta name="twitter:title"       content="Waaagh! Paint Collection">
   <meta name="twitter:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
-  <meta name="twitter:image"       content="https://waaagh.co/img/logo_sm.png">
+  <meta name="twitter:image"       content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=14">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Waaagh! Paint Collection","url":"https://waaagh.co/","description":"Personal Warhammer 40k hobby paint collection tracker - model gallery, recipes, workbench, and codex reference library."}</script>
+  <link rel="stylesheet" href="styles.css?v=23">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Waaagh! Paint Collection","url":"<?= htmlspecialchars(SITE_URL) ?>","description":"Personal Warhammer 40k hobby paint collection tracker - model gallery, recipes, workbench, and codex reference library."}</script>
 </head>
 
 <body>
@@ -191,9 +199,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <?php if ($hasWishlist): ?><button class="tab-btn" data-tab="wishlist" title="The Workbench"><span class="tab-full">Wishlist</span><span class="tab-short">Wish</span></button><?php endif; ?>
     <!-- The Library -->
     <button class="tab-btn tab-group-start tab-equiv-rainbow" data-tab="equiv" title="The Library"><span class="tab-full">Equivalency</span><span class="tab-short">Equiv.</span></button>
-    <?php if ($hasWD): ?><button class="tab-btn" data-tab="wd" title="The Library"><span class="tab-full">White Dwarf</span><span class="tab-short">WD</span></button><?php endif; ?>
     <?php if ($hasBooks): ?><button class="tab-btn" data-tab="books" title="The Library"><span class="tab-full">Codices</span><span class="tab-short">Codex</span></button><?php endif; ?>
-    <?php if ($hasJournal): ?><button class="tab-btn<?= ($hasWD || $hasBooks) ? '' : ' tab-group-start' ?>" data-tab="journals" title="The Library"><span class="tab-full">Scrap Notes</span><span class="tab-short">Scrap</span></button><?php endif; ?>
+    <?php if ($hasJournal): ?><button class="tab-btn<?= $hasBooks ? '' : ' tab-group-start' ?>" data-tab="journals" title="The Library"><span class="tab-full">Scrap Notes</span><span class="tab-short">Scrap</span></button><?php endif; ?>
   </nav>
 
   <?php if ($hasBrushes): ?>
@@ -263,7 +270,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       $cnt_brushes  = $hasBrushes ? count(array_filter($brushesData, fn($b) => ($b['condition'] ?? 'prime') !== 'retired')) : 0;
       $cnt_bench    = $hasBench   ? count(array_filter($benchData, fn($b) => ($b['stage'] ?? 'built') !== 'done')) : 0;
       $cnt_recipes  = $hasRecipes ? count($recipesData) : 0;
-      $cnt_wd       = $hasWD      ? count($wdData) : 0;
       $cnt_books    = $hasBooks   ? count($booksData) : 0;
       $cnt_journal  = $hasJournal ? count($journalData) : 0;
       $cnt_hex      = count(array_filter($paints, fn($p) => !empty($p['hex'])));
@@ -364,6 +370,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <span class="hero-note-body"><?= htmlspecialchars($jnSnip) ?></span>
       </a>
       <?php endif; ?>
+      <?php if ($curYearGoal > 0): ?>
+      <div class="hero-goal-strip">
+        <span class="hero-goal-label"><?= $curYear ?> Goal</span>
+        <div class="hero-goal-bar-wrap"><div class="hero-goal-bar-fill" style="width:<?= $goalPct ?>%"></div></div>
+        <span class="hero-goal-num"><?= $curYearCount ?> / <?= $curYearGoal ?></span>
+        <span class="hero-goal-pct<?= $goalPct >= 100 ? ' goal-complete' : '' ?>"><?= $goalPct ?>%<?= $goalPct >= 100 ? ' &#10003;' : '' ?></span>
+      </div>
+      <?php endif; ?>
       </div>
 
       <?php
@@ -405,7 +419,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               <a class="pipeline-node" data-jump="bench">
                 <div class="pipeline-node-name">On the Bench</div>
                 <div class="pipeline-node-num"><?= $cnt_bench ?></div>
-                <div class="pipeline-node-blurb">Under da brush</div>
+                <div class="pipeline-node-blurb"><?= ($hasShame && $cnt_shame_units > 0) ? $cnt_shame_units . ' in the pile' : 'Under da brush' ?></div>
               </a>
             <?php endif; ?>
           </div>
@@ -468,13 +482,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               <div class="contents-entry-blurb">Cross-brand swap chart - Citadel &#8596; Vallejo &#8596; Pro Acryl &#8596; Two Thin Coats.</div>
               <div class="contents-entry-count"><?= $cnt_eq ?> equivalencies</div>
             </a>
-            <?php if ($hasWD): ?>
-              <a class="contents-entry" data-jump="wd">
-                <div class="contents-entry-name">White Dwarf</div>
-                <div class="contents-entry-blurb">Issues with notes on schemes, articles, and battle reports worth coming back to.</div>
-                <div class="contents-entry-count"><?= $cnt_wd ?> issue<?= $cnt_wd !== 1 ? 's' : '' ?></div>
-              </a>
-            <?php endif; ?>
             <?php if ($hasBooks): ?>
               <a class="contents-entry" data-jump="books">
                 <div class="contents-entry-name">Codices</div>
@@ -732,18 +739,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </div><!-- #tab-forces -->
   <?php endif; ?>
 
-  <?php if ($hasWD): ?>
-    <div id="tab-wd" class="tab-panel">
-      <div id="wd-controls">
-        <a class="tab-label" href="#" onclick="copyTabLink(event,'wd')" title="Copy link to this tab">White Dwarf</a>
-        <input type="search" id="wd-search" class="tab-search" placeholder="Search issues and notes&hellip;" autocomplete="off">
-        <span id="wd-count"></span>
-      </div>
-      <p class="tab-blurb">Issues logged, articles noted, inspiration drawn from decades of the sacred text.</p>
-      <div id="wd-list"></div>
-      <div id="wd-empty" class="hidden">No issues yet - <a href="admin.php">add one in admin</a>.</div>
-    </div><!-- #tab-wd -->
-  <?php endif; ?>
 
   <?php if ($hasBooks): ?>
     <div id="tab-books" class="tab-panel">
@@ -830,30 +825,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div><!-- #tab-equiv -->
 
-  <div id="tab-match" class="tab-panel">
-    <div id="match-controls">
-      <a class="tab-label" href="#" onclick="copyTabLink(event,'match')" title="Copy link to this tab">Colour Match</a>
-      <label class="match-upload-btn">
-        <input type="file" id="match-file" accept="image/*" capture="environment" class="hidden">
-        <span>📷 Pick a photo</span>
-      </label>
-      <span id="match-count"></span>
-      <button id="match-clear-btn" onclick="clearMatchImage()" class="hidden">Clear</button>
-    </div>
-    <div class="match-disclaimer">
-      <strong>Personal ballpark tool.</strong> Matches dominant colours in an image to paints in this collection. Accuracy approaches ~90% with an accurate, well-lit, white-balanced reference photo. Lighting, screen calibration, and photo quality all affect results. Treat suggestions as starting points, not gospel.
-    </div>
-    <div id="match-empty-state" class="match-empty">
-      Drop a reference photo (Eavy Metal page, Instagram screenshot, real model) to extract its dominant colours and find the closest paints in this inventory.
-    </div>
-    <div id="match-results" class="hidden">
-      <div class="match-image-wrap">
-        <img id="match-preview" alt="reference">
-      </div>
-      <div id="match-extracting" class="match-extracting hidden">Extracting colours&hellip;</div>
-      <div id="match-clusters"></div>
-    </div>
-  </div><!-- #tab-match -->
 
   <?php if ($hasRecipes): ?>
     <div id="tab-recipes" class="tab-panel">
@@ -876,10 +847,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
   <footer>
     <div class="footer-sigil">&#9760;&ensp;&#9760;&ensp;&#9760;</div>
-    <div class="footer-domain">Waaagh.co</div>
+    <div class="footer-domain"><?= htmlspecialchars(SITE_DOMAIN) ?></div>
     <div class="footer-rule"><span class="footer-rule-gem"></span></div>
-    <div class="footer-copy">&copy; MMXXVI &nbsp;&middot;&nbsp; Ray Larose &nbsp;&middot;&nbsp; All Rights Reserved</div>
-    <div class="footer-contact"><a href="mailto:nob@waaagh.co">nob@waaagh.co</a></div>
+    <div class="footer-copy">&copy; MMXXVI &nbsp;&middot;&nbsp; <?= htmlspecialchars(SITE_AUTHOR) ?> &nbsp;&middot;&nbsp; All Rights Reserved</div>
+    <div class="footer-contact"><a href="mailto:<?= htmlspecialchars(SITE_EMAIL) ?>"><?= htmlspecialchars(SITE_EMAIL) ?></a></div>
   </footer>
 
   <!-- ── Notes Drawer ── -->
@@ -953,6 +924,21 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <span class="lb-counter" id="lb-counter"></span>
   </div>
 
+  <!-- ── Recipe Guide ── -->
+  <div class="recipe-guide-overlay" id="recipe-guide-overlay">
+    <div class="recipe-guide-card">
+      <button class="recipe-guide-close" onclick="closeRecipeGuide()">&times;</button>
+      <div class="recipe-guide-title" id="recipe-guide-title"></div>
+      <div class="recipe-guide-counter" id="recipe-guide-counter"></div>
+      <div class="recipe-guide-step-content" id="recipe-guide-step-content"></div>
+      <div class="recipe-guide-dots" id="recipe-guide-dots"></div>
+      <div class="recipe-guide-nav">
+        <button class="recipe-guide-prev" id="recipe-guide-prev" onclick="stepGuide(-1)">&#8249;</button>
+        <button class="recipe-guide-next" id="recipe-guide-next" onclick="stepGuide(1)">&#8250;</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Global Search ── -->
   <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -979,8 +965,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const paintStock = new Map(PAINTS.filter(p => p.stock).map(p => [paintKey(p), p.stock]));
     const PLANNED = <?= $plannedJson ?>;
     const CONVERSIONS_DATA = <?= $conversionsDataJson ?>;
-    <?php if ($hasWD): ?>const WD_DATA = <?= $wdDataJson ?>;
-    <?php endif; ?>
     <?php if ($hasBooks): ?>const BOOKS_DATA = <?= $booksDataJson ?>;
     <?php endif; ?>
     <?php if ($hasBrushes): ?>const BRUSHES_DATA = <?= $brushesDataJson ?>;
@@ -1130,7 +1114,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         recipeIds.forEach(rid => {
           const r = window._RECIPE_BY_ID.get(rid);
           if (!r) return;
-          (r.steps || []).forEach(s => { if (s.paint && !seen.has(s.paint)) { seen.add(s.paint); out.push(s.paint); } });
+          (r.steps || []).forEach(s => {
+              if (s.paint && !seen.has(s.paint)) { seen.add(s.paint); out.push(s.paint); }
+              if (s.mix_paint && !seen.has(s.mix_paint)) { seen.add(s.mix_paint); out.push(s.mix_paint); }
+            });
         });
       }
       return out;
@@ -1177,15 +1164,18 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       render();
     });
 
-    // Initial render
-    render();
-
     // ── Gallery ──────────────────────────────────────
     const MODELS = <?= $modelsJson ?>;
-    MODELS.forEach(m => (m.colors || []).forEach(c => {
-      const k = upgradeKey(c);
-      paintUsage.set(k, (paintUsage.get(k) || 0) + 1);
-    }));
+    MODELS.forEach(m => {
+      const mc = Math.max(1, parseInt(m.count || 1, 10));
+      (m.colors || []).forEach(c => {
+        const k = upgradeKey(c);
+        paintUsage.set(k, (paintUsage.get(k) || 0) + mc);
+      });
+    });
+
+    // Initial render - must be after MODELS loop so paintUsage is populated
+    render();
 
     // Returns the full effective paint list for a scheme: own colors + step paints from referenced recipes (deduped).
     // _RECIPE_BY_ID is set lazily by the Recipes IIFE; falls back to own colors when recipes aren't loaded yet.
@@ -1469,7 +1459,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'wd' && window._renderWD) window._renderWD();
         if (btn.dataset.tab === 'books' && window._renderBooks) window._renderBooks();
         if (btn.dataset.tab === 'journals' && window._renderJournals) window._renderJournals();
         if (btn.dataset.tab === 'brushes' && window._renderBrushes) window._renderBrushes();
@@ -1477,7 +1466,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         if (btn.dataset.tab === 'forces' && window._renderForces) window._renderForces();
         if (btn.dataset.tab === 'shame' && window._renderShame) window._renderShame();
         if (btn.dataset.tab === 'wishlist' && window._renderWishlist) window._renderWishlist();
-        if (btn.dataset.tab === 'match' && window._renderMatch) window._renderMatch();
         if (btn.dataset.tab === 'recipes' && window._renderRecipes) window._renderRecipes();
         if (btn.dataset.tab === 'factions' && window._renderFactions) window._renderFactions();
         fetch('index.php', {
@@ -1605,6 +1593,12 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       if (e.key === 'Escape' && document.getElementById('used-in-overlay').classList.contains('open')) {
         closeUsedIn();
+        return;
+      }
+      if (document.getElementById('recipe-guide-overlay').classList.contains('open')) {
+        if (e.key === 'Escape') { closeRecipeGuide(); return; }
+        if (e.key === 'ArrowRight') { stepGuide(1); return; }
+        if (e.key === 'ArrowLeft')  { stepGuide(-1); return; }
         return;
       }
       if (e.key === 'Escape' && document.getElementById('pull-overlay').classList.contains('open')) {
@@ -1944,7 +1938,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             ${pl.faction ? `<div class="planned-card-faction">${esc(pl.faction)}</div>` : ''}
             ${readyBadge}
             ${pl.system ? `<span class="sys-game-badge sys-${sysSlug(pl.system)}">${esc(pl.system)}</span>` : ''}
-            ${pl.wd_source ? `<button class="planned-wd-badge" data-wd="${esc(pl.wd_source)}" onclick="goToWD(this.dataset.wd)">WD #${esc(pl.wd_source)}</button>` : ''}${pl.codex_source ? `<span class="codex-source-badge">${esc(pl.codex_source)}</span>` : ''}
+            ${pl.codex_source ? `<span class="codex-source-badge">${esc(pl.codex_source)}</span>` : ''}
           </div>
           <div class="planned-card-body">
             ${shopImpact}
@@ -2092,6 +2086,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           const MOOD_CLASS = { great: 'jn-mood-great', good: 'jn-mood-good', okay: 'jn-mood-okay', rough: 'jn-mood-rough' };
 
           function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+          function decodeHtml(s) { const d = document.createElement('div'); d.innerHTML = s; return d.textContent; }
 
           function mentionBadge(type, id, label) {
             return `<span class="jn-mention jn-mention-${type}" data-mtype="${esc(type)}" data-mid="${esc(id)}" title="${esc(label)}">${esc(label)}</span>`;
@@ -2103,7 +2098,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             let result = '', last = 0, m;
             while ((m = TOKEN.exec(raw)) !== null) {
               result += esc(raw.slice(last, m.index));
-              result += mentionBadge(m[1], m[2], m[3]);
+              result += mentionBadge(m[1], m[2], decodeHtml(m[3]));
               last = m.index + m[0].length;
             }
             result += esc(raw.slice(last));
@@ -2171,7 +2166,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             const type = m.dataset.mtype, id = m.dataset.mid;
             if      (type === 'scheme' && window._jumpToScheme)               window._jumpToScheme(id);
             else if (type === 'recipe' && window._jumpToRecipe)               window._jumpToRecipe(id);
-            else if (type === 'wd'     && typeof goToWD !== 'undefined')      goToWD(id);
             else if (type === 'bench'  && typeof switchToTab !== 'undefined') switchToTab('bench');
           });
 
@@ -2294,19 +2288,23 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       const priPills  = document.getElementById('wishlist-pri-pills');
       if (!gridEl) return;
 
-      const WTYPE_LABEL = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex',wd:'WD'};
-      const WTYPE_COLOR = {paint:'#1a4a4a',model:'#1a3a1a',brush:'#3a1a10',codex:'#2a1a4a',wd:'#3a2a08'};
+      const WTYPE_LABEL = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex'};
+      const WTYPE_COLOR = {paint:'#1a4a4a',model:'#1a3a1a',brush:'#3a1a10',codex:'#2a1a4a'};
 
-      let typeFilter = 'all';
-      let priFilter  = 'all';
+      let typeFilter   = 'all';
+      let priFilter    = 'all';
+      let wStatusFilter = 'all';
 
       const usedTypes = [...new Set(WISHLIST_DATA.map(w => w.type || 'paint'))];
       const allPill = document.createElement('button');
       allPill.className = 'wish-fp active'; allPill.dataset.wtype = 'all'; allPill.textContent = 'All';
       typePills.appendChild(allPill);
       usedTypes.forEach(t => { const b = document.createElement('button'); b.className = 'wish-fp'; b.dataset.wtype = t; b.textContent = WTYPE_LABEL[t] || t; typePills.appendChild(b); });
+      const orderedPill = document.createElement('button');
+      orderedPill.className = 'wish-fp'; orderedPill.dataset.wtype = '_ordered'; orderedPill.textContent = 'In Transit';
+      typePills.appendChild(orderedPill);
 
-      typePills.addEventListener('click', ev => { const b = ev.target.closest('.wish-fp'); if (!b) return; typeFilter = b.dataset.wtype; typePills.querySelectorAll('.wish-fp').forEach(x => x.classList.toggle('active', x === b)); renderWishlist(); });
+      typePills.addEventListener('click', ev => { const b = ev.target.closest('.wish-fp'); if (!b) return; if (b.dataset.wtype === '_ordered') { wStatusFilter = wStatusFilter === 'ordered' ? 'all' : 'ordered'; b.classList.toggle('active', wStatusFilter === 'ordered'); } else { typeFilter = b.dataset.wtype; wStatusFilter = 'all'; orderedPill.classList.remove('active'); typePills.querySelectorAll('.wish-fp:not([data-wtype="_ordered"])').forEach(x => x.classList.toggle('active', x === b)); } renderWishlist(); });
       priPills.addEventListener('click', ev => { const b = ev.target.closest('.wish-pp'); if (!b) return; priFilter = b.dataset.wpri; priPills.querySelectorAll('.wish-pp').forEach(x => x.classList.toggle('active', x === b)); renderWishlist(); });
       searchEl.addEventListener('input', renderWishlist);
 
@@ -2325,13 +2323,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         return '<span class="stock-dot stock-dot-owned" title="Owned"></span>';
       }
 
-      function wdBadge(w) {
-        if ((w.type || 'paint') !== 'wd') return '';
-        if (typeof WD_DATA === 'undefined') return '';
-        const have = WD_DATA.some(wd => String(wd.issue) === String(w.name));
-        return have ? '<span style="font-size:10px;background:rgba(34,197,94,.15);color:#22c55e;border-radius:3px;padding:1px 6px;margin-left:5px">Already owned</span>' : '';
-      }
-
       function cardHtml(w) {
         const t   = w.type || 'paint';
         const pri = w.priority || 'medium';
@@ -2339,8 +2330,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         const urlHtml  = w.url ? `<div style="margin-top:3px"><a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6a8a6a;text-decoration:none">&#128279; Link</a></div>` : '';
         const noteHtml = w.notes ? `<div style="font-size:12px;color:#5a4a28;margin-top:3px">${esc(w.notes)}</div>` : '';
         const metaHtml = meta ? `<div style="font-size:11px;color:#4a3a1a;margin-top:2px">${esc(meta)}</div>` : '';
-        const addHtml  = w.added ? `<div style="font-size:10px;color:#3a2a10;margin-top:6px;text-align:right">${esc(w.added)}</div>` : '';
-        return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}${wdBadge(w)}</div><div style="font-family:'Cinzel',serif;font-size:13px;color:#c4b49a;font-weight:600">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
+        const addHtml      = w.added ? `<div style="font-size:10px;color:#3a2a10;margin-top:6px;text-align:right">${esc(w.added)}</div>` : '';
+        const orderedHtml  = w.ordered_date ? `<div><span class="wish-ordered-badge">In Transit &middot; ${esc(w.ordered_date)}</span></div>` : '';
+        return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}</div>${orderedHtml}<div style="font-family:'Cinzel',serif;font-size:13px;color:#c4b49a;font-weight:600">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
       }
 
       function copyWishlist() {
@@ -2348,7 +2340,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         const groups = {};
         WISHLIST_DATA.forEach(w => { const t = w.type||'paint'; if (!groups[t]) groups[t]=[]; groups[t].push(w); });
         const lines = [];
-        typeOrder.forEach(t => { if (!groups[t]) return; lines.push('=== ' + (WTYPE_LABEL[t]||t).toUpperCase() + 'S ==='); groups[t].forEach(w => { let ln = (w.brand ? w.brand + ' - ' : '') + w.name; if (w.faction) ln += ' (' + w.faction + ')'; if (w.notes) ln += ' - ' + w.notes; lines.push('□ ' + ln); }); lines.push(''); });
+        typeOrder.forEach(t => { if (!groups[t]) return; lines.push('=== ' + (WTYPE_LABEL[t]||t).toUpperCase() + 'S ==='); groups[t].forEach(w => { let ln = (w.brand ? w.brand + ' - ' : '') + w.name; if (w.faction) ln += ' (' + w.faction + ')'; if (w.notes) ln += ' - ' + w.notes; if (w.ordered_date) ln += ' (Ordered ' + w.ordered_date + ')'; lines.push('□ ' + ln); }); lines.push(''); });
         const text = 'Hobby Wishlist\n\n' + lines.join('\n');
         const btn = document.getElementById('wishlist-copy-btn');
         const flash = () => { if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000); } };
@@ -2362,7 +2354,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         let list = WISHLIST_DATA.slice();
         if (typeFilter !== 'all') list = list.filter(w => (w.type||'paint') === typeFilter);
         if (priFilter  !== 'all') list = list.filter(w => (w.priority||'medium') === priFilter);
-        if (q) list = list.filter(w => [w.name, w.brand, w.faction, w.system, w.notes, w.type].filter(Boolean).join(' ').toLowerCase().includes(q));
+        if (wStatusFilter === 'ordered') list = list.filter(w => !!w.ordered_date);
+        if (q) list = list.filter(w => [w.name, w.brand, w.faction, w.system, w.notes, w.type, w.ordered_date].filter(Boolean).join(' ').toLowerCase().includes(q));
         const total = WISHLIST_DATA.length;
         countEl.textContent = list.length === total ? total + ' item' + (total !== 1 ? 's' : '') : list.length + ' of ' + total + ' items';
         if (list.length === 0) { gridEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
@@ -2609,6 +2602,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               ${colors.length ? `<button class="pull-btn planned-pull-btn" onclick="openBenchPull('${esc(b.id || '')}')">Pull list${missing > 0 ? ` <span class="pull-issue-badge">${missing} issue${missing !== 1 ? 's' : ''}</span>` : ''}</button>` : ''}
             </div>
             ${(b.history && b.history.length) ? `<button class="bench-hist-toggle" onclick="const n=this.nextElementSibling;const o=n.classList.toggle('bench-hist-open');this.textContent=o?'Timeline ↑':'Timeline ↓'">Timeline ↓</button><div class="bench-hist-list">${[...b.history].reverse().map(h=>`<div class="bench-hist-row"><span>${esc(STAGE_LABEL[h.from]||h.from)}</span><span class="bench-hist-arrow">→</span><span>${esc(STAGE_LABEL[h.to]||h.to)}</span><span class="bench-hist-when">${esc(daysAgoStr(h.date)||h.date)}</span></div>`).join('')}</div>` : ''}
+            ${(b.sessions && b.sessions.length) ? `<button class="bench-sess-toggle" onclick="const n=this.nextElementSibling;const o=n.classList.toggle('bench-sess-open');this.textContent=o?'Sessions ↑ (${b.sessions.length})':'Sessions ↓ (${b.sessions.length})'">Sessions ↓ (${b.sessions.length})</button><div class="bench-sess-list">${b.sessions.map(s=>`<div class="bench-sess-row"><span class="bench-sess-date">${esc(s.date)}</span>${s.duration?`<span class="bench-sess-dur">${s.duration>=60?Math.floor(s.duration/60)+'h'+(s.duration%60?' '+s.duration%60+'m':''):s.duration+'m'}</span>`:''} ${s.note?`<span class="bench-sess-note">${esc(s.note)}</span>`:''}</div>`).join('')}</div>` : ''}
             </div>
           </div>`;
             }).join('');
@@ -2650,304 +2644,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         })();
     <?php endif; ?>
 
-      // ── Color Match ──────────────────────────────────
-      (function() {
-        // Build the matchable paints list (those with hex)
-        const MATCHABLE = PAINTS.filter(p => /^#[0-9a-fA-F]{6}$/.test(p.hex || ''));
-
-        function hexToRgb(h) {
-          const v = parseInt(h.slice(1), 16);
-          return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
-        }
-
-        function srgbToLinear(c) {
-          c /= 255;
-          return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-        }
-
-        function rgbToLab(r, g, b) {
-          const lr = srgbToLinear(r),
-            lg = srgbToLinear(g),
-            lb = srgbToLinear(b);
-          // sRGB D65 -> XYZ
-          let x = (lr * 0.4124564 + lg * 0.3575761 + lb * 0.1804375) / 0.95047;
-          let y = (lr * 0.2126729 + lg * 0.7151522 + lb * 0.0721750) / 1.00000;
-          let z = (lr * 0.0193339 + lg * 0.1191920 + lb * 0.9503041) / 1.08883;
-          const f = t => t > 0.008856 ? Math.cbrt(t) : (7.787 * t + 16 / 116);
-          const fx = f(x),
-            fy = f(y),
-            fz = f(z);
-          return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
-        }
-
-        function deltaE76(a, b) {
-          const dl = a[0] - b[0],
-            da = a[1] - b[1],
-            db = a[2] - b[2];
-          return Math.sqrt(dl * dl + da * da + db * db);
-        }
-
-        // Pre-compute LAB for every matchable paint
-        MATCHABLE.forEach(p => {
-          const [r, g, b] = hexToRgb(p.hex);
-          p._lab = rgbToLab(r, g, b);
-        });
-
-        function rgbToHex(r, g, b) {
-          return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
-        }
-
-        function labToHex(lab) {
-          // Approximate inverse via finding nearest sample - but we just need an indicative hex for the cluster swatch.
-          // Skip true inverse; we'll keep average RGB alongside cluster instead (computed during k-means below).
-          return null;
-        }
-
-        function kmeansLab(samples, k, maxIter) {
-          if (!samples.length) return [];
-          // Init: k-means++
-          const centers = [samples[Math.floor(Math.random() * samples.length)]];
-          while (centers.length < k) {
-            const d2 = samples.map(s => Math.min(...centers.map(c => {
-              const dl = s[0] - c[0],
-                da = s[1] - c[1],
-                db = s[2] - c[2];
-              return dl * dl + da * da + db * db;
-            })));
-            const sum = d2.reduce((a, b) => a + b, 0);
-            if (sum === 0) break;
-            let r = Math.random() * sum,
-              idx = 0;
-            for (; idx < d2.length - 1; idx++) {
-              r -= d2[idx];
-              if (r <= 0) break;
-            }
-            centers.push(samples[idx]);
-          }
-          let assign = new Array(samples.length).fill(0);
-          for (let iter = 0; iter < maxIter; iter++) {
-            let changed = false;
-            for (let i = 0; i < samples.length; i++) {
-              const s = samples[i];
-              let best = 0,
-                bestD = Infinity;
-              for (let c = 0; c < centers.length; c++) {
-                const cc = centers[c];
-                const dl = s[0] - cc[0],
-                  da = s[1] - cc[1],
-                  db = s[2] - cc[2];
-                const d = dl * dl + da * da + db * db;
-                if (d < bestD) {
-                  bestD = d;
-                  best = c;
-                }
-              }
-              if (assign[i] !== best) {
-                assign[i] = best;
-                changed = true;
-              }
-            }
-            if (!changed) break;
-            // Recompute centers
-            const sums = centers.map(() => [0, 0, 0, 0]); // L, a, b, count
-            for (let i = 0; i < samples.length; i++) {
-              const s = samples[i],
-                a = assign[i];
-              sums[a][0] += s[0];
-              sums[a][1] += s[1];
-              sums[a][2] += s[2];
-              sums[a][3]++;
-            }
-            for (let c = 0; c < centers.length; c++) {
-              if (sums[c][3] > 0) centers[c] = [sums[c][0] / sums[c][3], sums[c][1] / sums[c][3], sums[c][2] / sums[c][3]];
-            }
-          }
-          // Build cluster summary
-          const out = centers.map((c, i) => ({
-            lab: c,
-            count: 0,
-            sumR: 0,
-            sumG: 0,
-            sumB: 0
-          }));
-          return {
-            centers: out,
-            assign
-          };
-        }
-
-        function distanceLabel(d) {
-          if (d < 8) return {
-            cls: 'match-dist-very',
-            text: 'very close'
-          };
-          if (d < 20) return {
-            cls: 'match-dist-close',
-            text: 'close'
-          };
-          return {
-            cls: 'match-dist-rough',
-            text: 'rough'
-          };
-        }
-
-        function findMatches(centerLab, n) {
-          const sorted = MATCHABLE
-            .map(p => ({
-              p,
-              d: deltaE76(centerLab, p._lab)
-            }))
-            .sort((a, b) => a.d - b.d)
-            .slice(0, n);
-          return sorted;
-        }
-
-        const fileInput = document.getElementById('match-file');
-        const previewEl = document.getElementById('match-preview');
-        const resultsEl = document.getElementById('match-results');
-        const emptyEl = document.getElementById('match-empty-state');
-        const clustersEl = document.getElementById('match-clusters');
-        const extractEl = document.getElementById('match-extracting');
-        const clearBtn = document.getElementById('match-clear-btn');
-        const countEl = document.getElementById('match-count');
-
-        countEl.textContent = MATCHABLE.length + ' of ' + PAINTS.length + ' paints matchable';
-
-        function clearMatchImage() {
-          fileInput.value = '';
-          previewEl.src = '';
-          resultsEl.style.display = 'none';
-          emptyEl.style.display = 'block';
-          clustersEl.innerHTML = '';
-          clearBtn.style.display = 'none';
-        }
-        window.clearMatchImage = clearMatchImage;
-
-        fileInput.addEventListener('change', e => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = ev => {
-            previewEl.src = ev.target.result;
-            emptyEl.style.display = 'none';
-            resultsEl.style.display = 'block';
-            clearBtn.style.display = 'inline-block';
-            previewEl.onload = () => {
-              extractEl.style.display = 'block';
-              clustersEl.innerHTML = '';
-              // Defer extraction to next frame so the loading text paints
-              setTimeout(() => extractAndRender(previewEl), 30);
-            };
-          };
-          reader.readAsDataURL(file);
-        });
-
-        function extractAndRender(img) {
-          if (!MATCHABLE.length) {
-            extractEl.style.display = 'none';
-            clustersEl.innerHTML = '<div class="grid-empty">No paints have hex values yet. Add some in admin to enable matching.</div>';
-            return;
-          }
-          // Downsample to <=200x200
-          const maxDim = 200;
-          const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
-          const w = Math.max(1, Math.round(img.naturalWidth * scale));
-          const h = Math.max(1, Math.round(img.naturalHeight * scale));
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const data = ctx.getImageData(0, 0, w, h).data;
-
-          // Sample, filter near-white/near-black/transparent
-          const samplesLab = [];
-          const samplesRgb = [];
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i],
-              g = data[i + 1],
-              b = data[i + 2],
-              a = data[i + 3];
-            if (a < 200) continue;
-            const max = Math.max(r, g, b),
-              min = Math.min(r, g, b);
-            if (max > 240 && min > 230) continue; // near white
-            if (max < 18) continue; // near black
-            samplesLab.push(rgbToLab(r, g, b));
-            samplesRgb.push([r, g, b]);
-          }
-          if (!samplesLab.length) {
-            extractEl.style.display = 'none';
-            clustersEl.innerHTML = '<div class="grid-empty">No usable pixels (image too uniform - try a different photo).</div>';
-            return;
-          }
-
-          const k = Math.min(6, samplesLab.length);
-          const {
-            centers,
-            assign
-          } = kmeansLab(samplesLab, k, 8);
-
-          // Tally counts + average RGB per cluster
-          const tallies = centers.map(() => ({
-            count: 0,
-            sR: 0,
-            sG: 0,
-            sB: 0
-          }));
-          for (let i = 0; i < assign.length; i++) {
-            const t = tallies[assign[i]];
-            t.count++;
-            t.sR += samplesRgb[i][0];
-            t.sG += samplesRgb[i][1];
-            t.sB += samplesRgb[i][2];
-          }
-          const total = samplesLab.length;
-          const summary = centers.map((c, idx) => ({
-            lab: c.lab,
-            count: tallies[idx].count,
-            pct: total ? Math.round(100 * tallies[idx].count / total) : 0,
-            rgb: tallies[idx].count ? [tallies[idx].sR / tallies[idx].count, tallies[idx].sG / tallies[idx].count, tallies[idx].sB / tallies[idx].count] : [0, 0, 0]
-          })).filter(s => s.count > 0).sort((a, b) => b.count - a.count);
-
-          extractEl.style.display = 'none';
-          clustersEl.innerHTML = summary.map(s => {
-            const swatchHex = rgbToHex(...s.rgb);
-            const luma = (0.299 * s.rgb[0] + 0.587 * s.rgb[1] + 0.114 * s.rgb[2]);
-            const textColor = luma > 130 ? '#1a1208' : '#f0e8c8';
-            const matches = findMatches(s.lab, 3);
-            const sugHtml = matches.map(m => {
-              const dl = distanceLabel(m.d);
-              const key = (m.p.brand + '|' + m.p.name + '|' + (m.p.layer || '')).toLowerCase();
-              const stock = paintStock.get(key) || '';
-              let stockCls = paintOwned.has(key) ? 'match-stock-owned' : 'match-stock-missing';
-              if (stock === 'low') stockCls = 'match-stock-low';
-              if (stock === 'out') stockCls = 'match-stock-out';
-              if (stock === 'wanted') stockCls = 'match-stock-wanted';
-              return `<div class="match-suggestion">
-              <span class="match-sug-swatch" style="background:${esc(m.p.hex)}"></span>
-              <div class="match-sug-info">
-                <div class="match-sug-name">${esc(m.p.name)}<span class="match-stock-dot ${stockCls}" style="margin-left:6px"></span></div>
-                <div class="match-sug-meta">${esc(m.p.brand)} &middot; ${esc(m.p.layer || '')}</div>
-              </div>
-              <span class="match-sug-distance ${dl.cls}">${dl.text}</span>
-            </div>`;
-            }).join('');
-            return `<div class="match-cluster">
-            <div class="match-cluster-swatch" style="background:${swatchHex};color:${textColor}">
-              <span class="match-cluster-pct">${s.pct}%</span>
-              <span class="match-cluster-hex">${swatchHex}</span>
-            </div>
-            <div class="match-suggestions">${sugHtml}</div>
-          </div>`;
-          }).join('');
-        }
-
-        // Tab activation no-op (data is already prepared); kept for hook consistency
-        window._renderMatch = function() {
-          /* nothing to refresh */
-        };
-      })();
+    // ── Recipes ─────────────────────────────────────
 
     // ── Recipes ─────────────────────────────────────
     <?php if ($hasRecipes): ?>
@@ -2958,14 +2655,20 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           // Backfill paintUsage: recipe step paints count toward scheme usage when the scheme references that recipe
           MODELS.forEach(m => {
             if (!m.recipes || !m.recipes.length) return;
+            const mc = Math.max(1, parseInt(m.count || 1, 10));
             const seen = new Set((m.colors || []).map(c => upgradeKey(c)));
             for (const rid of m.recipes) {
               const r = RECIPE_BY_ID.get(rid);
               if (!r) continue;
               for (const step of (r.steps || [])) {
-                if (!step.paint) continue;
-                const k = upgradeKey(step.paint);
-                if (!seen.has(k)) { seen.add(k); paintUsage.set(k, (paintUsage.get(k) || 0) + 1); }
+                if (step.paint) {
+                  const k = upgradeKey(step.paint);
+                  if (!seen.has(k)) { seen.add(k); paintUsage.set(k, (paintUsage.get(k) || 0) + mc); }
+                }
+                if (step.mix_paint) {
+                  const mk = upgradeKey(step.mix_paint);
+                  if (!seen.has(mk)) { seen.add(mk); paintUsage.set(mk, (paintUsage.get(mk) || 0) + mc); }
+                }
               }
             }
           });
@@ -3026,6 +2729,15 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               const statusCls = paintStatusCls(s.paint || '');
               const hex = paintHex(s.paint || '');
               const swatch = hex ? `<span class="recipe-step-swatch" style="background:${esc(hex)}"></span>` : '';
+              let mixHtml = '';
+              if (s.mix_paint) {
+                const mp = s.mix_paint.split('|');
+                const mName = mp[1] || s.mix_paint;
+                const mStatusCls = paintStatusCls(s.mix_paint);
+                const mHex = paintHex(s.mix_paint);
+                const mSwatch = mHex ? `<span class="recipe-step-swatch" style="background:${esc(mHex)}"></span>` : '';
+                mixHtml = ` <span class="rc-mix-sep">+</span> <span class="recipe-step-paint ${mStatusCls}">${mSwatch}${esc(mName)}</span>`;
+              }
               const meta = [];
               if (s.ratio) meta.push(`<span class="rc-ratio">${esc(s.ratio)}</span>`);
               if (s.note) meta.push(esc(s.note));
@@ -3042,7 +2754,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             <div class="recipe-step-body">
               <div class="recipe-step-line">
                 <span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(TECH_LABEL[tech] || tech)}</span>
-                <span class="recipe-step-paint ${statusCls}">${swatch}${esc(name)}${brand ? ` <span style="color:#4a3a1a;font-size:9px">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</span>` : ''}</span>
+                <span class="recipe-step-paint ${statusCls}">${swatch}${esc(name)}${brand ? ` <span style="color:#4a3a1a;font-size:9px">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</span>` : ''}</span>${mixHtml}
               </div>
               ${meta.length ? `<div class="recipe-step-meta">${meta.join(' &middot; ')}</div>` : ''}
             </div>
@@ -3127,15 +2839,15 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <div class="recipe-card" id="recipe-${esc(r.id)}">
             <button class="recipe-link-btn" title="Copy link" onclick="copyRecipeLink(event,'${esc(r.id)}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
             <div class="recipe-card-header">
-              <span class="recipe-card-name">${esc(r.name)}</span>
-              ${r.category ? `<span class="recipe-cat-badge">${esc(r.category)}</span>` : ''}
-              ${r.faction  ? `<span class="recipe-faction-badge">${esc(r.faction)}</span>` : ''}
+              <div class="recipe-card-header-left"><span class="recipe-card-name">${esc(r.name)}</span>${r.category ? `<span class="recipe-cat-badge">${esc(r.category)}</span>` : ''}${r.faction ? `<span class="recipe-faction-badge">${esc(r.faction)}</span>` : ''}</div>
+              ${r.image ? `<img class="recipe-thumb" src="${esc(r.image)}" alt="" onclick="openLightbox(['${esc(r.image)}'],0)">` : ''}
             </div>
             <div class="recipe-card-body">
             ${r.description ? `<div class="recipe-card-desc">${esc(r.description)}</div>` : ''}
             ${(r.steps && r.steps.length) ? renderSteps(r.steps) : '<div style="color:#3a2a10;font-style:italic;font-size:11px;padding:6px 0">No steps defined yet.</div>'}
             ${r.notes ? `<div class="recipe-notes">${esc(r.notes)}</div>` : ''}
             ${renderUsedIn(r.id)}
+            ${(r.steps && r.steps.length) ? `<div class="recipe-card-footer"><button class="recipe-guide-btn" onclick="openRecipeGuide('${esc(r.id)}')">&#9654; Guide</button></div>` : ''}
             </div>
           </div>
         `).join('');
@@ -3186,9 +2898,91 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           };
 
           renderRecipes();
+
+          // ── Step-by-step Recipe Guide ──
+          (function() {
+          let _gr = null, _gi = 0;
+
+          function renderGuideStep() {
+            const steps = _gr.steps || [];
+            const s = steps[_gi];
+            const total = steps.length;
+            document.getElementById('recipe-guide-title').textContent = _gr.name;
+            document.getElementById('recipe-guide-counter').textContent = 'Step ' + (_gi + 1) + ' of ' + total;
+
+            const tech = s.technique || 'special';
+            const parts = (s.paint || '').split('|');
+            const paintName = parts[1] || s.paint || '';
+            const brand = parts[0] || '';
+            const layer = parts[2] || '';
+            const hex = paintHex(s.paint || '');
+            const statusCls = paintStatusCls(s.paint || '');
+
+            let html = `<div class="recipe-guide-tech recipe-tech-${esc(tech)}">${esc(TECH_LABEL[tech] || tech)}</div>`;
+            html += `<div class="recipe-guide-paint-row">${hex ? `<span class="recipe-guide-swatch" style="background:${esc(hex)}"></span>` : ''}<span class="recipe-guide-paint-name ${statusCls}">${esc(paintName)}</span></div>`;
+            if (brand) html += `<div class="recipe-guide-brand">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</div>`;
+            const meta = [];
+            if (s.ratio) meta.push(esc(s.ratio));
+            if (s.note)  meta.push(esc(s.note));
+            if (meta.length) html += `<div class="recipe-guide-meta">${meta.join(' · ')}</div>`;
+            if (s.brush && typeof BRUSHES_DATA !== 'undefined') {
+              const b = BRUSHES_DATA.find(x => x.id === s.brush);
+              if (b) html += `<div class="recipe-guide-brush">${esc([b.brand, b.series, b.size].filter(Boolean).join(' · '))}</div>`;
+            }
+            document.getElementById('recipe-guide-step-content').innerHTML = html;
+
+            document.getElementById('recipe-guide-dots').innerHTML = steps.map((_, i) =>
+              `<span class="recipe-guide-dot${i === _gi ? ' active' : i < _gi ? ' done' : ''}"></span>`
+            ).join('');
+
+            const prevBtn = document.getElementById('recipe-guide-prev');
+            const nextBtn = document.getElementById('recipe-guide-next');
+            prevBtn.disabled = _gi === 0;
+            const isLast = _gi === total - 1;
+            nextBtn.textContent = isLast ? '✓ Done' : '›';
+            nextBtn.classList.toggle('done-btn', isLast);
+          }
+
+          window.openRecipeGuide = function(rid) {
+            const r = RECIPES_DATA.find(x => x.id === rid);
+            if (!r || !r.steps || !r.steps.length) return;
+            _gr = r; _gi = 0;
+            renderGuideStep();
+            document.getElementById('recipe-guide-overlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+          };
+
+          window.closeRecipeGuide = function() {
+            document.getElementById('recipe-guide-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+          };
+
+          window.stepGuide = function(dir) {
+            if (!_gr) return;
+            const steps = _gr.steps || [];
+            if (dir > 0 && _gi >= steps.length - 1) { closeRecipeGuide(); return; }
+            _gi = Math.max(0, Math.min(steps.length - 1, _gi + dir));
+            renderGuideStep();
+          };
+
+          // Swipe support
+          let _touchX = 0;
+          const overlay = document.getElementById('recipe-guide-overlay');
+          overlay.addEventListener('touchstart', e => { _touchX = e.touches[0].clientX; }, { passive: true });
+          overlay.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - _touchX;
+            if (Math.abs(dx) > 50) stepGuide(dx < 0 ? 1 : -1);
+          }, { passive: true });
+          overlay.addEventListener('click', e => { if (e.target === overlay) closeRecipeGuide(); });
         })();
+
+        })(); // end recipes IIFE
+
     <?php else: ?>
       window._jumpToRecipe = function() {};
+      window.openRecipeGuide = function() {};
+      window.closeRecipeGuide = function() {};
+      window.stepGuide = function() {};
     <?php endif; ?>
 
     // ── Factions Overview ────────────────────────────
@@ -3339,27 +3133,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       render();
     })();
 
-    // ── WD deep-link from Planned card ───────────────
-    <?php if ($hasWD): ?>
-
-      function goToWD(issue) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        document.querySelector('[data-tab="wd"]').classList.add('active');
-        document.getElementById('tab-wd').classList.add('active');
-        const el = document.getElementById('wd-search');
-        if (el) el.value = issue;
-        if (window._renderWD) window._renderWD();
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
-        });
-      }
-    <?php else: ?>
-
-      function goToWD() {}
-    <?php endif; ?>
-
     // ── Shopping List ─────────────────────────────────
     function openShoppingList() {
       const mustBuy = {};
@@ -3482,91 +3255,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     document.getElementById('notes-overlay').addEventListener('click', e => {
       if (e.target === document.getElementById('notes-overlay')) closeNotes();
     });
-
-    // ── White Dwarf Log ──────────────────────────────────
-    <?php if ($hasWD): ?>
-        (function() {
-          const wdSearchEl = document.getElementById('wd-search');
-          const wdCountEl = document.getElementById('wd-count');
-          const wdListEl = document.getElementById('wd-list');
-          const wdEmptyEl = document.getElementById('wd-empty');
-          const WD_TOTAL = WD_DATA.length;
-
-          function hlWD(text, q) {
-            if (!q) return esc(text);
-            const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-            return text.split(re).map((part, i) =>
-              i % 2 === 1 ? '<mark>' + esc(part) + '</mark>' : esc(part)
-            ).join('');
-          }
-
-          const WD_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-          function fmtMonth(m) {
-            if (!m) return '';
-            const [y, mo] = m.split('-');
-            return (WD_MONTHS[parseInt(mo, 10) - 1] || mo) + ' ' + y;
-          }
-
-          function fmtLabel(f) {
-            return f === 'physical' ? 'Physical' : f === 'digital' ? 'Digital' : 'Both';
-          }
-
-          // Bold "Category:" lines (word chars + colon at start of a line)
-          function formatNotes(raw, q) {
-            const clean = raw.replace(/\r/g, '');
-            return clean.split('\n').map(line => {
-              const isCat = /^\s*[\w &]+:\s*$/.test(line);
-              const rendered = hlWD(line, q);
-              return isCat ?
-                `<span class="label-cinzel-gold">${rendered}</span>` :
-                rendered;
-            }).join('\n');
-          }
-
-          function renderWD() {
-            const q = wdSearchEl.value.trim().toLowerCase();
-            const rows = q ?
-              WD_DATA.filter(r =>
-                r.issue.toLowerCase().includes(q) ||
-                (r.notes && r.notes.toLowerCase().includes(q))
-              ) :
-              WD_DATA.slice();
-
-            wdCountEl.textContent = rows.length + ' of ' + WD_TOTAL + ' issue' + (WD_TOTAL !== 1 ? 's' : '');
-
-            if (!WD_TOTAL) {
-              wdListEl.innerHTML = '';
-              wdEmptyEl.style.display = 'block';
-              return;
-            }
-            wdEmptyEl.style.display = 'none';
-
-            if (!rows.length) {
-              wdListEl.innerHTML = '<div class="grid-empty">No issues match your search.</div>';
-              return;
-            }
-
-            wdListEl.innerHTML = rows.map(r => {
-              const fmt = r.format || 'physical';
-              const month = fmtMonth(r.month || '');
-              const notes = r.notes || '';
-              return `<div class="wd-row" data-issue="${esc(r.issue || '')}">
-            <div class="wd-meta">
-              <div class="wd-issue">#${hlWD(r.issue, q)}</div>
-              <div><span class="wd-fmt-badge wd-fmt-${esc(fmt)}">${fmtLabel(fmt)}</span></div>
-              ${month ? `<div class="wd-month">${esc(month)}</div>` : ''}
-            </div>
-            <div class="wd-notes">${formatNotes(notes, q)}</div>
-          </div>`;
-            }).join('');
-          }
-
-          wdSearchEl.addEventListener('input', renderWD);
-          window._renderWD = renderWD;
-          renderWD();
-        })();
-    <?php endif; ?>
 
     // ── Forces & Rosters ────────────────────────────────
     <?php if ($hasForces): ?>
@@ -3826,18 +3514,17 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       const hasRecipes = typeof RECIPES_DATA !== 'undefined';
       const hasBench   = typeof BENCH_DATA   !== 'undefined';
       const hasBrushes = typeof BRUSHES_DATA !== 'undefined';
-      const hasWD      = typeof WD_DATA      !== 'undefined';
       const hasBooks   = typeof BOOKS_DATA   !== 'undefined';
       const hasShame   = typeof SHAME_DATA   !== 'undefined';
       const hasForces  = typeof FORCES_DATA  !== 'undefined';
 
-      const WTYPE_LABEL_GS = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex',wd:'WD'};
+      const WTYPE_LABEL_GS = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex'};
       const TYPE_LABEL = {
         paint: 'Paint', scheme: 'Scheme', recipe: 'Recipe',
         planned: 'Planned', bench: 'On Bench', brush: 'Brush',
-        wd: 'White Dwarf', book: 'Codex', shame: 'Shame Pile', force: 'Force', wish: 'Wishlist'
+        book: 'Codex', shame: 'Shame Pile', force: 'Force', wish: 'Wishlist'
       };
-      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'brush', 'wd', 'book', 'wish'];
+      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'brush', 'book', 'wish'];
       const PER_TYPE_CAP = 8;
 
       let selectedIdx = 0;
@@ -3911,16 +3598,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               meta: [br.size, br.material, br.use].filter(Boolean).join(' · ')
             });
           }
-        });
-
-        if (hasWD) WD_DATA.forEach(r => {
-          const hay = ['WD #' + r.issue, r.notes, r.format, r.month].filter(Boolean).join(' ');
-          if (match(hay)) out.push({
-            type: 'wd',
-            key: r.issue,
-            name: 'White Dwarf #' + r.issue,
-            meta: [r.month, r.format].filter(Boolean).join(' · ')
-          });
         });
 
         if (hasBooks) BOOKS_DATA.forEach(b => {
@@ -4048,8 +3725,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               const el = document.querySelector('.brush-entry[data-id="' + r.key + '"]');
               if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
             }, 150);
-          } else if (r.type === 'wd') {
-            if (typeof goToWD === 'function') goToWD(r.key);
           } else if (r.type === 'book') {
             switchToTab('books');
             setTimeout(() => {
