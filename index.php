@@ -227,7 +227,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <p class="tab-blurb">The tools of the craft, catalogued by condition. A dull brush is a wasted session.</p>
       <div id="brush-list"></div>
-      <div id="brush-empty" class="hidden">No brushes logged yet - <a href="admin.php">add one in admin</a>.</div>
+      <div id="brush-empty" class="hidden">No brushes yet - add one in admin.</div>
     </div><!-- #tab-brushes -->
   <?php endif; ?>
 
@@ -255,7 +255,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div class="gallery-grid" id="gallery-grid"></div>
       <div id="gallery-more" class="hidden"></div>
       <div class="gallery-empty hidden" id="gallery-empty">
-        No models yet - <a href="admin.php">add your first entry</a>
+        No models yet - add one in admin.
       </div>
     </div>
   </div>
@@ -695,7 +695,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <p class="tab-blurb">Schemes queued for the brush. Check readiness, flag what's missing, and hold the line until the order arrives.</p>
     <div class="planned-grid" id="planned-grid"></div>
     <div id="planned-empty" class="planned-empty hidden">
-      No planned schemes yet - <a href="admin.php">add one in admin</a>
+      No planned schemes yet - add one in admin.
     </div>
   </div><!-- #tab-planned -->
 
@@ -725,7 +725,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <p class="tab-blurb">Active projects only - the grind between primed grey and varnished glory.</p>
       <div class="bench-grid" id="bench-grid"></div>
       <div id="bench-empty" class="bench-empty hidden">
-        Nothing on the bench yet - <a href="admin.php">start a project in admin</a>
+        No projects on the bench yet - add one in admin.
       </div>
     </div><!-- #tab-bench -->
   <?php endif; ?>
@@ -740,7 +740,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <p class="tab-blurb">Named armies, muster counts, readiness assessed. The order of battle, written down.</p>
     <div class="forces-grid" id="forces-grid"></div>
     <div id="forces-empty" class="tab-empty hidden">
-      No forces yet - <a href="admin.php#section-forces">add one in admin</a>
+      No forces yet - add one in admin.
     </div>
   </div><!-- #tab-forces -->
   <?php endif; ?>
@@ -755,7 +755,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <p class="tab-blurb">The library of war. Army books and supplements catalogued for reference at the desk.</p>
       <div id="bl-list"></div>
-      <div id="bl-empty" class="hidden">No codices logged yet - <a href="admin.php">add one in admin</a>.</div>
+      <div id="bl-empty" class="hidden">No codices yet - add one in admin.</div>
     </div><!-- #tab-books -->
   <?php endif; ?>
 
@@ -774,7 +774,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div id="jn-year-picker" class="jn-year-picker hidden"></div>
       <p class="tab-blurb">Thoughts from the desk, dated and kept. Technique discoveries, session logs, anything worth remembering.</p>
       <div id="jn-list"></div>
-      <div id="jn-empty" class="hidden">No journal entries yet - <a href="admin.php">add one in admin</a>.</div>
+      <div id="jn-empty" class="hidden">No entries yet - add one in admin.</div>
     </div><!-- #tab-journals -->
   <?php endif; ?>
 
@@ -787,7 +787,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
     <p class="tab-blurb">The full order of battle, arranged by allegiance. Every faction's palette, recipes, and pipeline in one place.</p>
     <div id="factions-wrap"></div>
-    <div id="factions-empty" class="hidden">No factions yet - tag your schemes with a faction in admin and they'll show up here.</div>
+    <div id="factions-empty" class="hidden">No factions yet - tag a scheme, project, or recipe with a faction name and it will show up here.</div>
   </div><!-- #tab-factions -->
   <?php endif; ?>
 
@@ -848,7 +848,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <p class="tab-blurb">Proven technique, written down step by step. The difference between a consistent result and a happy accident.</p>
       <div id="recipes-grid"></div>
       <div id="recipes-empty" class="recipes-empty hidden">
-        No recipes yet - <a href="admin.php">author one in admin</a>
+        No recipes yet - add one in admin.
       </div>
     </div><!-- #tab-recipes -->
   <?php endif; ?>
@@ -1316,7 +1316,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         emptyEl.style.display = 'block';
         emptyEl.innerHTML = q ?
           `No schemes match &ldquo;${esc(gallerySearch)}&rdquo;` :
-          `No models yet - <a href="admin.php">add your first entry</a>`;
+          `No models yet - add one in admin.`;
         return;
       }
       emptyEl.style.display = 'none';

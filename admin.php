@@ -184,7 +184,7 @@ if (isset($_POST['password'])) {
 }
 if (isset($_POST['logout'])) {
   session_destroy();
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 $authed = !empty($_SESSION['admin']);
@@ -300,7 +300,7 @@ if ($authed && ($_POST['action'] ?? '') === 'apply_hex_seed') {
   } else {
     $_SESSION['flash'] = 'No seed file or paints file found.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -308,7 +308,7 @@ if ($authed && ($_POST['action'] ?? '') === 'import_paints') {
   $imported = loadPaintsFromCsvs();
   file_put_contents(PAINTS_FILE, json_encode($imported, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
   $_SESSION['flash'] = 'Imported ' . count($imported) . ' paints from CSV files.';
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -333,7 +333,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_paint') {
     file_put_contents(PAINTS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Paint "' . htmlspecialchars($name) . '" added.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -366,7 +366,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_paint') {
     file_put_contents(PAINTS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Paint "' . htmlspecialchars($name) . '" updated.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -378,7 +378,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_paint') {
     file_put_contents(PAINTS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Paint deleted.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -429,7 +429,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
     file_put_contents(PLANNED_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Planned scheme "' . htmlspecialchars($name) . '" added.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -463,7 +463,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_planned') {
     file_put_contents(PLANNED_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Planned scheme "' . htmlspecialchars($name) . '" updated.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -475,7 +475,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_planned') {
     file_put_contents(PLANNED_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Planned scheme deleted.';
   }
-  header('Location: admin.php');
+  header('Location: ' . ADMIN_FILENAME);
   exit;
 }
 
@@ -525,14 +525,14 @@ function bookSort(array &$arr): void
 if ($authed && ($_POST['action'] ?? '') === 'create_books_file') {
   file_put_contents(BOOKS_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Codex Library started.';
-  header('Location: admin.php#section-books');
+  header('Location: ' . ADMIN_FILENAME . '#section-books');
   exit;
 }
 
 if ($authed && ($_POST['action'] ?? '') === 'create_journal_file') {
   file_put_contents(JOURNAL_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Scrap Notes started.';
-  header('Location: admin.php#section-journal');
+  header('Location: ' . ADMIN_FILENAME . '#section-journal');
   exit;
 }
 
@@ -556,7 +556,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_book') {
     file_put_contents(BOOKS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = '"' . htmlspecialchars($title) . '" added.';
   }
-  header('Location: admin.php#section-books');
+  header('Location: ' . ADMIN_FILENAME . '#section-books');
   exit;
 }
 
@@ -586,7 +586,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_book') {
     file_put_contents(BOOKS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = '"' . htmlspecialchars($title) . '" updated.';
   }
-  header('Location: admin.php#section-books');
+  header('Location: ' . ADMIN_FILENAME . '#section-books');
   exit;
 }
 
@@ -598,7 +598,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_book') {
     file_put_contents(BOOKS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Book deleted.';
   }
-  header('Location: admin.php#section-books');
+  header('Location: ' . ADMIN_FILENAME . '#section-books');
   exit;
 }
 
@@ -641,7 +641,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_journal', 'edit_journal'],
     journalSort($all);
     file_put_contents(JOURNAL_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
   }
-  header('Location: admin.php#section-journal');
+  header('Location: ' . ADMIN_FILENAME . '#section-journal');
   exit;
 }
 
@@ -653,7 +653,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_journal') {
     file_put_contents(JOURNAL_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Journal entry deleted.';
   }
-  header('Location: admin.php#section-journal');
+  header('Location: ' . ADMIN_FILENAME . '#section-journal');
   exit;
 }
 
@@ -672,7 +672,7 @@ function shameSort(array &$arr): void
 
 if ($authed && ($_POST['action'] ?? '') === 'create_shame_file') {
   file_put_contents(SHAME_FILE, '[]', LOCK_EX);
-  header('Location: admin.php#section-shame');
+  header('Location: ' . ADMIN_FILENAME . '#section-shame');
   exit;
 }
 
@@ -686,7 +686,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_shame', 'edit_shame'], tru
   $acq     = trim($_POST['sh_acquired'] ?? '');
   $notes   = trim($_POST['sh_notes']    ?? '');
   if (!$name) {
-    header('Location: admin.php#section-shame');
+    header('Location: ' . ADMIN_FILENAME . '#section-shame');
     exit;
   }
   if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = 'Other';
@@ -721,7 +721,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_shame', 'edit_shame'], tru
   }
   shameSort($all);
   file_put_contents(SHAME_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
-  header('Location: admin.php#section-shame');
+  header('Location: ' . ADMIN_FILENAME . '#section-shame');
   exit;
 }
 
@@ -732,7 +732,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_shame') {
     $all = array_values(array_filter($all, fn($e) => $e['id'] !== $sid));
     file_put_contents(SHAME_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
   }
-  header('Location: admin.php#section-shame');
+  header('Location: ' . ADMIN_FILENAME . '#section-shame');
   exit;
 }
 
@@ -841,7 +841,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_conversion') {
     writeConversionsCsv($rows);
     $_SESSION['flash'] = '"' . htmlspecialchars($cit) . '" added to conversions.';
   }
-  header('Location: admin.php#section-conversions');
+  header('Location: ' . ADMIN_FILENAME . '#section-conversions');
   exit;
 }
 
@@ -866,7 +866,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_conversion') {
     writeConversionsCsv($rows);
     $_SESSION['flash'] = '"' . htmlspecialchars($cit) . '" updated.';
   }
-  header('Location: admin.php#section-conversions');
+  header('Location: ' . ADMIN_FILENAME . '#section-conversions');
   exit;
 }
 
@@ -878,7 +878,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_conversion') {
     writeConversionsCsv($rows);
     $_SESSION['flash'] = '"' . htmlspecialchars($orig) . '" removed from conversions.';
   }
-  header('Location: admin.php#section-conversions');
+  header('Location: ' . ADMIN_FILENAME . '#section-conversions');
   exit;
 }
 
@@ -900,7 +900,7 @@ function brushSort(array &$arr): void
 if ($authed && ($_POST['action'] ?? '') === 'create_brushes_file') {
   file_put_contents(BRUSHES_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Brush inventory started.';
-  header('Location: admin.php#section-brushes');
+  header('Location: ' . ADMIN_FILENAME . '#section-brushes');
   exit;
 }
 
@@ -938,7 +938,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_brush') {
     file_put_contents(BRUSHES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Brush added.';
   }
-  header('Location: admin.php#section-brushes');
+  header('Location: ' . ADMIN_FILENAME . '#section-brushes');
   exit;
 }
 
@@ -975,7 +975,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_brush') {
     file_put_contents(BRUSHES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Brush updated.';
   }
-  header('Location: admin.php#section-brushes');
+  header('Location: ' . ADMIN_FILENAME . '#section-brushes');
   exit;
 }
 
@@ -987,7 +987,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_brush') {
     file_put_contents(BRUSHES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Brush deleted.';
   }
-  header('Location: admin.php#section-brushes');
+  header('Location: ' . ADMIN_FILENAME . '#section-brushes');
   exit;
 }
 
@@ -1034,7 +1034,7 @@ function benchSort(array &$arr): void
 if ($authed && ($_POST['action'] ?? '') === 'create_bench_file') {
   file_put_contents(BENCH_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Workbench started.';
-  header('Location: admin.php#section-bench');
+  header('Location: ' . ADMIN_FILENAME . '#section-bench');
   exit;
 }
 
@@ -1127,7 +1127,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
     file_put_contents(BENCH_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = $isEdit ? 'Bench entry updated.' : 'Bench entry added.';
   }
-  header('Location: admin.php#section-bench');
+  header('Location: ' . ADMIN_FILENAME . '#section-bench');
   exit;
 }
 
@@ -1148,7 +1148,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_bench') {
     file_put_contents(BENCH_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Bench entry deleted.';
   }
-  header('Location: admin.php#section-bench');
+  header('Location: ' . ADMIN_FILENAME . '#section-bench');
   exit;
 }
 
@@ -1188,11 +1188,11 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_bench') {
       ], fn($v) => $v !== '' && $v !== []);
       $models[] = $entry;
       file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
-      header('Location: admin.php?edit=' . $newId . '#section-gallery');
+      header('Location: ' . ADMIN_FILENAME . '?edit=' . $newId . '#section-gallery');
       exit;
     }
   }
-  header('Location: admin.php#section-bench');
+  header('Location: ' . ADMIN_FILENAME . '#section-bench');
   exit;
 }
 
@@ -1337,7 +1337,7 @@ function buildRecipeSteps(array $post): array
 if ($authed && ($_POST['action'] ?? '') === 'create_recipes_file') {
   file_put_contents(RECIPES_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Recipe library started.';
-  header('Location: admin.php#section-recipes');
+  header('Location: ' . ADMIN_FILENAME . '#section-recipes');
   exit;
 }
 
@@ -1410,7 +1410,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_recipe', 'edit_recipe'], t
     file_put_contents(RECIPES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = $isEdit ? 'Recipe updated.' : 'Recipe added.';
   }
-  header('Location: admin.php#section-recipes');
+  header('Location: ' . ADMIN_FILENAME . '#section-recipes');
   exit;
 }
 
@@ -1428,7 +1428,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_recipe') {
     file_put_contents(RECIPES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Recipe deleted.';
   }
-  header('Location: admin.php#section-recipes');
+  header('Location: ' . ADMIN_FILENAME . '#section-recipes');
   exit;
 }
 
@@ -1670,7 +1670,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
         $models[$idx] = $entry;
         file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         $_SESSION['flash'] = 'Model "' . htmlspecialchars($name) . '" updated successfully.';
-        header('Location: admin.php');
+        header('Location: ' . ADMIN_FILENAME);
         exit;
       }
     }
@@ -1685,7 +1685,7 @@ $convRows  = readConversionsCsv();
 if ($authed && ($_POST['action'] ?? '') === 'create_forces_file') {
   if (!file_exists(FORCES_FILE)) file_put_contents(FORCES_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Forces & Rosters started.';
-  header('Location: admin.php#section-forces');
+  header('Location: ' . ADMIN_FILENAME . '#section-forces');
   exit;
 }
 
@@ -1727,7 +1727,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_force', 'edit_force'], tru
     $hasForces  = true;
     $_SESSION['flash'] = '"' . htmlspecialchars($name) . '" ' . ($isEdit ? 'updated.' : 'added.');
   }
-  header('Location: admin.php#section-forces');
+  header('Location: ' . ADMIN_FILENAME . '#section-forces');
   exit;
 }
 
@@ -1780,7 +1780,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_force') {
     file_put_contents(FORCES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Force deleted.';
   }
-  header('Location: admin.php#section-forces');
+  header('Location: ' . ADMIN_FILENAME . '#section-forces');
   exit;
 }
 
@@ -1799,7 +1799,7 @@ function wishlistSort(array &$arr): void
 if ($authed && ($_POST['action'] ?? '') === 'create_wishlist_file') {
   if (!file_exists(WISHLIST_FILE)) file_put_contents(WISHLIST_FILE, '[]', LOCK_EX);
   $hasWishlist = true;
-  header('Location: admin.php#section-wishlist');
+  header('Location: ' . ADMIN_FILENAME . '#section-wishlist');
   exit;
 }
 
@@ -1829,7 +1829,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_wishlist_item') {
     file_put_contents(WISHLIST_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Added to wishlist.';
   }
-  header('Location: admin.php#section-wishlist');
+  header('Location: ' . ADMIN_FILENAME . '#section-wishlist');
   exit;
 }
 
@@ -1872,7 +1872,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_wishlist_item') {
     file_put_contents(WISHLIST_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Wishlist entry updated.';
   }
-  header('Location: admin.php#section-wishlist');
+  header('Location: ' . ADMIN_FILENAME . '#section-wishlist');
   exit;
 }
 
@@ -1884,7 +1884,7 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_wishlist_item') {
     file_put_contents(WISHLIST_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     $_SESSION['flash'] = 'Removed from wishlist.';
   }
-  header('Location: admin.php#section-wishlist');
+  header('Location: ' . ADMIN_FILENAME . '#section-wishlist');
   exit;
 }
 
@@ -1956,7 +1956,7 @@ if ($authed && ($_POST['action'] ?? '') === 'seed_wishlist_from_planned') {
   } else {
     $_SESSION['flash'] = 'Nothing new to add - all missing Planned paints are already in your wishlist.';
   }
-  header('Location: admin.php#section-wishlist');
+  header('Location: ' . ADMIN_FILENAME . '#section-wishlist');
   exit;
 }
 
@@ -2491,7 +2491,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <div style="margin-top:20px;display:flex;gap:10px;align-items:center">
           <button type="submit" class="btn"><?= $editModel ? 'Save Changes' : 'Add to Gallery' ?></button>
           <?php if ($editModel): ?>
-            <a href="admin.php" class="btn btn-sm" style="text-decoration:none">Cancel</a>
+            <a href="<?= ADMIN_FILENAME ?>" class="btn btn-sm" style="text-decoration:none">Cancel</a>
           <?php endif; ?>
         </div>
       </form>
@@ -2534,7 +2534,7 @@ if ($authed && isset($_GET['edit_force'])) {
                 data-mid="<?= e($m['id'] ?? '') ?>"
                 data-mname="<?= e($m['name'] ?? '') ?>"
                 onclick="openGallerySessionModal(this)">+ Log</button>
-              <a href="admin.php?edit=<?= e($m['id'] ?? '') ?>" class="btn btn-sm" style="text-decoration:none;<?= ($editModel && ($editModel['id'] ?? '') === ($m['id'] ?? '')) ? 'border-color:#c9a227;' : '' ?>">Edit</a>
+              <a href="<?= ADMIN_FILENAME ?>?edit=<?= e($m['id'] ?? '') ?>" class="btn btn-sm" style="text-decoration:none;<?= ($editModel && ($editModel['id'] ?? '') === ($m['id'] ?? '')) ? 'border-color:#c9a227;' : '' ?>">Edit</a>
               <form method="post" onsubmit="return confirm('Delete this entry?')">
                 <input type="hidden" name="action" value="delete_model">
                 <input type="hidden" name="model_id" value="<?= e($m['id'] ?? '') ?>">
@@ -3611,7 +3611,7 @@ if ($authed && isset($_GET['edit_force'])) {
           <!-- Add / Edit form -->
           <div style="margin-bottom:24px">
             <h3 style="font-family:'Cinzel',serif;font-size:14px;color:#9a8a6a;margin:0 0 12px"><?= $editForce ? 'Edit Force' : 'Add Force' ?></h3>
-            <form method="post" action="admin.php">
+            <form method="post" action="<?= ADMIN_FILENAME ?>">
               <input type="hidden" name="action" value="<?= $editForce ? 'edit_force' : 'add_force' ?>">
               <?php if ($editForce): ?><input type="hidden" name="force_id" value="<?= e($editForce['id']) ?>"><?php endif; ?>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
@@ -3672,7 +3672,7 @@ if ($authed && isset($_GET['edit_force'])) {
               <?php endif; ?>
               <div style="display:flex;gap:8px;align-items:center">
                 <button class="btn" type="submit"><?= $editForce ? 'Save Changes' : 'Add Force' ?></button>
-                <?php if ($editForce): ?><a href="admin.php#section-forces" style="color:#5a4a28;font-size:12px">Cancel</a><?php endif; ?>
+                <?php if ($editForce): ?><a href="<?= ADMIN_FILENAME ?>#section-forces" style="color:#5a4a28;font-size:12px">Cancel</a><?php endif; ?>
               </div>
             </form>
           </div>
@@ -3707,7 +3707,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   </div>
                   <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
                     <button type="button" class="btn btn-sm fo-pin-btn<?= !empty($fo['pinned']) ? ' fo-pin-active' : '' ?>" data-id="<?= e($fo['id']) ?>" title="<?= !empty($fo['pinned']) ? 'Unpin' : 'Pin to top' ?>">★</button>
-                    <a href="admin.php?edit_force=<?= e($fo['id']) ?>#section-forces" class="btn btn-sm">Edit</a>
+                    <a href="<?= ADMIN_FILENAME ?>?edit_force=<?= e($fo['id']) ?>#section-forces" class="btn btn-sm">Edit</a>
                     <form method="post" onsubmit="return confirm('Delete this force?')" style="margin:0">
                       <input type="hidden" name="action" value="delete_force">
                       <input type="hidden" name="force_id" value="<?= e($fo['id']) ?>">
@@ -4251,6 +4251,7 @@ if ($authed && isset($_GET['edit_force'])) {
 
   <?php if ($authed): ?>
     <script>
+      const ADMIN_PHP = '<?= ADMIN_FILENAME ?>';
       const ALL_PAINTS = <?= json_encode(array_map(fn($p) => $p['brand'] . '|' . $p['name'] . '|' . ($p['layer'] ?? ''), $paints)) ?>;
       const INVENTORY_DATA = <?= json_encode(array_map(fn($p) => [$p['brand'], $p['name'], $p['color'] ?? '', $p['layer'] ?? '', $p['stock'] ?? ''], $paints), JSON_UNESCAPED_UNICODE) ?>;
       // key: "brand|name" (lowercase) → {brand, name, color, layer, stock}
@@ -4390,7 +4391,7 @@ if ($authed && isset($_GET['edit_force'])) {
         fd.append('action', 'set_stock');
         fd.append('paint_id', pid);
         fd.append('stock', next);
-        const res = await fetch('admin.php', {
+        const res = await fetch(ADMIN_PHP, {
           method: 'POST',
           body: fd
         });
@@ -4839,10 +4840,10 @@ if ($authed && isset($_GET['edit_force'])) {
             fd.append('sh_id', id);
             fd.append('promote_to', dest);
             try {
-              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const r = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
               const j = await r.json();
               if (j.ok) {
-                location.href = 'admin.php#section-' + dest;
+                location.href = ADMIN_PHP + '#section-' + dest;
               } else {
                 alert('Promote failed: ' + (j.error || 'unknown error'));
               }
@@ -4857,7 +4858,7 @@ if ($authed && isset($_GET['edit_force'])) {
             fd.append('action', 'promote_wishlist');
             fd.append('wl_id', id);
             try {
-              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const r = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
               const j = await r.json();
               if (j.ok) {
                 const row = document.getElementById('wish-row-' + id);
@@ -4877,7 +4878,7 @@ if ($authed && isset($_GET['edit_force'])) {
             fd.append('wl_id', id);
             fd.append('wl_ordered_date', new Date().toISOString().slice(0, 10));
             try {
-              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const r = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
               const j = await r.json();
               if (j.ok) location.reload();
               else alert('Failed: ' + (j.error || 'unknown error'));
@@ -4890,7 +4891,7 @@ if ($authed && isset($_GET['edit_force'])) {
             fd.append('wl_id', id);
             fd.append('wl_ordered_date', '');
             try {
-              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const r = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
               const j = await r.json();
               if (j.ok) location.reload();
               else alert('Failed: ' + (j.error || 'unknown error'));
@@ -4903,10 +4904,10 @@ if ($authed && isset($_GET['edit_force'])) {
             fd.append('action', 'promote_planned');
             fd.append('planned_id', id);
             try {
-              const r = await fetch('admin.php', { method: 'POST', body: fd });
+              const r = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
               const j = await r.json();
               if (j.ok) {
-                location.href = 'admin.php#section-bench';
+                location.href = ADMIN_PHP + '#section-bench';
               } else {
                 alert('Promote failed: ' + (j.error || 'unknown error'));
               }
@@ -5144,7 +5145,7 @@ if ($authed && isset($_GET['edit_force'])) {
           fd.append('action', 'set_brush_condition');
           fd.append('brush_id', bid);
           fd.append('condition', next);
-          const res = await fetch('admin.php', {
+          const res = await fetch(ADMIN_PHP, {
             method: 'POST',
             body: fd
           });
@@ -5164,7 +5165,7 @@ if ($authed && isset($_GET['edit_force'])) {
             const fd = new FormData();
             fd.append('action', 'toggle_force_pin');
             fd.append('force_id', this.dataset.id);
-            const data = await fetch('admin.php', {
+            const data = await fetch(ADMIN_PHP, {
               method: 'POST',
               body: fd
             }).then(r => r.json());
@@ -5383,16 +5384,16 @@ if ($authed && isset($_GET['edit_force'])) {
           fd.append('goal_year', year);
           fd.append('goal_target', target);
           fd.append('goal_seed', seed);
-          await fetch('admin.php', { method: 'POST', body: fd });
-          window.location.href = 'admin.php#section-stats';
+          await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          window.location.href = ADMIN_PHP + '#section-stats';
         }
         async function deleteGoal(year) {
           const fd = new FormData();
           fd.append('action', 'set_goal');
           fd.append('goal_year', year);
           fd.append('goal_target', 0);
-          await fetch('admin.php', { method: 'POST', body: fd });
-          window.location.href = 'admin.php#section-stats';
+          await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          window.location.href = ADMIN_PHP + '#section-stats';
         }
 
         async function cycleBenchStage(btn) {
@@ -5403,7 +5404,7 @@ if ($authed && isset($_GET['edit_force'])) {
           fd.append('action', 'set_bench_stage');
           fd.append('bench_id', bid);
           fd.append('stage', next);
-          const res = await fetch('admin.php', {
+          const res = await fetch(ADMIN_PHP, {
             method: 'POST',
             body: fd
           });
@@ -5782,7 +5783,7 @@ if ($authed && isset($_GET['edit_force'])) {
         if (dur) fd.append('sess_duration', dur);
         const note = document.getElementById('sess-note').value.trim();
         if (note) fd.append('sess_note', note);
-        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
         const data = await res.json();
         if (data.ok) closeSessionModal();
       }
@@ -5846,7 +5847,7 @@ if ($authed && isset($_GET['edit_force'])) {
         fd.append('sess_count', count);
         const note = document.getElementById('gallery-sess-note').value.trim();
         if (note) fd.append('sess_note', note);
-        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
         const data = await res.json();
         if (data.ok) closeGallerySessionModal();
       }

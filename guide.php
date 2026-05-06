@@ -1,7 +1,8 @@
 <?php
 session_start();
+require_once __DIR__ . '/config.php';
 if (empty($_SESSION['admin'])) {
-    header('Location: admin.php');
+    header('Location: ' . ADMIN_FILENAME);
     exit;
 }
 ?>
@@ -226,7 +227,7 @@ if (empty($_SESSION['admin'])) {
 </header>
 
 <main>
-  <a href="admin.php" class="back-link">← Back to Admin</a>
+  <a href="<?= ADMIN_FILENAME ?>" class="back-link">← Back to Admin</a>
 
   <!-- ══════════════ MAIN SITE ══════════════ -->
   <div class="page-section">
@@ -423,7 +424,7 @@ if (empty($_SESSION['admin'])) {
 
   <!-- ══════════════ ADMIN ══════════════ -->
   <div class="page-section">
-    <div class="page-section-title"><span class="section-icon">⚙️</span> Admin (admin.php)</div>
+    <div class="page-section-title"><span class="section-icon">⚙️</span> Admin (<?= ADMIN_FILENAME ?>)</div>
     <p>A sticky quick-nav bar at the top lets you jump to any section instantly. Links for Brushes, Codices, and Scrap Notes only appear in the nav when those features are active.</p>
     <p>All sections are <strong>collapsed by default</strong> - click a section heading or a quicknav link to expand it. Only one section is open at a time.</p>
 

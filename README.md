@@ -100,6 +100,7 @@ never committed to git):
 | `SITE_AUTHOR` | Your name shown in the footer |
 | `SITE_EMAIL` | Contact email shown in the footer |
 | `SITE_URL` | Full URL with trailing slash (used for Open Graph meta tags) |
+| `ADMIN_FILENAME` | Filename of the admin panel (default: `admin.php`). Rename the file and set this to match for security. |
 | `ADMIN_PASSWORD` | Password for the admin panel - change this before deploying |
 | `GA4_ID` | Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); leave empty to disable |
 
