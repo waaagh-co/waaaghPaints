@@ -2004,7 +2004,7 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=2">
+  <link rel="stylesheet" href="admin.css?v=3">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
@@ -4403,8 +4403,11 @@ if ($authed && isset($_GET['edit_force'])) {
       }
 
       function filterPaints() {
-        const q = document.getElementById('paintSearch').value.toLowerCase();
-        const brand = document.getElementById('paintBrandFilter').value.toLowerCase();
+        const searchEl = document.getElementById('paintSearch');
+        const brandEl  = document.getElementById('paintBrandFilter');
+        if (!searchEl || !brandEl) return;
+        const q = searchEl.value.toLowerCase();
+        const brand = brandEl.value.toLowerCase();
         let visible = 0;
         document.querySelectorAll('#paintTable tbody tr').forEach(row => {
           const matchName = !q || row.dataset.name.includes(q);
@@ -5623,7 +5626,7 @@ if ($authed && isset($_GET['edit_force'])) {
       }
 
       // ── Collapsible sections: all collapsed by default ────────
-      document.addEventListener('DOMContentLoaded', function() {
+      function initAdminSections() {
         const headings = Array.from(document.querySelectorAll('h2[id^="section-"]'));
         if (!headings.length) return;
 
@@ -5686,6 +5689,9 @@ if ($authed && isset($_GET['edit_force'])) {
         if (!openTarget && document.body.dataset.openSection) {
           openTarget = document.getElementById(document.body.dataset.openSection);
         }
+        if (!openTarget) {
+          openTarget = document.getElementById('section-stats');
+        }
         if (openTarget) {
           expand(openTarget);
           // Re-scroll after expand so the anchor jump lands correctly
@@ -5695,7 +5701,12 @@ if ($authed && isset($_GET['edit_force'])) {
             });
           }, 0);
         }
-      });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAdminSections);
+      } else {
+        initAdminSections();
+      }
 
       // ── Back to top + scroll-spy ──────────────────────────────
       document.addEventListener('DOMContentLoaded', function() {
