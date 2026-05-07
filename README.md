@@ -1,5 +1,7 @@
 # Waaagh! Paint
 
+![Homepage](img/index.jpg)
+
 A personal Warhammer hobby paint collection manager. Flat-file PHP - no database, no framework,
 no dependencies beyond a PHP host. Drop it on any shared host and go.
 
