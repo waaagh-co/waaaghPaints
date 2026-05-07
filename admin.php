@@ -2107,21 +2107,21 @@ if ($authed && isset($_GET['edit_force'])) {
 
       <!-- ── Quick navigation ── -->
       <nav class="admin-quicknav">
+        <a href="#section-recipes">Recipes</a>
+        <a href="#section-gallery">Add Scheme</a>
+        <a href="#section-entries">Edit Scheme</a>
+        <a href="#section-planned">Planned</a>
         <a href="#section-bench">On the Bench</a>
-        <?php if ($hasJournal): ?><a href="#section-journal">Scrap Notes</a><?php endif; ?>
-        <a href="#section-gallery">Gallery Form</a>
-        <a href="#section-entries">Entries</a>
-        <a href="#section-inventory">Inventory</a>
-        <?php if ($hasBrushes): ?><a href="#section-brushes">Brushes</a><?php endif; ?>
-        <a href="#section-checker">Paint Checker</a>
-        <a href="#section-conversions">Conversions</a>
-        <?php if ($hasShame): ?><a href="#section-shame">Pile of Shame</a><?php endif; ?>
-        <a href="#section-planned">Planned Schemes</a>
         <?php if ($hasForces): ?><a href="#section-forces">Forces</a><?php endif; ?>
         <?php if ($hasBattles): ?><a href="#section-battles">Battle Honours</a><?php endif; ?>
-        <a href="#section-recipes">Recipes</a>
+        <a href="#section-inventory">Paint Inventory</a>
+        <?php if ($hasBrushes): ?><a href="#section-brushes">Brush Inventory</a><?php endif; ?>
+        <?php if ($hasShame): ?><a href="#section-shame">Pile of Shame</a><?php endif; ?>
         <?php if ($hasWishlist): ?><a href="#section-wishlist">Wishlist</a><?php endif; ?>
+        <a href="#section-conversions">Equivalency</a>
         <?php if ($hasBooks): ?><a href="#section-books">Codices</a><?php endif; ?>
+        <?php if ($hasJournal): ?><a href="#section-journal">Scrap Notes</a><?php endif; ?>
+        <a href="#section-checker">Paint Checker</a>
         <a href="#section-stats">Stats</a>
         <a href="guide.php" target="_blank">User Guide ↗</a>
       </nav>
@@ -2405,7 +2405,7 @@ if ($authed && isset($_GET['edit_force'])) {
       <?php if ($editModel): ?>
         <h2 id="section-gallery">Edit: <?= e($editModel['name']) ?></h2>
       <?php else: ?>
-        <h2 id="section-gallery" style="margin-top:40px">Add Model Entry</h2>
+        <h2 id="section-gallery" style="margin-top:40px">Add a Scheme</h2>
       <?php endif; ?>
 
       <form method="post" enctype="multipart/form-data">
@@ -2572,7 +2572,9 @@ if ($authed && isset($_GET['edit_force'])) {
 
       <!-- ── Existing entries ── -->
       <?php if ($models): ?>
-        <h2 id="section-entries" style="margin-top:40px">Existing Entries (<?= count($models) ?>)</h2>
+        <h2 id="section-entries" style="margin-top:40px">Edit Scheme
+          <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($models) ?> entr<?= count($models) !== 1 ? 'ies' : 'y' ?></span>
+        </h2>
         <?php if ($hasRecipes): ?>
           <form method="post" style="margin-bottom:14px" onsubmit="return confirm('Remove paints from scheme color lists that are already covered by a linked recipe? This cannot be undone.')">
             <input type="hidden" name="action" value="cleanup_scheme_colors">
@@ -4080,7 +4082,7 @@ if ($authed && isset($_GET['edit_force'])) {
       <!-- ── Hobby Wishlist ── -->
       <h2 id="section-wishlist" class="collapsible" style="margin-top:40px">Hobby Wishlist
         <?php if ($hasWishlist): ?>
-          <span class="section-count"><?= count($wishlistData) ?> item<?= count($wishlistData) !== 1 ? 's' : '' ?></span>
+          <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($wishlistData) ?> item<?= count($wishlistData) !== 1 ? 's' : '' ?></span>
         <?php endif; ?>
       </h2>
       <?php if (!$hasWishlist): ?>

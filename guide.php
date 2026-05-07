@@ -436,7 +436,7 @@ if (empty($_SESSION['admin'])) {
   <!-- ══════════════ ADMIN ══════════════ -->
   <div class="page-section">
     <div class="page-section-title"><span class="section-icon">⚙️</span> Admin (<?= ADMIN_FILENAME ?>)</div>
-    <p>A sticky quick-nav bar at the top lets you jump to any section instantly. Links for Brushes, Codices, and Scrap Notes only appear in the nav when those features are active.</p>
+    <p>A sticky quick-nav bar at the top lets you jump to any section instantly. The order follows your workflow: Recipes &rarr; Add Scheme &rarr; Edit Scheme &rarr; Planned &rarr; On the Bench, then Forces / Battle Honours, then the collection (Paint Inventory, Brush Inventory, Pile of Shame, Wishlist), then reference tools (Equivalency, Codices, Scrap Notes, Paint Checker). Links for opt-in features only appear once you have started them.</p>
     <p>All sections are <strong>collapsed by default</strong> - click a section heading or a quicknav link to expand it. Only one section is open at a time.</p>
 
     <h3>Hobby Stats</h3>
@@ -450,8 +450,8 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Annual Goals (By Year)</strong> - each year row has a <strong>+ Goal</strong> (or pencil) button that opens an inline form with two fields: <em>Target</em> (how many models you want to paint this year) and <em>Baseline</em> (models you'd already painted before you started logging sessions - use this if you back-logged entries and need an accurate starting count). Saving writes a progress bar + painted/target count beneath the year. The current year always shows even if nothing is logged yet. When your session count hits the target, a <strong>Goal reached!</strong> badge appears and the bar fills gold. The goal also shows as a slim progress strip on the landing page of the main site. Remove a goal with the <strong>&times;</strong> button.</li>
     </ul>
 
-    <h3>Gallery Form</h3>
-    <p>Add or edit a completed model entry.</p>
+    <h3>Add a Scheme</h3>
+    <p>Add or edit a completed painting scheme.</p>
     <ul>
       <li><strong>Model Name</strong> - required</li>
       <li><strong>Faction / Army</strong> - optional; enables faction filtering on the main site and populates the Factions tab</li>
@@ -465,7 +465,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Recipes</strong> - optional; link one or more recipes from the Recipe Library. Linked recipes turn the pull sheet into a sequenced painting guide</li>
     </ul>
 
-    <h3>Existing Entries</h3>
+    <h3>Edit Scheme</h3>
     <p>A scrollable list of all gallery entries with thumbnail, name, faction, and paint counts.</p>
     <ul>
       <li><strong>+ Log</strong> - records a painting session against that gallery entry: date, how many models you finished in that session, and an optional note. Session counts accumulate toward your annual goal progress. This is different from the "Models Painted" count field on the entry itself (which is a lifetime total) - sessions are how you track what you completed <em>this year</em></li>
