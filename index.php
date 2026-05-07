@@ -74,10 +74,18 @@ $cnt_forces     = count($forcesData);
 
 // Factions is opt-in: visible only when at least one entry has a faction field set
 $factionSet = [];
-foreach ($models   as $m)  { if (!empty($m['faction']))  $factionSet[trim($m['faction'])]  = true; }
-foreach ($planned  as $pl) { if (!empty($pl['faction'])) $factionSet[trim($pl['faction'])] = true; }
-if ($hasBench)   foreach ($benchData   as $b) { if (!empty($b['faction']))  $factionSet[trim($b['faction'])]  = true; }
-if ($hasRecipes) foreach ($recipesData as $r) { if (!empty($r['faction']))  $factionSet[trim($r['faction'])]  = true; }
+foreach ($models   as $m) {
+  if (!empty($m['faction']))  $factionSet[trim($m['faction'])]  = true;
+}
+foreach ($planned  as $pl) {
+  if (!empty($pl['faction'])) $factionSet[trim($pl['faction'])] = true;
+}
+if ($hasBench)   foreach ($benchData   as $b) {
+  if (!empty($b['faction']))  $factionSet[trim($b['faction'])]  = true;
+}
+if ($hasRecipes) foreach ($recipesData as $r) {
+  if (!empty($r['faction']))  $factionSet[trim($r['faction'])]  = true;
+}
 $factionCount = count($factionSet);
 $hasFactions  = $factionCount > 0;
 
@@ -145,16 +153,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 <html lang="en">
 
 <head>
-<?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars(GA4_ID) ?>"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '<?= htmlspecialchars(GA4_ID) ?>');
-  </script>
-<?php endif; ?>
+  <?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars(GA4_ID) ?>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', '<?= htmlspecialchars(GA4_ID) ?>');
+    </script>
+  <?php endif; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waaagh! Paint Collection</title>
@@ -168,19 +179,27 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <link rel="apple-touch-icon" href="img/logo_sm.png">
   <link rel="canonical" href="<?= htmlspecialchars(SITE_URL) ?>">
   <meta name="description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
-  <meta property="og:type"        content="website">
-  <meta property="og:url"         content="<?= htmlspecialchars(SITE_URL) ?>">
-  <meta property="og:title"       content="Waaagh! Paint Collection">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<?= htmlspecialchars(SITE_URL) ?>">
+  <meta property="og:title" content="Waaagh! Paint Collection">
   <meta property="og:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
-  <meta property="og:image"       content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
-  <meta name="twitter:card"        content="summary">
-  <meta name="twitter:title"       content="Waaagh! Paint Collection">
+  <meta property="og:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Waaagh! Paint Collection">
   <meta name="twitter:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
-  <meta name="twitter:image"       content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
+  <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=23">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Waaagh! Paint Collection","url":"<?= htmlspecialchars(SITE_URL) ?>","description":"Personal Warhammer 40k hobby paint collection tracker - model gallery, recipes, workbench, and codex reference library."}</script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Waaagh! Paint Collection",
+      "url": "<?= htmlspecialchars(SITE_URL) ?>",
+      "description": "Personal Warhammer 40k hobby paint collection tracker - model gallery, recipes, workbench, and codex reference library."
+    }
+  </script>
 </head>
 
 <body>
@@ -295,13 +314,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       $cnt_ready = 0;
       foreach ($planned as $_pl) {
-        if (empty($_pl['colors'])) { $cnt_ready++; continue; }
+        if (empty($_pl['colors'])) {
+          $cnt_ready++;
+          continue;
+        }
         $allOwned = true;
         foreach ($_pl['colors'] as $_c) {
           if (!isset($ownedKeys[$_c])) {
             $parts2 = explode('|', $_c);
             $k2 = $parts2[0] . '|' . ($parts2[1] ?? '');
-            if (!isset($ownedKeys[$k2])) { $allOwned = false; break; }
+            if (!isset($ownedKeys[$k2])) {
+              $allOwned = false;
+              break;
+            }
           }
         }
         if ($allOwned) $cnt_ready++;
@@ -322,7 +347,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         if ($ts) {
           $days = floor((time() - $ts) / 86400);
           if ($days <= 0)       $touchedAgo = 'Touched today';
-          elseif ($days === 1.0)$touchedAgo = 'Touched yesterday';
+          elseif ($days === 1.0) $touchedAgo = 'Touched yesterday';
           elseif ($days < 7)    $touchedAgo = 'Touched ' . (int)$days . ' days ago';
           elseif ($days < 30)   $touchedAgo = 'Touched ' . (int)floor($days / 7) . ' week' . (floor($days / 7) !== 1.0 ? 's' : '') . ' ago';
           else                  $touchedAgo = 'Touched ' . (int)floor($days / 30) . ' month' . (floor($days / 30) !== 1.0 ? 's' : '') . ' ago';
@@ -330,64 +355,71 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
 
       $benchStageLabels = [
-        'built' => 'Built', 'primed' => 'Primed', 'basecoated' => 'Basecoated',
-        'washed' => 'Washed', 'highlighted' => 'Highlighted', 'based' => 'Based',
-        'varnished' => 'Varnished', 'done' => 'Done',
+        'built' => 'Built',
+        'primed' => 'Primed',
+        'basecoated' => 'Basecoated',
+        'washed' => 'Washed',
+        'highlighted' => 'Highlighted',
+        'based' => 'Based',
+        'varnished' => 'Varnished',
+        'done' => 'Done',
       ];
       ?>
 
       <div class="hero-wrap">
-      <div class="hero-bar">
-        <?php if ($latestBench): ?>
-          <a class="hero-bench" data-jump="bench" title="Jump to On the Bench">
-            <div class="hero-bench-label">Under da Brush</div>
-            <?php
+        <div class="hero-bar">
+          <?php if ($latestBench): ?>
+            <a class="hero-bench" data-jump="bench" title="Jump to On the Bench">
+              <div class="hero-bench-label">Under da Brush</div>
+              <?php
               $bnImgs = $latestBench['wip_images'] ?? [];
               $bnImg = !empty($bnImgs) ? $bnImgs[count($bnImgs) - 1] : '';
               $bnStage = $latestBench['stage'] ?? 'built';
-            ?>
-            <div class="hero-bench-main">
-              <?php if ($bnImg): ?>
-                <div class="hero-bench-img" style="background-image:url('<?= htmlspecialchars($bnImg, ENT_QUOTES) ?>')"></div>
-              <?php else: ?>
-                <div class="hero-bench-img hero-bench-img-empty">NO<br>PHOTO</div>
-              <?php endif; ?>
-              <div class="hero-bench-info">
-                <div class="hero-bench-name"><?= htmlspecialchars($latestBench['name'], ENT_QUOTES) ?></div>
-                <?php if (!empty($latestBench['faction'])): ?>
-                  <div class="hero-bench-faction"><?= htmlspecialchars($latestBench['faction'], ENT_QUOTES) ?></div>
+              ?>
+              <div class="hero-bench-main">
+                <?php if ($bnImg): ?>
+                  <div class="hero-bench-img" style="background-image:url('<?= htmlspecialchars($bnImg, ENT_QUOTES) ?>')"></div>
+                <?php else: ?>
+                  <div class="hero-bench-img hero-bench-img-empty">NO<br>PHOTO</div>
                 <?php endif; ?>
-                <div class="hero-bench-meta">
-                  <span class="bench-stage-label stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>"><?= htmlspecialchars($benchStageLabels[$bnStage] ?? $bnStage, ENT_QUOTES) ?></span>
-                  <?php if ($touchedAgo): ?><span class="hero-bench-touched"><?= htmlspecialchars($touchedAgo, ENT_QUOTES) ?></span><?php endif; ?>
+                <div class="hero-bench-info">
+                  <div class="hero-bench-name"><?= htmlspecialchars($latestBench['name'], ENT_QUOTES) ?></div>
+                  <?php if (!empty($latestBench['faction'])): ?>
+                    <div class="hero-bench-faction"><?= htmlspecialchars($latestBench['faction'], ENT_QUOTES) ?></div>
+                  <?php endif; ?>
+                  <div class="hero-bench-meta">
+                    <span class="bench-stage-label stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>"><?= htmlspecialchars($benchStageLabels[$bnStage] ?? $bnStage, ENT_QUOTES) ?></span>
+                    <?php if ($touchedAgo): ?><span class="hero-bench-touched"><?= htmlspecialchars($touchedAgo, ENT_QUOTES) ?></span><?php endif; ?>
+                  </div>
                 </div>
               </div>
-            </div>
+            </a>
+          <?php endif; ?>
+
+          <div id="hero-heatmap" class="hero-heatmap"></div>
+        </div>
+
+        <?php if ($hasJournal && !empty($journalData)):
+          $jnLatest = $journalData[0];
+          $jnDate   = $jnLatest['date'] ?? '';
+          $jnRaw    = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $jnLatest['body'] ?? '');
+          $jnSnip   = function_exists('mb_strimwidth') ? mb_strimwidth($jnRaw, 0, 90, '…') : (strlen($jnRaw) > 90 ? substr($jnRaw, 0, 90) . '…' : $jnRaw);
+        ?>
+          <a class="hero-note-strip" data-jump="journals" title="Jump to Scrap Notes">
+            <span class="hero-note-label">Latest Note<?= $jnDate ? ' &middot; ' . htmlspecialchars($jnDate) : '' ?></span>
+            <span class="hero-note-body"><?= htmlspecialchars($jnSnip) ?></span>
           </a>
         <?php endif; ?>
-
-        <div id="hero-heatmap" class="hero-heatmap"></div>
-      </div>
-
-      <?php if ($hasJournal && !empty($journalData)):
-        $jnLatest = $journalData[0];
-        $jnDate   = $jnLatest['date'] ?? '';
-        $jnRaw    = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $jnLatest['body'] ?? '');
-        $jnSnip   = function_exists('mb_strimwidth') ? mb_strimwidth($jnRaw, 0, 90, '…') : (strlen($jnRaw) > 90 ? substr($jnRaw, 0, 90) . '…' : $jnRaw);
-      ?>
-      <a class="hero-note-strip" data-jump="journals" title="Jump to Scrap Notes">
-        <span class="hero-note-label">Latest Note<?= $jnDate ? ' &middot; ' . htmlspecialchars($jnDate) : '' ?></span>
-        <span class="hero-note-body"><?= htmlspecialchars($jnSnip) ?></span>
-      </a>
-      <?php endif; ?>
-      <?php if ($curYearGoal > 0): ?>
-      <div class="hero-goal-strip">
-        <span class="hero-goal-label"><?= $curYear ?> Goal</span>
-        <div class="hero-goal-bar-wrap"><div class="hero-goal-bar-fill" style="width:<?= $goalPct ?>%"></div></div>
-        <span class="hero-goal-num"><?= $curYearCount ?> / <?= $curYearGoal ?></span>
-        <span class="hero-goal-pct<?= $goalPct >= 100 ? ' goal-complete' : '' ?>"><?= $goalPct ?>%<?= $goalPct >= 100 ? ' &#10003;' : '' ?></span>
-      </div>
-      <?php endif; ?>
+        <?php if ($curYearGoal > 0): ?>
+          <div class="hero-goal-strip">
+            <span class="hero-goal-label"><?= $curYear ?> Goal</span>
+            <div class="hero-goal-bar-wrap">
+              <div class="hero-goal-bar-fill" style="width:<?= $goalPct ?>%"></div>
+            </div>
+            <span class="hero-goal-num"><?= $curYearCount ?> / <?= $curYearGoal ?></span>
+            <span class="hero-goal-pct<?= $goalPct >= 100 ? ' goal-complete' : '' ?>"><?= $goalPct ?>%<?= $goalPct >= 100 ? ' &#10003;' : '' ?></span>
+          </div>
+        <?php endif; ?>
       </div>
 
       <?php
@@ -431,23 +463,23 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <!-- ── Your Armies + The Workbench ── -->
         <div class="armies-workbench-row">
           <?php if ($hasFactions || $hasForces): ?>
-          <div class="armies-section">
-            <div class="contents-section-title">Your Armies</div>
-            <?php if ($hasFactions): ?>
-            <a class="contents-entry" data-jump="factions">
-              <div class="contents-entry-name">Factions</div>
-              <div class="contents-entry-blurb">Every army in one view - finished schemes, bench work, planned, and the full palette built for each faction.</div>
-              <div class="contents-entry-count"><?= $factionCount ?> faction<?= $factionCount !== 1 ? 's' : '' ?> represented</div>
-            </a>
-            <?php endif; ?>
-            <?php if ($hasForces): ?>
-              <a class="contents-entry" data-jump="forces">
-                <div class="contents-entry-name">Forces &amp; Rosters</div>
-                <div class="contents-entry-blurb">Named rosters for Kill Team, OPR, Blood Bowl, and more - painted count vs. target, with scheme thumbnails.</div>
-                <div class="contents-entry-count"><?= $cnt_forces ?> force<?= $cnt_forces !== 1 ? 's' : '' ?> assembled</div>
-              </a>
-            <?php endif; ?>
-          </div>
+            <div class="armies-section">
+              <div class="contents-section-title">Your Armies</div>
+              <?php if ($hasFactions): ?>
+                <a class="contents-entry" data-jump="factions">
+                  <div class="contents-entry-name">Factions</div>
+                  <div class="contents-entry-blurb">Every army in one view - finished schemes, bench work, planned, and the full palette built for each faction.</div>
+                  <div class="contents-entry-count"><?= $factionCount ?> faction<?= $factionCount !== 1 ? 's' : '' ?> represented</div>
+                </a>
+              <?php endif; ?>
+              <?php if ($hasForces): ?>
+                <a class="contents-entry" data-jump="forces">
+                  <div class="contents-entry-name">Forces &amp; Rosters</div>
+                  <div class="contents-entry-blurb">Named rosters for Kill Team, OPR, Blood Bowl, and more - painted count vs. target, with scheme thumbnails.</div>
+                  <div class="contents-entry-count"><?= $cnt_forces ?> force<?= $cnt_forces !== 1 ? 's' : '' ?> assembled</div>
+                </a>
+              <?php endif; ?>
+            </div>
           <?php endif; ?>
           <div class="workbench-section">
             <div class="contents-section-title">The Workbench</div>
@@ -606,7 +638,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <button id="reset">Reset</button>
       <span id="count"></span>
     </div>
-    <p class="tab-blurb">The armoury laid bare. Know your stock before you commit colour to plastic.</p>
+    <p class="tab-blurb">The armoury laid bare. Know your stock before you commit colour to plastic. (Click &#9998; for notes or ★ for rating.)</p>
     <div class="table-wrap">
       <table id="paint-table">
         <thead>
@@ -629,44 +661,44 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </div><!-- #tab-inventory -->
 
   <?php if ($hasWishlist): ?>
-  <div id="tab-wishlist" class="tab-panel">
-    <div id="wishlist-controls">
-      <a class="tab-label" href="#" onclick="copyTabLink(event,'wishlist')" title="Copy link to this tab">Wishlist</a>
-      <input id="wishlist-search" type="search" class="tab-search" placeholder="Search wishlist&hellip;">
-      <div id="wishlist-type-pills" class="pill-row"></div>
-      <div id="wishlist-pri-pills" class="pill-row">
-        <button class="wish-pp active" data-wpri="all">All</button>
-        <button class="wish-pp" data-wpri="high">High</button>
-        <button class="wish-pp" data-wpri="medium">Medium</button>
-        <button class="wish-pp" data-wpri="low">Low</button>
+    <div id="tab-wishlist" class="tab-panel">
+      <div id="wishlist-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'wishlist')" title="Copy link to this tab">Wishlist</a>
+        <input id="wishlist-search" type="search" class="tab-search" placeholder="Search wishlist&hellip;">
+        <div id="wishlist-type-pills" class="pill-row"></div>
+        <div id="wishlist-pri-pills" class="pill-row">
+          <button class="wish-pp active" data-wpri="all">All</button>
+          <button class="wish-pp" data-wpri="high">High</button>
+          <button class="wish-pp" data-wpri="medium">Medium</button>
+          <button class="wish-pp" data-wpri="low">Low</button>
+        </div>
+        <button id="wishlist-copy-btn" class="filter-btn-sm">Copy</button>
+        <button id="wishlist-print-btn" class="filter-btn-sm">Print</button>
+        <span id="wishlist-count"></span>
       </div>
-      <button id="wishlist-copy-btn" class="filter-btn-sm">Copy</button>
-      <button id="wishlist-print-btn" class="filter-btn-sm">Print</button>
-      <span id="wishlist-count"></span>
+      <p class="tab-blurb">Acquisitions under consideration, ranked by priority. The procurement list before the purchase.</p>
+      <div id="wishlist-grid" class="wishlist-grid"></div>
+      <div id="wishlist-empty" class="tab-empty hidden">No items match.</div>
     </div>
-    <p class="tab-blurb">Acquisitions under consideration, ranked by priority. The procurement list before the purchase.</p>
-    <div id="wishlist-grid" class="wishlist-grid"></div>
-    <div id="wishlist-empty" class="tab-empty hidden">No items match.</div>
-  </div>
   <?php endif; ?>
 
   <?php if ($hasShame): ?>
-  <div id="tab-shame" class="tab-panel">
-    <div id="shame-controls">
-      <a class="tab-label" href="#" onclick="copyTabLink(event,'shame')" title="Copy link to this tab">Pile of Shame</a>
-      <input id="shame-search" type="search" class="tab-search" placeholder="Search boxes...">
-      <div id="shame-filter-pills" class="pill-row">
-        <button class="shame-fp active" data-filter="active">Active</button>
-        <button class="shame-fp" data-filter="promoted">Promoted</button>
-        <button class="shame-fp" data-filter="all">All</button>
+    <div id="tab-shame" class="tab-panel">
+      <div id="shame-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'shame')" title="Copy link to this tab">Pile of Shame</a>
+        <input id="shame-search" type="search" class="tab-search" placeholder="Search boxes...">
+        <div id="shame-filter-pills" class="pill-row">
+          <button class="shame-fp active" data-filter="active">Active</button>
+          <button class="shame-fp" data-filter="promoted">Promoted</button>
+          <button class="shame-fp" data-filter="all">All</button>
+        </div>
+        <span id="shame-summary"></span>
       </div>
-      <span id="shame-summary"></span>
+      <p class="tab-blurb">Boxed, sealed, optimistically purchased. All of it logged here. None of it judged.</p>
+      <div class="shame-grid" id="shame-grid"></div>
+      <div id="shame-more"></div>
+      <div id="shame-empty" class="tab-empty hidden">No boxes match.</div>
     </div>
-    <p class="tab-blurb">Boxed, sealed, optimistically purchased. All of it logged here. None of it judged.</p>
-    <div class="shame-grid" id="shame-grid"></div>
-    <div id="shame-more"></div>
-    <div id="shame-empty" class="tab-empty hidden">No boxes match.</div>
-  </div>
   <?php endif; ?>
 
   <div id="tab-planned" class="tab-panel">
@@ -732,18 +764,18 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <?php endif; ?>
 
   <?php if ($hasForces): ?>
-  <div id="tab-forces" class="tab-panel">
-    <div id="forces-controls">
-      <a class="tab-label" href="#" onclick="copyTabLink(event,'forces')" title="Copy link to this tab">Forces &amp; Rosters</a>
-      <input type="search" id="forces-search" class="tab-search" placeholder="Search forces, factions&hellip;" autocomplete="off">
-      <span id="forces-count"></span>
-    </div>
-    <p class="tab-blurb">Named armies, muster counts, readiness assessed. The order of battle, written down.</p>
-    <div class="forces-grid" id="forces-grid"></div>
-    <div id="forces-empty" class="tab-empty hidden">
-      No forces yet - add one in admin.
-    </div>
-  </div><!-- #tab-forces -->
+    <div id="tab-forces" class="tab-panel">
+      <div id="forces-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'forces')" title="Copy link to this tab">Forces &amp; Rosters</a>
+        <input type="search" id="forces-search" class="tab-search" placeholder="Search forces, factions&hellip;" autocomplete="off">
+        <span id="forces-count"></span>
+      </div>
+      <p class="tab-blurb">Named armies, muster counts, readiness assessed. The order of battle, written down.</p>
+      <div class="forces-grid" id="forces-grid"></div>
+      <div id="forces-empty" class="tab-empty hidden">
+        No forces yet - add one in admin.
+      </div>
+    </div><!-- #tab-forces -->
   <?php endif; ?>
 
 
@@ -780,16 +812,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <?php endif; ?>
 
   <?php if ($hasFactions): ?>
-  <div id="tab-factions" class="tab-panel">
-    <div id="factions-controls">
-      <a class="tab-label" href="#" onclick="copyTabLink(event,'factions')" title="Copy link to this tab">Factions</a>
-      <input type="search" id="factions-search" class="tab-search" placeholder="Search factions&hellip;" autocomplete="off">
-      <span id="factions-count"></span>
-    </div>
-    <p class="tab-blurb">The full order of battle, arranged by allegiance. Every faction's palette, recipes, and pipeline in one place.</p>
-    <div id="factions-wrap"></div>
-    <div id="factions-empty" class="hidden">No factions yet - tag a scheme, project, or recipe with a faction name and it will show up here.</div>
-  </div><!-- #tab-factions -->
+    <div id="tab-factions" class="tab-panel">
+      <div id="factions-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'factions')" title="Copy link to this tab">Factions</a>
+        <input type="search" id="factions-search" class="tab-search" placeholder="Search factions&hellip;" autocomplete="off">
+        <span id="factions-count"></span>
+      </div>
+      <p class="tab-blurb">The full order of battle, arranged by allegiance. Every faction's palette, recipes, and pipeline in one place.</p>
+      <div id="factions-wrap"></div>
+      <div id="factions-empty" class="hidden">No factions yet - tag a scheme, project, or recipe with a faction name and it will show up here.</div>
+    </div><!-- #tab-factions -->
   <?php endif; ?>
 
   <div id="tab-equiv" class="tab-panel">
@@ -799,7 +831,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <span id="equiv-count"></span>
     </div>
     <div class="equiv-explainer">
-      <p>All equivalences are compared against Citadel (now Warhammer Paints) colours. Match ratings reflect personal real-world results - coverage and colour on a model, not theory. Washes, Contrast, and technical paints are approximations only. (Click &#9998; for notes or ★ for rating.)</p>
+      <p>All equivalences are compared against Citadel (now Warhammer Paints) colours. Match ratings reflect personal real-world results - coverage and colour on a model, not theory. Washes, Contrast, and technical paints are approximations only. </p>
       <div class="equiv-match-legend">
         <span class="equiv-legend-item"><span class="eq-match-dot eq-match-near"></span>Near identical - safe 1:1 swap</span>
         <span class="equiv-legend-item"><span class="eq-match-dot eq-match-usable"></span>Usable - slight shift, fine for tabletop</span>
@@ -950,13 +982,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
   <!-- ── Global Search ── -->
   <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
   </button>
 
   <div id="gs-overlay" class="gs-overlay" role="dialog" aria-modal="true">
     <div class="gs-modal">
       <div class="gs-input-wrap">
-        <svg class="gs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg class="gs-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
         <input type="search" id="gs-input" placeholder="Search paints, schemes, recipes, anything&hellip;" autocomplete="off">
         <kbd class="gs-esc">Esc</kbd>
       </div>
@@ -984,7 +1022,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <?php endif; ?>
     <?php if ($hasForces): ?>const FORCES_DATA = <?= $forcesDataJson ?>;
     <?php endif; ?>
-    <?php if ($hasWishlist): ?>const WISHLIST_DATA = <?= json_encode($wishlistData, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_AMP|JSON_UNESCAPED_UNICODE) ?>;<?php endif; ?>
+    <?php if ($hasWishlist): ?>const WISHLIST_DATA = <?= json_encode($wishlistData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+    <?php endif; ?>
     <?php if ($hasShame): ?>const SHAME_DATA = <?= json_encode($shameData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
     <?php endif; ?>
     <?php if ($hasJournal): ?>const JOURNAL_DATA = <?= json_encode($journalData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
@@ -1118,15 +1157,26 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     function collectAllPaints(direct, recipeIds) {
       const seen = new Set();
       const out = [];
-      (direct || []).forEach(c => { if (!seen.has(c)) { seen.add(c); out.push(c); } });
+      (direct || []).forEach(c => {
+        if (!seen.has(c)) {
+          seen.add(c);
+          out.push(c);
+        }
+      });
       if (recipeIds && recipeIds.length && typeof window._RECIPE_BY_ID !== 'undefined') {
         recipeIds.forEach(rid => {
           const r = window._RECIPE_BY_ID.get(rid);
           if (!r) return;
           (r.steps || []).forEach(s => {
-              if (s.paint && !seen.has(s.paint)) { seen.add(s.paint); out.push(s.paint); }
-              if (s.mix_paint && !seen.has(s.mix_paint)) { seen.add(s.mix_paint); out.push(s.mix_paint); }
-            });
+            if (s.paint && !seen.has(s.paint)) {
+              seen.add(s.paint);
+              out.push(s.paint);
+            }
+            if (s.mix_paint && !seen.has(s.mix_paint)) {
+              seen.add(s.mix_paint);
+              out.push(s.mix_paint);
+            }
+          });
         });
       }
       return out;
@@ -1199,7 +1249,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         for (const step of (r.steps || [])) {
           if (!step.paint) continue;
           const uk = upgradeKey(step.paint).toLowerCase();
-          if (!seen.has(uk)) { seen.add(uk); extra.push(step.paint); }
+          if (!seen.has(uk)) {
+            seen.add(uk);
+            extra.push(step.paint);
+          }
         }
       }
       return extra.length ? own.concat(extra) : own;
@@ -1211,8 +1264,26 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     let gallerySearch = '';
     let readyFilter = false;
 
-    const SYS_COLORS = {'40k':'#5a1a1a','30k / HH':'#4a3a0a','AoS':'#1a2a5a','Kill Team':'#0a3a3a','Blood Bowl':'#0a3a1a','Necromunda':'#3a0a5a','OPR':'#1a2a3a','Other':'#2a2a2a'};
-    const sysSlug = s => ({'40k':'40k','30k / HH':'30k','AoS':'aos','Kill Team':'kt','Blood Bowl':'bb','Necromunda':'necro','Epic':'epic','OPR':'opr'}[s] || 'other');
+    const SYS_COLORS = {
+      '40k': '#5a1a1a',
+      '30k / HH': '#4a3a0a',
+      'AoS': '#1a2a5a',
+      'Kill Team': '#0a3a3a',
+      'Blood Bowl': '#0a3a1a',
+      'Necromunda': '#3a0a5a',
+      'OPR': '#1a2a3a',
+      'Other': '#2a2a2a'
+    };
+    const sysSlug = s => ({
+      '40k': '40k',
+      '30k / HH': '30k',
+      'AoS': 'aos',
+      'Kill Team': 'kt',
+      'Blood Bowl': 'bb',
+      'Necromunda': 'necro',
+      'Epic': 'epic',
+      'OPR': 'opr'
+    } [s] || 'other');
 
     function modelReadiness(m) {
       const cols = effectiveColors(m);
@@ -1386,13 +1457,21 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         const summaryHtml = (() => {
           const s = m.summary;
           if (!s) return '';
-          const rows = [['Finish', s.finish], ['Primary', s.primary], ['Contrast', s.contrast], ['Technique', s.technique]].filter(([, v]) => v);
+          const rows = [
+            ['Finish', s.finish],
+            ['Primary', s.primary],
+            ['Contrast', s.contrast],
+            ['Technique', s.technique]
+          ].filter(([, v]) => v);
           if (!rows.length) return '';
           return `<div class="model-summary">${rows.map(([l, v]) => `<span class="model-summary-lbl">${esc(l)}</span><span class="model-summary-val">${esc(v)}</span>`).join('')}</div>`;
         })();
         const codexBadge = m.codex_source ? `<span class="codex-source-badge">${esc(m.codex_source)}</span>` : '';
         const colorsHtml = colors ? (() => {
-          const issues = effectiveColors(m).filter(c => { const uk = upgradeKey(c); return !paintOwned.has(uk) || paintStock.get(uk); }).length;
+          const issues = effectiveColors(m).filter(c => {
+            const uk = upgradeKey(c);
+            return !paintOwned.has(uk) || paintStock.get(uk);
+          }).length;
           const badge = issues > 0 ? `<span class="pull-issue-badge">${issues} issue${issues > 1 ? 's' : ''}</span>` : '';
           return `<div class="model-colors">${colors}</div><button class="pull-btn" onclick="openPull('${esc(m.id)}')">Pull list${badge}</button>`;
         })() : '';
@@ -1484,7 +1563,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             tab: btn.dataset.tab
           })
         });
-        if (typeof gtag !== 'undefined') gtag('event', 'tab_view', { tab_name: btn.dataset.tab });
+        if (typeof gtag !== 'undefined') gtag('event', 'tab_view', {
+          tab_name: btn.dataset.tab
+        });
         const _tabUrl = new URL(location.href);
         if (btn.dataset.tab === 'contents') {
           _tabUrl.searchParams.delete('tab');
@@ -1509,25 +1590,58 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       const el = document.getElementById('hero-heatmap');
       if (!el) return;
       const act = new Map();
-      function bump(d) { if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) act.set(d, (act.get(d) || 0) + 1); }
+
+      function bump(d) {
+        if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) act.set(d, (act.get(d) || 0) + 1);
+      }
       MODELS.forEach(m => bump(m.date));
       if (typeof JOURNAL_DATA !== 'undefined') JOURNAL_DATA.forEach(j => bump(j.date));
-      if (typeof BENCH_DATA !== 'undefined') BENCH_DATA.forEach(b => { bump(b.last_touched); (b.history || []).forEach(h => bump(h.date)); });
-      const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const today = new Date(); today.setHours(0,0,0,0);
-      function iso(d) { return d.toISOString().slice(0,10); }
-      const gridStart = new Date(today); gridStart.setDate(today.getDate() - today.getDay() - 51 * 7);
-      const gridEnd   = new Date(today); gridEnd.setDate(today.getDate() + (6 - today.getDay()));
+      if (typeof BENCH_DATA !== 'undefined') BENCH_DATA.forEach(b => {
+        bump(b.last_touched);
+        (b.history || []).forEach(h => bump(h.date));
+      });
+      const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      function iso(d) {
+        return d.toISOString().slice(0, 10);
+      }
+      const gridStart = new Date(today);
+      gridStart.setDate(today.getDate() - today.getDay() - 51 * 7);
+      const gridEnd = new Date(today);
+      gridEnd.setDate(today.getDate() + (6 - today.getDay()));
       const weeks = [];
       const cur = new Date(gridStart);
-      while (cur <= gridEnd) { const wk = []; for (let d = 0; d < 7; d++) { wk.push({ iso: iso(cur), count: act.get(iso(cur)) || 0, future: cur > today, dt: new Date(cur) }); cur.setDate(cur.getDate() + 1); } weeks.push(wk); }
+      while (cur <= gridEnd) {
+        const wk = [];
+        for (let d = 0; d < 7; d++) {
+          wk.push({
+            iso: iso(cur),
+            count: act.get(iso(cur)) || 0,
+            future: cur > today,
+            dt: new Date(cur)
+          });
+          cur.setDate(cur.getDate() + 1);
+        }
+        weeks.push(wk);
+      }
       const isoToday = iso(today);
       const isoStart = iso(gridStart);
       const activeDays = [...act.keys()].filter(d => d >= isoStart && d <= isoToday).length;
-      function lvl(c, f) { if (f || c === 0) return 0; return c === 1 ? 1 : c === 2 ? 2 : 3; }
+
+      function lvl(c, f) {
+        if (f || c === 0) return 0;
+        return c === 1 ? 1 : c === 2 ? 2 : 3;
+      }
       let lastMon = -1;
-      const monthRow = weeks.map(wk => { const m = wk[0].dt.getMonth(); const lbl = m !== lastMon ? MON[m] : ''; lastMon = m; return `<span>${lbl}</span>`; }).join('');
+      const monthRow = weeks.map(wk => {
+        const m = wk[0].dt.getMonth();
+        const lbl = m !== lastMon ? MON[m] : '';
+        lastMon = m;
+        return `<span>${lbl}</span>`;
+      }).join('');
       const gridHtml = weeks.map(wk => `<div class="hm-week">${wk.map(day => { const l = lvl(day.count, day.future); const cls = 'hm-day ' + (day.future ? 'hm-future' : `hm-lv${l}`) + (day.iso === isoToday ? ' hm-today' : ''); const tip = day.future ? '' : day.count ? `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()} · ${day.count} activit${day.count === 1 ? 'y' : 'ies'}` : `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()}`; return `<div class="${cls.trim()}"${tip ? ` title="${tip}"` : ''}></div>`; }).join('')}</div>`).join('');
       el.innerHTML = `<div class="hm-header">Hobby Activity &middot; <span class="hm-count">${activeDays} active day${activeDays === 1 ? '' : 's'} this year</span></div><div class="hm-scroll"><div class="hm-inner"><div class="hm-months">${monthRow}</div><div class="hm-grid">${gridHtml}</div></div></div><div class="hm-legend"><span>Less</span><div class="hm-lv0"></div><div class="hm-lv1"></div><div class="hm-lv2"></div><div class="hm-lv3"></div><span>More</span></div>`;
       const hmScroll = el.querySelector('.hm-scroll');
@@ -1583,17 +1697,33 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       if (e.target === lbOverlay) closeLightbox();
     });
     (function() {
-      let tx = 0, ty = 0;
-      lbOverlay.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+      let tx = 0,
+        ty = 0;
+      lbOverlay.addEventListener('touchstart', e => {
+        tx = e.touches[0].clientX;
+        ty = e.touches[0].clientY;
+      }, {
+        passive: true
+      });
       lbOverlay.addEventListener('touchend', e => {
         const dx = e.changedTouches[0].clientX - tx;
         const dy = e.changedTouches[0].clientY - ty;
-        if (Math.abs(dy) > Math.abs(dx) && dy > 60) { closeLightbox(); return; }
-        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-          if (dx < 0 && lbIdx < lbImages.length - 1) { lbIdx++; showLbSlide(); }
-          else if (dx > 0 && lbIdx > 0) { lbIdx--; showLbSlide(); }
+        if (Math.abs(dy) > Math.abs(dx) && dy > 60) {
+          closeLightbox();
+          return;
         }
-      }, { passive: true });
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0 && lbIdx < lbImages.length - 1) {
+            lbIdx++;
+            showLbSlide();
+          } else if (dx > 0 && lbIdx > 0) {
+            lbIdx--;
+            showLbSlide();
+          }
+        }
+      }, {
+        passive: true
+      });
     })();
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && document.getElementById('notes-overlay').classList.contains('open')) {
@@ -1605,9 +1735,18 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         return;
       }
       if (document.getElementById('recipe-guide-overlay').classList.contains('open')) {
-        if (e.key === 'Escape') { closeRecipeGuide(); return; }
-        if (e.key === 'ArrowRight') { stepGuide(1); return; }
-        if (e.key === 'ArrowLeft')  { stepGuide(-1); return; }
+        if (e.key === 'Escape') {
+          closeRecipeGuide();
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          stepGuide(1);
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          stepGuide(-1);
+          return;
+        }
         return;
       }
       if (e.key === 'Escape' && document.getElementById('pull-overlay').classList.contains('open')) {
@@ -1835,7 +1974,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
     function schemeReadiness(pl) {
       const colors = pl.colors || [];
-      if (!colors.length) return { level: 'ready', missing: 0, missingNames: [] };
+      if (!colors.length) return {
+        level: 'ready',
+        missing: 0,
+        missingNames: []
+      };
       let missing = 0;
       const missingNames = [];
       colors.forEach(c => {
@@ -1848,7 +1991,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         }
       });
       const level = missing === 0 ? 'ready' : missing <= 2 ? 'almost' : 'needs';
-      return { level, missing, missingNames };
+      return {
+        level,
+        missing,
+        missingNames
+      };
     }
 
     function renderPlanned() {
@@ -1879,7 +2026,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
       // Sort: READY first when not already filtered by readiness
       if (!plannedReadyFilter) {
-        const ORDER = { ready: 0, almost: 1, needs: 2 };
+        const ORDER = {
+          ready: 0,
+          almost: 1,
+          needs: 2
+        };
         visible.sort((a, b) => {
           const ra = ORDER[schemeReadiness(a).level];
           const rb = ORDER[schemeReadiness(b).level];
@@ -1910,7 +2061,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           else if (stock === 'low') low++;
         });
 
-        const { level: readyLevel, missingNames } = schemeReadiness(pl);
+        const {
+          level: readyLevel,
+          missingNames
+        } = schemeReadiness(pl);
         const readyBadgeLabel = readyLevel === 'ready' ? 'Ready' : readyLevel === 'almost' ? 'Almost' : 'Needs Work';
         const readyBadge = `<span class="ready-badge ${readyLevel}">${readyBadgeLabel}</span>`;
 
@@ -1983,10 +2137,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <?php if ($hasBooks): ?>
         (function() {
           const blSearchEl = document.getElementById('bl-search');
-          const blCountEl  = document.getElementById('bl-count');
-          const blListEl   = document.getElementById('bl-list');
-          const blEmptyEl  = document.getElementById('bl-empty');
-          const BL_TOTAL   = BOOKS_DATA.length;
+          const blCountEl = document.getElementById('bl-count');
+          const blListEl = document.getElementById('bl-list');
+          const blEmptyEl = document.getElementById('bl-empty');
+          const BL_TOTAL = BOOKS_DATA.length;
 
           function hlBL(text, q) {
             if (!q) return esc(text);
@@ -2003,11 +2157,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           }
 
           function renderBookRow(b, q) {
-            const btype   = b.type || 'codex';
-            const spine   = btype === 'supplement' ? 'Supplement' : 'Codex';
+            const btype = b.type || 'codex';
+            const spine = btype === 'supplement' ? 'Supplement' : 'Codex';
             const edition = b.series ? `<div class="bl-edition">${hlBL(b.series, q)}</div>` : '';
-            const author  = b.author ? `<div class="bl-author">${hlBL(b.author, q)}</div>` : '';
-            const notes   = b.notes ? `<div class="bl-notes">${formatBLNotes(b.notes, q)}</div>` : '';
+            const author = b.author ? `<div class="bl-author">${hlBL(b.author, q)}</div>` : '';
+            const notes = b.notes ? `<div class="bl-notes">${formatBLNotes(b.notes, q)}</div>` : '';
             return `<div class="bl-row bl-row-${esc(btype)}" data-id="${esc(b.id || '')}"><div class="bl-type-spine">${spine}</div><div class="bl-body">${b.faction ? `<div class="bl-codex-faction">${hlBL(b.faction, q)}</div>` : ''}<div class="bl-title">${hlBL(b.title, q)}</div>${edition}${author}${notes}</div></div>`;
           }
 
@@ -2016,18 +2170,28 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             let filtered = BOOKS_DATA.slice();
             if (q) {
               filtered = filtered.filter(b =>
-                (b.title   || '').toLowerCase().includes(q) ||
+                (b.title || '').toLowerCase().includes(q) ||
                 (b.faction || '').toLowerCase().includes(q) ||
-                (b.series  || '').toLowerCase().includes(q) ||
-                (b.author  || '').toLowerCase().includes(q) ||
-                (b.notes   || '').toLowerCase().includes(q)
+                (b.series || '').toLowerCase().includes(q) ||
+                (b.author || '').toLowerCase().includes(q) ||
+                (b.notes || '').toLowerCase().includes(q)
               );
             }
             blCountEl.textContent = filtered.length + ' of ' + BL_TOTAL + ' cod' + (BL_TOTAL !== 1 ? 'ices' : 'ex');
-            if (!BL_TOTAL) { blListEl.innerHTML = ''; blEmptyEl.style.display = 'block'; return; }
+            if (!BL_TOTAL) {
+              blListEl.innerHTML = '';
+              blEmptyEl.style.display = 'block';
+              return;
+            }
             blEmptyEl.style.display = 'none';
-            if (!filtered.length) { blListEl.innerHTML = '<div class="grid-empty">No codices match.</div>'; return; }
-            const sorted = filtered.slice().sort((a, b) => { const fc = (a.faction || '').localeCompare(b.faction || ''); return fc !== 0 ? fc : (a.title || '').localeCompare(b.title || ''); });
+            if (!filtered.length) {
+              blListEl.innerHTML = '<div class="grid-empty">No codices match.</div>';
+              return;
+            }
+            const sorted = filtered.slice().sort((a, b) => {
+              const fc = (a.faction || '').localeCompare(b.faction || '');
+              return fc !== 0 ? fc : (a.title || '').localeCompare(b.title || '');
+            });
             blListEl.innerHTML = sorted.map(b => renderBookRow(b, q)).join('');
           }
 
@@ -2040,19 +2204,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     // ── Hobby Journal ────────────────────────────────────
     <?php if ($hasJournal): ?>
         (function() {
-          const jnSearchEl    = document.getElementById('jn-search');
-          const jnCountEl     = document.getElementById('jn-count');
-          const jnListEl      = document.getElementById('jn-list');
-          const jnEmptyEl     = document.getElementById('jn-empty');
-          const jnMonthNavEl  = document.getElementById('jn-month-nav');
-          const jnPrevBtn     = document.getElementById('jn-prev');
-          const jnNextBtn     = document.getElementById('jn-next');
-          const jnMonthLbl    = document.getElementById('jn-month-label');
-          const jnYearPicker  = document.getElementById('jn-year-picker');
-          const journalData   = JOURNAL_DATA;
+          const jnSearchEl = document.getElementById('jn-search');
+          const jnCountEl = document.getElementById('jn-count');
+          const jnListEl = document.getElementById('jn-list');
+          const jnEmptyEl = document.getElementById('jn-empty');
+          const jnMonthNavEl = document.getElementById('jn-month-nav');
+          const jnPrevBtn = document.getElementById('jn-prev');
+          const jnNextBtn = document.getElementById('jn-next');
+          const jnMonthLbl = document.getElementById('jn-month-label');
+          const jnYearPicker = document.getElementById('jn-year-picker');
+          const journalData = JOURNAL_DATA;
 
-          const JN_MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          const JN_MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          const JN_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const JN_MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
           // current YYYY-MM cursor; null = search mode (all entries)
           const now = new Date();
@@ -2076,8 +2240,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           function stepMonth(ym, delta) {
             let [y, m] = ym.split('-').map(Number);
             m += delta;
-            if (m > 12) { m = 1; y++; }
-            if (m < 1)  { m = 12; y--; }
+            if (m > 12) {
+              m = 1;
+              y++;
+            }
+            if (m < 1) {
+              m = 12;
+              y--;
+            }
             return y + '-' + String(m).padStart(2, '0');
           }
 
@@ -2092,10 +2262,24 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             jnNextBtn.disabled = jnCursor >= currentYM;
           }
 
-          const MOOD_CLASS = { great: 'jn-mood-great', good: 'jn-mood-good', okay: 'jn-mood-okay', rough: 'jn-mood-rough' };
+          const MOOD_CLASS = {
+            great: 'jn-mood-great',
+            good: 'jn-mood-good',
+            okay: 'jn-mood-okay',
+            rough: 'jn-mood-rough'
+          };
 
-          function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-          function decodeHtml(s) { const d = document.createElement('div'); d.innerHTML = s; return d.textContent; }
+          function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+          }
+
+          function decodeHtml(s) {
+            const d = document.createElement('div');
+            d.innerHTML = s;
+            return d.textContent;
+          }
 
           function mentionBadge(type, id, label) {
             return `<span class="jn-mention jn-mention-${type}" data-mtype="${esc(type)}" data-mid="${esc(id)}" title="${esc(label)}">${esc(label)}</span>`;
@@ -2104,7 +2288,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           function renderBody(raw) {
             if (!raw) return '';
             const TOKEN = /@\[(\w+):([^\]|]+)\|([^\]]+)\]/g;
-            let result = '', last = 0, m;
+            let result = '',
+              last = 0,
+              m;
             while ((m = TOKEN.exec(raw)) !== null) {
               result += esc(raw.slice(last, m.index));
               result += mentionBadge(m[1], m[2], decodeHtml(m[3]));
@@ -2128,7 +2314,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
             updateNav();
 
-            if (!journalData.length) { jnListEl.innerHTML = ''; jnEmptyEl.style.display = 'block'; return; }
+            if (!journalData.length) {
+              jnListEl.innerHTML = '';
+              jnEmptyEl.style.display = 'block';
+              return;
+            }
             jnEmptyEl.style.display = 'none';
 
             if (!filtered.length) {
@@ -2145,14 +2335,23 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           }
 
           function showYearPicker() {
-            if (!jnYearPicker.classList.contains('hidden')) { jnYearPicker.classList.add('hidden'); return; }
+            if (!jnYearPicker.classList.contains('hidden')) {
+              jnYearPicker.classList.add('hidden');
+              return;
+            }
             const years = [...new Set(jnMonthsWithData.map(ym => ym.slice(0, 4)))].sort((a, b) => b - a);
             jnYearPicker.innerHTML = years.map(y => `<button class="jn-year-btn${jnCursor.startsWith(y) ? ' active' : ''}" data-year="${y}">${y}</button>`).join('');
             jnYearPicker.classList.remove('hidden');
           }
 
-          jnPrevBtn.addEventListener('click', () => { jnCursor = stepMonth(jnCursor, -1); renderJournals(); });
-          jnNextBtn.addEventListener('click', () => { jnCursor = stepMonth(jnCursor, 1); renderJournals(); });
+          jnPrevBtn.addEventListener('click', () => {
+            jnCursor = stepMonth(jnCursor, -1);
+            renderJournals();
+          });
+          jnNextBtn.addEventListener('click', () => {
+            jnCursor = stepMonth(jnCursor, 1);
+            renderJournals();
+          });
 
           jnMonthLbl.addEventListener('click', showYearPicker);
 
@@ -2167,15 +2366,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             renderJournals();
           });
 
-          jnSearchEl.addEventListener('input', () => { jnYearPicker.classList.add('hidden'); renderJournals(); });
+          jnSearchEl.addEventListener('input', () => {
+            jnYearPicker.classList.add('hidden');
+            renderJournals();
+          });
 
           jnListEl.addEventListener('click', ev => {
             const m = ev.target.closest('[data-mtype]');
             if (!m) return;
-            const type = m.dataset.mtype, id = m.dataset.mid;
-            if      (type === 'scheme' && window._jumpToScheme)               window._jumpToScheme(id);
-            else if (type === 'recipe' && window._jumpToRecipe)               window._jumpToRecipe(id);
-            else if (type === 'bench'  && typeof switchToTab !== 'undefined') switchToTab('bench');
+            const type = m.dataset.mtype,
+              id = m.dataset.mid;
+            if (type === 'scheme' && window._jumpToScheme) window._jumpToScheme(id);
+            else if (type === 'recipe' && window._jumpToRecipe) window._jumpToRecipe(id);
+            else if (type === 'bench' && typeof switchToTab !== 'undefined') switchToTab('bench');
           });
 
           window._renderJournals = renderJournals;
@@ -2255,9 +2458,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 const matUse = [b.material, b.use].filter(Boolean).join(' · ');
                 const date = fmtBRMonth(b.date_start || '');
                 const starsN = b.stars || 0;
-                const starsHtml = starsN ? `<span class="brush-stars">${Array.from({length:5},(_,i)=>`<span class="br-star${i<starsN?' on':''}">★</span>`).join('')}</span>` : '';
+                const starsHtml = starsN ? `<span class="brush-stars">${Array.from({length:5},(_,i)=>` < span class = "br-star${i<starsN?' on':''}" > ★ < /span>`).join('')}</span > ` : '';
                 const seriesHtml = seriesSize ? esc(seriesSize) : '<span style="color:#3a2a10">-</span>';
-                const dateHtml = date ? `<span style="font-family:'Cinzel',serif;letter-spacing:.03em">${esc(date)}</span>` : '';
+                const dateHtml = date ? ` < span style = "font-family:'Cinzel',serif;letter-spacing:.03em" > $ {
+                  esc(date)
+                } < /span>` : '';
                 const notesHtml = b.notes ? `<div class="brush-entry-notes">${esc(b.notes)}</div>` : '';
                 return `<div class="brush-entry" data-id="${esc(b.id || '')}"><div class="brush-entry-top"><span class="brush-entry-series">${seriesHtml}</span><span class="brush-entry-right">${starsHtml}<span class="brush-cond-badge cond-${esc(cond)}">${esc(condLabel)}</span></span></div><div class="brush-entry-bottom"><span>${esc(matUse)}</span>${dateHtml}</div>${notesHtml}</div>`;
               }).join('');
@@ -2288,198 +2493,324 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
     // ── Hobby Wishlist ─────────────────────────────────
     <?php if ($hasWishlist): ?>
-    (function() {
-      const gridEl    = document.getElementById('wishlist-grid');
-      const emptyEl   = document.getElementById('wishlist-empty');
-      const countEl   = document.getElementById('wishlist-count');
-      const searchEl  = document.getElementById('wishlist-search');
-      const typePills = document.getElementById('wishlist-type-pills');
-      const priPills  = document.getElementById('wishlist-pri-pills');
-      if (!gridEl) return;
+        (function() {
+          const gridEl = document.getElementById('wishlist-grid');
+          const emptyEl = document.getElementById('wishlist-empty');
+          const countEl = document.getElementById('wishlist-count');
+          const searchEl = document.getElementById('wishlist-search');
+          const typePills = document.getElementById('wishlist-type-pills');
+          const priPills = document.getElementById('wishlist-pri-pills');
+          if (!gridEl) return;
 
-      const WTYPE_LABEL = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex'};
-      const WTYPE_COLOR = {paint:'#1a4a4a',model:'#1a3a1a',brush:'#3a1a10',codex:'#2a1a4a'};
+          const WTYPE_LABEL = {
+            paint: 'Paint',
+            model: 'Model',
+            brush: 'Brush',
+            codex: 'Codex'
+          };
+          const WTYPE_COLOR = {
+            paint: '#1a4a4a',
+            model: '#1a3a1a',
+            brush: '#3a1a10',
+            codex: '#2a1a4a'
+          };
 
-      let typeFilter   = 'all';
-      let priFilter    = 'all';
-      let wStatusFilter = 'all';
+          let typeFilter = 'all';
+          let priFilter = 'all';
+          let wStatusFilter = 'all';
 
-      const usedTypes = [...new Set(WISHLIST_DATA.map(w => w.type || 'paint'))];
-      const allPill = document.createElement('button');
-      allPill.className = 'wish-fp active'; allPill.dataset.wtype = 'all'; allPill.textContent = 'All';
-      typePills.appendChild(allPill);
-      usedTypes.forEach(t => { const b = document.createElement('button'); b.className = 'wish-fp'; b.dataset.wtype = t; b.textContent = WTYPE_LABEL[t] || t; typePills.appendChild(b); });
-      const orderedPill = document.createElement('button');
-      orderedPill.className = 'wish-fp'; orderedPill.dataset.wtype = '_ordered'; orderedPill.textContent = 'In Transit';
-      typePills.appendChild(orderedPill);
+          const usedTypes = [...new Set(WISHLIST_DATA.map(w => w.type || 'paint'))];
+          const allPill = document.createElement('button');
+          allPill.className = 'wish-fp active';
+          allPill.dataset.wtype = 'all';
+          allPill.textContent = 'All';
+          typePills.appendChild(allPill);
+          usedTypes.forEach(t => {
+            const b = document.createElement('button');
+            b.className = 'wish-fp';
+            b.dataset.wtype = t;
+            b.textContent = WTYPE_LABEL[t] || t;
+            typePills.appendChild(b);
+          });
+          const orderedPill = document.createElement('button');
+          orderedPill.className = 'wish-fp';
+          orderedPill.dataset.wtype = '_ordered';
+          orderedPill.textContent = 'In Transit';
+          typePills.appendChild(orderedPill);
 
-      typePills.addEventListener('click', ev => { const b = ev.target.closest('.wish-fp'); if (!b) return; if (b.dataset.wtype === '_ordered') { wStatusFilter = wStatusFilter === 'ordered' ? 'all' : 'ordered'; b.classList.toggle('active', wStatusFilter === 'ordered'); } else { typeFilter = b.dataset.wtype; wStatusFilter = 'all'; orderedPill.classList.remove('active'); typePills.querySelectorAll('.wish-fp:not([data-wtype="_ordered"])').forEach(x => x.classList.toggle('active', x === b)); } renderWishlist(); });
-      priPills.addEventListener('click', ev => { const b = ev.target.closest('.wish-pp'); if (!b) return; priFilter = b.dataset.wpri; priPills.querySelectorAll('.wish-pp').forEach(x => x.classList.toggle('active', x === b)); renderWishlist(); });
-      searchEl.addEventListener('input', renderWishlist);
+          typePills.addEventListener('click', ev => {
+            const b = ev.target.closest('.wish-fp');
+            if (!b) return;
+            if (b.dataset.wtype === '_ordered') {
+              wStatusFilter = wStatusFilter === 'ordered' ? 'all' : 'ordered';
+              b.classList.toggle('active', wStatusFilter === 'ordered');
+            } else {
+              typeFilter = b.dataset.wtype;
+              wStatusFilter = 'all';
+              orderedPill.classList.remove('active');
+              typePills.querySelectorAll('.wish-fp:not([data-wtype="_ordered"])').forEach(x => x.classList.toggle('active', x === b));
+            }
+            renderWishlist();
+          });
+          priPills.addEventListener('click', ev => {
+            const b = ev.target.closest('.wish-pp');
+            if (!b) return;
+            priFilter = b.dataset.wpri;
+            priPills.querySelectorAll('.wish-pp').forEach(x => x.classList.toggle('active', x === b));
+            renderWishlist();
+          });
+          searchEl.addEventListener('input', renderWishlist);
 
-      document.getElementById('wishlist-copy-btn').addEventListener('click', copyWishlist);
-      document.getElementById('wishlist-print-btn').addEventListener('click', () => { document.body.classList.add('print-wishlist'); window.print(); document.body.classList.remove('print-wishlist'); });
+          document.getElementById('wishlist-copy-btn').addEventListener('click', copyWishlist);
+          document.getElementById('wishlist-print-btn').addEventListener('click', () => {
+            document.body.classList.add('print-wishlist');
+            window.print();
+            document.body.classList.remove('print-wishlist');
+          });
 
-      function stockDot(w) {
-        if ((w.type || 'paint') !== 'paint') return '';
-        const key = ((w.brand || '') + '|' + (w.name || '')).toLowerCase();
-        if (typeof paintByKeyLC === 'undefined') return '';
-        const st = paintByKeyLC.get(key);
-        if (st === undefined) return '<span class="stock-dot stock-dot-unknown" title="Not in inventory"></span>';
-        if (st === 'low')    return '<span class="stock-dot stock-dot-low" title="Low stock"></span>';
-        if (st === 'out')    return '<span class="stock-dot stock-dot-out" title="Out of stock"></span>';
-        if (st === 'wanted') return '<span class="stock-dot stock-dot-wanted" title="Wanted"></span>';
-        return '<span class="stock-dot stock-dot-owned" title="Owned"></span>';
-      }
+          function stockDot(w) {
+            if ((w.type || 'paint') !== 'paint') return '';
+            const key = ((w.brand || '') + '|' + (w.name || '')).toLowerCase();
+            if (typeof paintByKeyLC === 'undefined') return '';
+            const st = paintByKeyLC.get(key);
+            if (st === undefined) return '<span class="stock-dot stock-dot-unknown" title="Not in inventory"></span>';
+            if (st === 'low') return '<span class="stock-dot stock-dot-low" title="Low stock"></span>';
+            if (st === 'out') return '<span class="stock-dot stock-dot-out" title="Out of stock"></span>';
+            if (st === 'wanted') return '<span class="stock-dot stock-dot-wanted" title="Wanted"></span>';
+            return '<span class="stock-dot stock-dot-owned" title="Owned"></span>';
+          }
 
-      function cardHtml(w) {
-        const t   = w.type || 'paint';
-        const pri = w.priority || 'medium';
-        const meta = [w.brand, w.faction, w.system].filter(Boolean).join(' · ');
-        const urlHtml  = w.url ? `<div style="margin-top:3px"><a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6a8a6a;text-decoration:none">&#128279; Link</a></div>` : '';
-        const noteHtml = w.notes ? `<div style="font-size:12px;color:#5a4a28;margin-top:3px">${esc(w.notes)}</div>` : '';
-        const metaHtml = meta ? `<div style="font-size:11px;color:#4a3a1a;margin-top:2px">${esc(meta)}</div>` : '';
-        const addHtml      = w.added ? `<div style="font-size:10px;color:#3a2a10;margin-top:6px;text-align:right">${esc(w.added)}</div>` : '';
-        const orderedHtml  = w.ordered_date ? `<div><span class="wish-ordered-badge">In Transit &middot; ${esc(w.ordered_date)}</span></div>` : '';
-        return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}</div>${orderedHtml}<div style="font-family:'Cinzel',serif;font-size:13px;color:#c4b49a;font-weight:600">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
-      }
+          function cardHtml(w) {
+            const t = w.type || 'paint';
+            const pri = w.priority || 'medium';
+            const meta = [w.brand, w.faction, w.system].filter(Boolean).join(' · ');
+            const urlHtml = w.url ? `<div style="margin-top:3px"><a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6a8a6a;text-decoration:none">&#128279; Link</a></div>` : '';
+            const noteHtml = w.notes ? `<div style="font-size:12px;color:#5a4a28;margin-top:3px">${esc(w.notes)}</div>` : '';
+            const metaHtml = meta ? `<div style="font-size:11px;color:#4a3a1a;margin-top:2px">${esc(meta)}</div>` : '';
+            const addHtml = w.added ? `<div style="font-size:10px;color:#3a2a10;margin-top:6px;text-align:right">${esc(w.added)}</div>` : '';
+            const orderedHtml = w.ordered_date ? `<div><span class="wish-ordered-badge">In Transit &middot; ${esc(w.ordered_date)}</span></div>` : '';
+            return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}</div>${orderedHtml}<div style="font-family:'Cinzel',serif;font-size:13px;color:#c4b49a;font-weight:600">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
+          }
 
-      function copyWishlist() {
-        const typeOrder = ['paint','model','brush','codex','wd'];
-        const groups = {};
-        WISHLIST_DATA.forEach(w => { const t = w.type||'paint'; if (!groups[t]) groups[t]=[]; groups[t].push(w); });
-        const lines = [];
-        typeOrder.forEach(t => { if (!groups[t]) return; lines.push('=== ' + (WTYPE_LABEL[t]||t).toUpperCase() + 'S ==='); groups[t].forEach(w => { let ln = (w.brand ? w.brand + ' - ' : '') + w.name; if (w.faction) ln += ' (' + w.faction + ')'; if (w.notes) ln += ' - ' + w.notes; if (w.ordered_date) ln += ' (Ordered ' + w.ordered_date + ')'; lines.push('□ ' + ln); }); lines.push(''); });
-        const text = 'Hobby Wishlist\n\n' + lines.join('\n');
-        const btn = document.getElementById('wishlist-copy-btn');
-        const flash = () => { if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 2000); } };
-        if (navigator.clipboard) { navigator.clipboard.writeText(text).then(flash).catch(() => _legacyCopy(text, flash)); } else { _legacyCopy(text, flash); }
-      }
+          function copyWishlist() {
+            const typeOrder = ['paint', 'model', 'brush', 'codex', 'wd'];
+            const groups = {};
+            WISHLIST_DATA.forEach(w => {
+              const t = w.type || 'paint';
+              if (!groups[t]) groups[t] = [];
+              groups[t].push(w);
+            });
+            const lines = [];
+            typeOrder.forEach(t => {
+              if (!groups[t]) return;
+              lines.push('=== ' + (WTYPE_LABEL[t] || t).toUpperCase() + 'S ===');
+              groups[t].forEach(w => {
+                let ln = (w.brand ? w.brand + ' - ' : '') + w.name;
+                if (w.faction) ln += ' (' + w.faction + ')';
+                if (w.notes) ln += ' - ' + w.notes;
+                if (w.ordered_date) ln += ' (Ordered ' + w.ordered_date + ')';
+                lines.push('□ ' + ln);
+              });
+              lines.push('');
+            });
+            const text = 'Hobby Wishlist\n\n' + lines.join('\n');
+            const btn = document.getElementById('wishlist-copy-btn');
+            const flash = () => {
+              if (btn) {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+              }
+            };
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(text).then(flash).catch(() => _legacyCopy(text, flash));
+            } else {
+              _legacyCopy(text, flash);
+            }
+          }
 
-      function _legacyCopy(text, cb) { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); try { document.execCommand('copy'); if(cb) cb(); } catch(e){} document.body.removeChild(ta); }
+          function _legacyCopy(text, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+              document.execCommand('copy');
+              if (cb) cb();
+            } catch (e) {}
+            document.body.removeChild(ta);
+          }
 
-      function renderWishlist() {
-        const q = (searchEl.value || '').trim().toLowerCase();
-        let list = WISHLIST_DATA.slice();
-        if (typeFilter !== 'all') list = list.filter(w => (w.type||'paint') === typeFilter);
-        if (priFilter  !== 'all') list = list.filter(w => (w.priority||'medium') === priFilter);
-        if (wStatusFilter === 'ordered') list = list.filter(w => !!w.ordered_date);
-        if (q) list = list.filter(w => [w.name, w.brand, w.faction, w.system, w.notes, w.type, w.ordered_date].filter(Boolean).join(' ').toLowerCase().includes(q));
-        const total = WISHLIST_DATA.length;
-        countEl.textContent = list.length === total ? total + ' item' + (total !== 1 ? 's' : '') : list.length + ' of ' + total + ' items';
-        if (list.length === 0) { gridEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
-        emptyEl.style.display = 'none';
-        gridEl.innerHTML = list.map(cardHtml).join('');
-      }
+          function renderWishlist() {
+            const q = (searchEl.value || '').trim().toLowerCase();
+            let list = WISHLIST_DATA.slice();
+            if (typeFilter !== 'all') list = list.filter(w => (w.type || 'paint') === typeFilter);
+            if (priFilter !== 'all') list = list.filter(w => (w.priority || 'medium') === priFilter);
+            if (wStatusFilter === 'ordered') list = list.filter(w => !!w.ordered_date);
+            if (q) list = list.filter(w => [w.name, w.brand, w.faction, w.system, w.notes, w.type, w.ordered_date].filter(Boolean).join(' ').toLowerCase().includes(q));
+            const total = WISHLIST_DATA.length;
+            countEl.textContent = list.length === total ? total + ' item' + (total !== 1 ? 's' : '') : list.length + ' of ' + total + ' items';
+            if (list.length === 0) {
+              gridEl.innerHTML = '';
+              emptyEl.style.display = 'block';
+              return;
+            }
+            emptyEl.style.display = 'none';
+            gridEl.innerHTML = list.map(cardHtml).join('');
+          }
 
-      window._renderWishlist = renderWishlist;
-      renderWishlist();
-    })();
+          window._renderWishlist = renderWishlist;
+          renderWishlist();
+        })();
     <?php endif; ?>
 
     // ── Pile of Shame ────────────────────────────────
     <?php if ($hasShame): ?>
-      (function() {
-        const gridEl   = document.getElementById('shame-grid');
-        const emptyEl  = document.getElementById('shame-empty');
-        const summaryEl = document.getElementById('shame-summary');
-        const searchEl  = document.getElementById('shame-search');
-        const moreEl    = document.getElementById('shame-more');
-        if (!gridEl) return;
+        (function() {
+          const gridEl = document.getElementById('shame-grid');
+          const emptyEl = document.getElementById('shame-empty');
+          const summaryEl = document.getElementById('shame-summary');
+          const searchEl = document.getElementById('shame-search');
+          const moreEl = document.getElementById('shame-more');
+          if (!gridEl) return;
 
-        const STATUS_LABEL = { sealed:'Sealed', opened:'Opened', partial:'Partial' };
+          const STATUS_LABEL = {
+            sealed: 'Sealed',
+            opened: 'Opened',
+            partial: 'Partial'
+          };
 
-        let filterState   = 'active';
-        let showAllShame  = false;
+          let filterState = 'active';
+          let showAllShame = false;
 
-        document.getElementById('shame-filter-pills').addEventListener('click', ev => {
-          const fp = ev.target.closest('.shame-fp');
-          if (!fp) return;
-          filterState  = fp.dataset.filter;
-          showAllShame = false;
-          document.querySelectorAll('.shame-fp').forEach(b => {
-            b.classList.toggle('active', b.dataset.filter === filterState);
+          document.getElementById('shame-filter-pills').addEventListener('click', ev => {
+            const fp = ev.target.closest('.shame-fp');
+            if (!fp) return;
+            filterState = fp.dataset.filter;
+            showAllShame = false;
+            document.querySelectorAll('.shame-fp').forEach(b => {
+              b.classList.toggle('active', b.dataset.filter === filterState);
+            });
+            renderShame();
           });
-          renderShame();
-        });
 
-        function sittingSince(acq) {
-          if (!acq) return '';
-          const [y, m] = acq.split('-').map(Number);
-          const now = new Date();
-          const months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
-          if (months < 1) return 'just acquired';
-          if (months < 12) return months + ' month' + (months !== 1 ? 's' : '');
-          const yrs = Math.floor(months / 12), rem = months % 12;
-          return yrs + ' yr' + (yrs !== 1 ? 's' : '') + (rem ? ' ' + rem + ' mo' : '');
-        }
-
-        function esc(s) { const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
-
-        function renderShame() {
-          const q = (searchEl.value || '').trim().toLowerCase();
-          let list = SHAME_DATA.slice();
-          if (filterState === 'active')   list = list.filter(s => !s.promoted_to);
-          if (filterState === 'promoted') list = list.filter(s =>  s.promoted_to);
-          if (q) list = list.filter(s => [s.name, s.faction, s.system, s.notes, s.acquired, s.status].filter(Boolean).join(' ').toLowerCase().includes(q));
-
-          // Slim summary line in controls bar
-          const active = SHAME_DATA.filter(s => !s.promoted_to);
-          const totalModels = active.reduce((n, s) => n + (parseInt(s.count) || 1), 0);
-          const oldest = active.filter(s => s.acquired).sort((a, b) => a.acquired.localeCompare(b.acquired))[0];
-          const oldestAge = oldest ? sittingSince(oldest.acquired) : null;
-          summaryEl.textContent = active.length + ' boxes · ~' + totalModels + ' models' + (oldestAge ? ' · longest wait ' + oldestAge : '');
-
-          emptyEl.style.display = 'none';
-          moreEl.innerHTML = '';
-          if (!list.length) { gridEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
-
-          // Pin newest active entry first when in active/all filter and not searching
-          const newestId = filterState !== 'promoted' && !q
-            ? active.reduce((a, b) => a.id > b.id ? a : b, active[0] || {}).id
-            : null;
-          if (newestId) {
-            const idx = list.findIndex(s => s.id === newestId);
-            if (idx > 0) { const [n] = list.splice(idx, 1); list.unshift(n); }
+          function sittingSince(acq) {
+            if (!acq) return '';
+            const [y, m] = acq.split('-').map(Number);
+            const now = new Date();
+            const months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
+            if (months < 1) return 'just acquired';
+            if (months < 12) return months + ' month' + (months !== 1 ? 's' : '');
+            const yrs = Math.floor(months / 12),
+              rem = months % 12;
+            return yrs + ' yr' + (yrs !== 1 ? 's' : '') + (rem ? ' ' + rem + ' mo' : '');
           }
 
-          const PAGE = 12;
-          const limited = (!showAllShame && !q && list.length > PAGE) ? list.slice(0, PAGE) : list;
-
-          const SHAME_SYS_SLUG  = {'40k':'40k','30k / HH':'30k','AoS':'AoS','Epic':'Epic','Blood Bowl':'BB','Necromunda':'Necromunda','Kill Team':'KT','OPR':'OPR','Other':'Other'};
-          const SHAME_SYS_SHORT = {'40k':'40k','30k / HH':'30k','AoS':'AoS','Epic':'Epic','Blood Bowl':'BB','Necromunda':'Necro','Kill Team':'KT','OPR':'OPR','Other':'Other'};
-          function cardHtml(s, isNewest) {
-            const sysSlug   = SHAME_SYS_SLUG[s.system] || (s.system || 'Other').replace(/[\s\/]+/g, '');
-            const stClass   = s.status || 'sealed';
-            const sysLabel  = `<div class="shame-sys-label shame-sys-${sysSlug}">${esc(SHAME_SYS_SHORT[s.system] || s.system || 'Other')}</div>`;
-            const stBadge   = `<span class="shame-badge shame-st-${stClass}">${STATUS_LABEL[s.status] || 'Sealed'}</span>`;
-            const promoted  = s.promoted_to ? `<span class="shame-promoted">Promoted &rarr; ${s.promoted_to === 'planned' ? 'Planned' : 'Bench'}</span>` : '';
-            const metaParts = [s.faction ? esc(s.faction) : '', s.count ? esc(s.count) + ' models' : ''].filter(Boolean).join(' &middot; ');
-            const sitting   = sittingSince(s.acquired);
-            const sittingHtml = sitting ? `<div class="shame-card-sitting">${sitting === 'just acquired' ? 'just acquired' : 'sitting for ' + sitting}</div>` : '';
-            const acqHtml   = s.acquired ? `<span class="shame-acquired">${esc(s.acquired)}</span>` : '';
-            const notesHtml = s.notes ? `<div class="shame-notes">${esc(s.notes)}</div>` : '';
-            const newestLabel = isNewest ? `<div class="shame-card-newest-label">&#9650; Just added</div>` : '';
-            const headerRow = promoted ? `<div style="display:flex;justify-content:flex-end">${promoted}</div>` : '';
-            return `<div class="shame-card shame-st-${stClass}${isNewest ? ' shame-card-newest' : ''}" data-id="${esc(s.id)}">${sysLabel}${newestLabel}${headerRow}<div class="shame-card-name">${esc(s.name)}</div>${sittingHtml}<div class="shame-card-meta">${stBadge}${metaParts ? '<span>' + metaParts + '</span>' : ''}${acqHtml}</div>${notesHtml}</div>`;
+          function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = String(s);
+            return d.innerHTML;
           }
 
-          gridEl.innerHTML = limited.map(s => cardHtml(s, s.id === newestId)).join('');
+          function renderShame() {
+            const q = (searchEl.value || '').trim().toLowerCase();
+            let list = SHAME_DATA.slice();
+            if (filterState === 'active') list = list.filter(s => !s.promoted_to);
+            if (filterState === 'promoted') list = list.filter(s => s.promoted_to);
+            if (q) list = list.filter(s => [s.name, s.faction, s.system, s.notes, s.acquired, s.status].filter(Boolean).join(' ').toLowerCase().includes(q));
 
-          if (!showAllShame && !q && list.length > PAGE) {
-            const remaining = list.length - PAGE;
-            moreEl.innerHTML = `<div class="gallery-more-fade"></div><button class="gallery-more-btn"><span class="gallery-more-count">Showing ${PAGE} of ${list.length} boxes</span><span class="gallery-more-label">Reveal the remaining ${remaining} <span class="gallery-more-chevron">&#9662;</span></span></button>`;
-          } else {
+            // Slim summary line in controls bar
+            const active = SHAME_DATA.filter(s => !s.promoted_to);
+            const totalModels = active.reduce((n, s) => n + (parseInt(s.count) || 1), 0);
+            const oldest = active.filter(s => s.acquired).sort((a, b) => a.acquired.localeCompare(b.acquired))[0];
+            const oldestAge = oldest ? sittingSince(oldest.acquired) : null;
+            summaryEl.textContent = active.length + ' boxes · ~' + totalModels + ' models' + (oldestAge ? ' · longest wait ' + oldestAge : '');
+
+            emptyEl.style.display = 'none';
             moreEl.innerHTML = '';
-          }
-        }
+            if (!list.length) {
+              gridEl.innerHTML = '';
+              emptyEl.style.display = 'block';
+              return;
+            }
 
-        moreEl.addEventListener('click', e => {
-          if (e.target.closest('.gallery-more-btn')) { showAllShame = true; renderShame(); }
-        });
-        searchEl.addEventListener('input', () => { showAllShame = false; renderShame(); });
-        window._renderShame = renderShame;
-      })();
+            // Pin newest active entry first when in active/all filter and not searching
+            const newestId = filterState !== 'promoted' && !q ?
+              active.reduce((a, b) => a.id > b.id ? a : b, active[0] || {}).id :
+              null;
+            if (newestId) {
+              const idx = list.findIndex(s => s.id === newestId);
+              if (idx > 0) {
+                const [n] = list.splice(idx, 1);
+                list.unshift(n);
+              }
+            }
+
+            const PAGE = 12;
+            const limited = (!showAllShame && !q && list.length > PAGE) ? list.slice(0, PAGE) : list;
+
+            const SHAME_SYS_SLUG = {
+              '40k': '40k',
+              '30k / HH': '30k',
+              'AoS': 'AoS',
+              'Epic': 'Epic',
+              'Blood Bowl': 'BB',
+              'Necromunda': 'Necromunda',
+              'Kill Team': 'KT',
+              'OPR': 'OPR',
+              'Other': 'Other'
+            };
+            const SHAME_SYS_SHORT = {
+              '40k': '40k',
+              '30k / HH': '30k',
+              'AoS': 'AoS',
+              'Epic': 'Epic',
+              'Blood Bowl': 'BB',
+              'Necromunda': 'Necro',
+              'Kill Team': 'KT',
+              'OPR': 'OPR',
+              'Other': 'Other'
+            };
+
+            function cardHtml(s, isNewest) {
+              const sysSlug = SHAME_SYS_SLUG[s.system] || (s.system || 'Other').replace(/[\s\/]+/g, '');
+              const stClass = s.status || 'sealed';
+              const sysLabel = `<div class="shame-sys-label shame-sys-${sysSlug}">${esc(SHAME_SYS_SHORT[s.system] || s.system || 'Other')}</div>`;
+              const stBadge = `<span class="shame-badge shame-st-${stClass}">${STATUS_LABEL[s.status] || 'Sealed'}</span>`;
+              const promoted = s.promoted_to ? `<span class="shame-promoted">Promoted &rarr; ${s.promoted_to === 'planned' ? 'Planned' : 'Bench'}</span>` : '';
+              const metaParts = [s.faction ? esc(s.faction) : '', s.count ? esc(s.count) + ' models' : ''].filter(Boolean).join(' &middot; ');
+              const sitting = sittingSince(s.acquired);
+              const sittingHtml = sitting ? `<div class="shame-card-sitting">${sitting === 'just acquired' ? 'just acquired' : 'sitting for ' + sitting}</div>` : '';
+              const acqHtml = s.acquired ? `<span class="shame-acquired">${esc(s.acquired)}</span>` : '';
+              const notesHtml = s.notes ? `<div class="shame-notes">${esc(s.notes)}</div>` : '';
+              const newestLabel = isNewest ? `<div class="shame-card-newest-label">&#9650; Just added</div>` : '';
+              const headerRow = promoted ? `<div style="display:flex;justify-content:flex-end">${promoted}</div>` : '';
+              return `<div class="shame-card shame-st-${stClass}${isNewest ? ' shame-card-newest' : ''}" data-id="${esc(s.id)}">${sysLabel}${newestLabel}${headerRow}<div class="shame-card-name">${esc(s.name)}</div>${sittingHtml}<div class="shame-card-meta">${stBadge}${metaParts ? '<span>' + metaParts + '</span>' : ''}${acqHtml}</div>${notesHtml}</div>`;
+            }
+
+            gridEl.innerHTML = limited.map(s => cardHtml(s, s.id === newestId)).join('');
+
+            if (!showAllShame && !q && list.length > PAGE) {
+              const remaining = list.length - PAGE;
+              moreEl.innerHTML = `<div class="gallery-more-fade"></div><button class="gallery-more-btn"><span class="gallery-more-count">Showing ${PAGE} of ${list.length} boxes</span><span class="gallery-more-label">Reveal the remaining ${remaining} <span class="gallery-more-chevron">&#9662;</span></span></button>`;
+            } else {
+              moreEl.innerHTML = '';
+            }
+          }
+
+          moreEl.addEventListener('click', e => {
+            if (e.target.closest('.gallery-more-btn')) {
+              showAllShame = true;
+              renderShame();
+            }
+          });
+          searchEl.addEventListener('input', () => {
+            showAllShame = false;
+            renderShame();
+          });
+          window._renderShame = renderShame;
+        })();
     <?php endif; ?>
 
     // ── On the Bench ─────────────────────────────────
@@ -2506,14 +2837,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             const m = BN_MONTHS[parseInt(parts[1], 10) - 1] || parts[1];
             return parts[2] ? m + ' ' + parseInt(parts[2], 10) + ', ' + parts[0] : m + ' ' + parts[0];
           }
+
           function daysAgoStr(d) {
             if (!d) return '';
             const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
             if (days <= 0) return 'today';
             if (days === 1) return 'yesterday';
             if (days < 7) return days + ' days ago';
-            if (days < 30) { const w = Math.floor(days / 7); return w + ' wk' + (w !== 1 ? 's' : '') + ' ago'; }
-            const mo = Math.floor(days / 30); return mo + ' mo ago';
+            if (days < 30) {
+              const w = Math.floor(days / 7);
+              return w + ' wk' + (w !== 1 ? 's' : '') + ' ago';
+            }
+            const mo = Math.floor(days / 30);
+            return mo + ' mo ago';
           }
           const grid = document.getElementById('bench-grid');
           const emptyEl = document.getElementById('bench-empty');
@@ -2620,7 +2956,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           window.openBenchPull = function openBenchPull(id) {
             const b = BENCH_DATA.find(x => x.id === id);
             if (!b) return;
-            const STAGES_LIST = ['built','primed','basecoated','washed','highlighted','based','varnished','done'];
+            const STAGES_LIST = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
             const stage = b.stage || 'built';
             const nextIdx = STAGES_LIST.indexOf(stage) + 1;
             const nextStage = nextIdx < STAGES_LIST.length ? STAGES_LIST[nextIdx] : null;
@@ -2672,11 +3008,17 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               for (const step of (r.steps || [])) {
                 if (step.paint) {
                   const k = upgradeKey(step.paint);
-                  if (!seen.has(k)) { seen.add(k); paintUsage.set(k, (paintUsage.get(k) || 0) + mc); }
+                  if (!seen.has(k)) {
+                    seen.add(k);
+                    paintUsage.set(k, (paintUsage.get(k) || 0) + mc);
+                  }
                 }
                 if (step.mix_paint) {
                   const mk = upgradeKey(step.mix_paint);
-                  if (!seen.has(mk)) { seen.add(mk); paintUsage.set(mk, (paintUsage.get(mk) || 0) + mc); }
+                  if (!seen.has(mk)) {
+                    seen.add(mk);
+                    paintUsage.set(mk, (paintUsage.get(mk) || 0) + mc);
+                  }
                 }
               }
             }
@@ -2837,9 +3179,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 );
               });
             }
-            countEl.textContent = orphanFilter
-              ? list.length + ' unused recipe' + (list.length !== 1 ? 's' : '')
-              : list.length + ' of ' + TOTAL + ' recipe' + (TOTAL !== 1 ? 's' : '');
+            countEl.textContent = orphanFilter ?
+              list.length + ' unused recipe' + (list.length !== 1 ? 's' : '') :
+              list.length + ' of ' + TOTAL + ' recipe' + (TOTAL !== 1 ? 's' : '');
             if (!list.length) {
               grid.innerHTML = '<div class="grid-empty">No recipes match.</div>';
               return;
@@ -2910,80 +3252,93 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
           // ── Step-by-step Recipe Guide ──
           (function() {
-          let _gr = null, _gi = 0;
+            let _gr = null,
+              _gi = 0;
 
-          function renderGuideStep() {
-            const steps = _gr.steps || [];
-            const s = steps[_gi];
-            const total = steps.length;
-            document.getElementById('recipe-guide-title').textContent = _gr.name;
-            document.getElementById('recipe-guide-counter').textContent = 'Step ' + (_gi + 1) + ' of ' + total;
+            function renderGuideStep() {
+              const steps = _gr.steps || [];
+              const s = steps[_gi];
+              const total = steps.length;
+              document.getElementById('recipe-guide-title').textContent = _gr.name;
+              document.getElementById('recipe-guide-counter').textContent = 'Step ' + (_gi + 1) + ' of ' + total;
 
-            const tech = s.technique || 'special';
-            const parts = (s.paint || '').split('|');
-            const paintName = parts[1] || s.paint || '';
-            const brand = parts[0] || '';
-            const layer = parts[2] || '';
-            const hex = paintHex(s.paint || '');
-            const statusCls = paintStatusCls(s.paint || '');
+              const tech = s.technique || 'special';
+              const parts = (s.paint || '').split('|');
+              const paintName = parts[1] || s.paint || '';
+              const brand = parts[0] || '';
+              const layer = parts[2] || '';
+              const hex = paintHex(s.paint || '');
+              const statusCls = paintStatusCls(s.paint || '');
 
-            let html = `<div class="recipe-guide-tech recipe-tech-${esc(tech)}">${esc(TECH_LABEL[tech] || tech)}</div>`;
-            html += `<div class="recipe-guide-paint-row">${hex ? `<span class="recipe-guide-swatch" style="background:${esc(hex)}"></span>` : ''}<span class="recipe-guide-paint-name ${statusCls}">${esc(paintName)}</span></div>`;
-            if (brand) html += `<div class="recipe-guide-brand">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</div>`;
-            const meta = [];
-            if (s.ratio) meta.push(esc(s.ratio));
-            if (s.note)  meta.push(esc(s.note));
-            if (meta.length) html += `<div class="recipe-guide-meta">${meta.join(' · ')}</div>`;
-            if (s.brush && typeof BRUSHES_DATA !== 'undefined') {
-              const b = BRUSHES_DATA.find(x => x.id === s.brush);
-              if (b) html += `<div class="recipe-guide-brush">${esc([b.brand, b.series, b.size].filter(Boolean).join(' · '))}</div>`;
+              let html = `<div class="recipe-guide-tech recipe-tech-${esc(tech)}">${esc(TECH_LABEL[tech] || tech)}</div>`;
+              html += `<div class="recipe-guide-paint-row">${hex ? `<span class="recipe-guide-swatch" style="background:${esc(hex)}"></span>` : ''}<span class="recipe-guide-paint-name ${statusCls}">${esc(paintName)}</span></div>`;
+              if (brand) html += `<div class="recipe-guide-brand">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</div>`;
+              const meta = [];
+              if (s.ratio) meta.push(esc(s.ratio));
+              if (s.note) meta.push(esc(s.note));
+              if (meta.length) html += `<div class="recipe-guide-meta">${meta.join(' · ')}</div>`;
+              if (s.brush && typeof BRUSHES_DATA !== 'undefined') {
+                const b = BRUSHES_DATA.find(x => x.id === s.brush);
+                if (b) html += `<div class="recipe-guide-brush">${esc([b.brand, b.series, b.size].filter(Boolean).join(' · '))}</div>`;
+              }
+              document.getElementById('recipe-guide-step-content').innerHTML = html;
+
+              document.getElementById('recipe-guide-dots').innerHTML = steps.map((_, i) =>
+                `<span class="recipe-guide-dot${i === _gi ? ' active' : i < _gi ? ' done' : ''}"></span>`
+              ).join('');
+
+              const prevBtn = document.getElementById('recipe-guide-prev');
+              const nextBtn = document.getElementById('recipe-guide-next');
+              prevBtn.disabled = _gi === 0;
+              const isLast = _gi === total - 1;
+              nextBtn.textContent = isLast ? '✓ Done' : '›';
+              nextBtn.classList.toggle('done-btn', isLast);
             }
-            document.getElementById('recipe-guide-step-content').innerHTML = html;
 
-            document.getElementById('recipe-guide-dots').innerHTML = steps.map((_, i) =>
-              `<span class="recipe-guide-dot${i === _gi ? ' active' : i < _gi ? ' done' : ''}"></span>`
-            ).join('');
+            window.openRecipeGuide = function(rid) {
+              const r = RECIPES_DATA.find(x => x.id === rid);
+              if (!r || !r.steps || !r.steps.length) return;
+              _gr = r;
+              _gi = 0;
+              renderGuideStep();
+              document.getElementById('recipe-guide-overlay').classList.add('open');
+              document.body.style.overflow = 'hidden';
+            };
 
-            const prevBtn = document.getElementById('recipe-guide-prev');
-            const nextBtn = document.getElementById('recipe-guide-next');
-            prevBtn.disabled = _gi === 0;
-            const isLast = _gi === total - 1;
-            nextBtn.textContent = isLast ? '✓ Done' : '›';
-            nextBtn.classList.toggle('done-btn', isLast);
-          }
+            window.closeRecipeGuide = function() {
+              document.getElementById('recipe-guide-overlay').classList.remove('open');
+              document.body.style.overflow = '';
+            };
 
-          window.openRecipeGuide = function(rid) {
-            const r = RECIPES_DATA.find(x => x.id === rid);
-            if (!r || !r.steps || !r.steps.length) return;
-            _gr = r; _gi = 0;
-            renderGuideStep();
-            document.getElementById('recipe-guide-overlay').classList.add('open');
-            document.body.style.overflow = 'hidden';
-          };
+            window.stepGuide = function(dir) {
+              if (!_gr) return;
+              const steps = _gr.steps || [];
+              if (dir > 0 && _gi >= steps.length - 1) {
+                closeRecipeGuide();
+                return;
+              }
+              _gi = Math.max(0, Math.min(steps.length - 1, _gi + dir));
+              renderGuideStep();
+            };
 
-          window.closeRecipeGuide = function() {
-            document.getElementById('recipe-guide-overlay').classList.remove('open');
-            document.body.style.overflow = '';
-          };
-
-          window.stepGuide = function(dir) {
-            if (!_gr) return;
-            const steps = _gr.steps || [];
-            if (dir > 0 && _gi >= steps.length - 1) { closeRecipeGuide(); return; }
-            _gi = Math.max(0, Math.min(steps.length - 1, _gi + dir));
-            renderGuideStep();
-          };
-
-          // Swipe support
-          let _touchX = 0;
-          const overlay = document.getElementById('recipe-guide-overlay');
-          overlay.addEventListener('touchstart', e => { _touchX = e.touches[0].clientX; }, { passive: true });
-          overlay.addEventListener('touchend', e => {
-            const dx = e.changedTouches[0].clientX - _touchX;
-            if (Math.abs(dx) > 50) stepGuide(dx < 0 ? 1 : -1);
-          }, { passive: true });
-          overlay.addEventListener('click', e => { if (e.target === overlay) closeRecipeGuide(); });
-        })();
+            // Swipe support
+            let _touchX = 0;
+            const overlay = document.getElementById('recipe-guide-overlay');
+            overlay.addEventListener('touchstart', e => {
+              _touchX = e.touches[0].clientX;
+            }, {
+              passive: true
+            });
+            overlay.addEventListener('touchend', e => {
+              const dx = e.changedTouches[0].clientX - _touchX;
+              if (Math.abs(dx) > 50) stepGuide(dx < 0 ? 1 : -1);
+            }, {
+              passive: true
+            });
+            overlay.addEventListener('click', e => {
+              if (e.target === overlay) closeRecipeGuide();
+            });
+          })();
 
         })(); // end recipes IIFE
 
@@ -2994,153 +3349,216 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       window.stepGuide = function() {};
     <?php endif; ?>
 
-    // ── Factions Overview ────────────────────────────
-    (function() {
-      const wrap     = document.getElementById('factions-wrap');
-      const searchEl = document.getElementById('factions-search');
-      const countEl  = document.getElementById('factions-count');
-      const emptyEl  = document.getElementById('factions-empty');
-      if (!wrap || !searchEl) return;
+      // ── Factions Overview ────────────────────────────
+      (function() {
+        const wrap = document.getElementById('factions-wrap');
+        const searchEl = document.getElementById('factions-search');
+        const countEl = document.getElementById('factions-count');
+        const emptyEl = document.getElementById('factions-empty');
+        if (!wrap || !searchEl) return;
 
-      const hasRecipes = typeof RECIPES_DATA !== 'undefined';
-      const hasBench   = typeof BENCH_DATA   !== 'undefined';
+        const hasRecipes = typeof RECIPES_DATA !== 'undefined';
+        const hasBench = typeof BENCH_DATA !== 'undefined';
 
-      // Build faction index: factionName -> { schemes, recipes, bench, planned, palette }
-      const INDEX = new Map();
-      function bucket(name) {
-        const key = (name || '').trim();
-        if (!key) return null;
-        if (!INDEX.has(key)) INDEX.set(key, { name: key, schemes: [], recipes: [], bench: [], planned: [], palette: new Map() });
-        return INDEX.get(key);
-      }
-      function addColorsToPalette(b, colors) {
-        (colors || []).forEach(c => {
-          const uk = upgradeKey(c);
-          b.palette.set(uk, (b.palette.get(uk) || 0) + 1);
+        // Build faction index: factionName -> { schemes, recipes, bench, planned, palette }
+        const INDEX = new Map();
+
+        function bucket(name) {
+          const key = (name || '').trim();
+          if (!key) return null;
+          if (!INDEX.has(key)) INDEX.set(key, {
+            name: key,
+            schemes: [],
+            recipes: [],
+            bench: [],
+            planned: [],
+            palette: new Map()
+          });
+          return INDEX.get(key);
+        }
+
+        function addColorsToPalette(b, colors) {
+          (colors || []).forEach(c => {
+            const uk = upgradeKey(c);
+            b.palette.set(uk, (b.palette.get(uk) || 0) + 1);
+          });
+        }
+
+        MODELS.forEach(m => {
+          const b = bucket(m.faction);
+          if (!b) return;
+          b.schemes.push(m);
+          addColorsToPalette(b, effectiveColors(m));
         });
-      }
+        PLANNED.forEach(p => {
+          const b = bucket(p.faction);
+          if (!b) return;
+          b.planned.push(p);
+          addColorsToPalette(b, p.colors);
+        });
+        if (hasBench) BENCH_DATA.forEach(x => {
+          const b = bucket(x.faction);
+          if (!b) return;
+          b.bench.push(x);
+          addColorsToPalette(b, x.colors);
+        });
+        if (hasRecipes) RECIPES_DATA.forEach(r => {
+          const b = bucket(r.faction);
+          if (!b) return;
+          b.recipes.push(r);
+          (r.steps || []).forEach(s => {
+            if (s.paint) addColorsToPalette(b, [s.paint]);
+          });
+        });
 
-      MODELS.forEach(m => { const b = bucket(m.faction); if (!b) return; b.schemes.push(m); addColorsToPalette(b, effectiveColors(m)); });
-      PLANNED.forEach(p => { const b = bucket(p.faction); if (!b) return; b.planned.push(p); addColorsToPalette(b, p.colors); });
-      if (hasBench)   BENCH_DATA.forEach(x => { const b = bucket(x.faction); if (!b) return; b.bench.push(x); addColorsToPalette(b, x.colors); });
-      if (hasRecipes) RECIPES_DATA.forEach(r => { const b = bucket(r.faction); if (!b) return; b.recipes.push(r); (r.steps || []).forEach(s => { if (s.paint) addColorsToPalette(b, [s.paint]); }); });
+        const FACTIONS = Array.from(INDEX.values()).sort((a, b) => a.name.localeCompare(b.name));
 
-      const FACTIONS = Array.from(INDEX.values()).sort((a, b) => a.name.localeCompare(b.name));
+        // Paint lookup for palette pills (brand/name/layer + hex)
+        const PAINT_BY_KEY = new Map(PAINTS.map(p => [p.brand + '|' + p.name + '|' + (p.layer || ''), p]));
 
-      // Paint lookup for palette pills (brand/name/layer + hex)
-      const PAINT_BY_KEY = new Map(PAINTS.map(p => [p.brand + '|' + p.name + '|' + (p.layer || ''), p]));
-
-      function paintStatusCls(uk) {
-        if (!paintOwned.has(uk)) return 'missing';
-        const s = paintStock.get(uk);
-        if (s === 'low') return 'low';
-        if (s === 'out') return 'out';
-        if (s === 'wanted') return 'wanted';
-        return 'owned';
-      }
-
-      function schemeThumb(m) {
-        const img = (m.images || [])[0] || '';
-        const imgContent = img
-          ? `<img src="${esc(img)}" loading="lazy" alt="${esc(m.name)}">`
-          : 'NO PHOTO';
-        return `<a class="faction-scheme-mini" onclick="_jumpToScheme('${esc(m.id)}')" title="${esc(m.name)}"><div class="faction-scheme-mini-img">${imgContent}</div><div class="faction-scheme-mini-name">${esc(m.name)}</div></a>`;
-      }
-
-      function recipeChip(r) {
-        return `<span class="faction-chip" onclick="_jumpToRecipe('${esc(r.id)}')" title="${esc(r.description || '')}"><span class="faction-chip-kind kind-recipe">Doctrine</span>${esc(r.name)}</span>`;
-      }
-
-      function benchChip(b) {
-        const stage = b.stage || 'built';
-        return `<span class="faction-chip" data-bench-id="${esc(b.id)}" title="${esc(stage)}"><span class="faction-chip-kind kind-bench">${esc(stage)}</span>${esc(b.name)}</span>`;
-      }
-
-      function plannedChip(p) {
-        return `<span class="faction-chip" data-planned-id="${esc(p.id)}"><span class="faction-chip-kind kind-planned">Pending</span>${esc(p.name)}</span>`;
-      }
-
-      function palettePill(uk, count) {
-        const parts = uk.split('|');
-        const name  = parts[1] || uk;
-        const brand = parts[0] || '';
-        const paint = PAINT_BY_KEY.get(uk);
-        const hex   = paint && /^#[0-9a-fA-F]{6}$/.test(paint.hex || '') ? paint.hex : '#1a1408';
-        const cls   = paintStatusCls(uk);
-        const countBadge = count > 1 ? `<span class="faction-palette-count">&times;${count}</span>` : '';
-        return `<span class="faction-palette-pill" data-paint-name="${esc(name)}" title="${esc(brand)} ${esc(name)} - used in ${count} entr${count === 1 ? 'y' : 'ies'}"><span class="faction-palette-swatch" style="background:${esc(hex)}"></span><span class="faction-palette-dot ${cls}"></span>${esc(name)}${countBadge}</span>`;
-      }
-
-      function renderFaction(f) {
-        const schemeCount  = f.schemes.length;
-        const recipeCount  = f.recipes.length;
-        const benchCount   = f.bench.length;
-        const plannedCount = f.planned.length;
-        const modelCount   = f.schemes.reduce((n, m) => n + Math.max(1, parseInt(m.count || 1, 10)), 0);
-
-        const summaryParts = [];
-        if (schemeCount)  summaryParts.push(`<strong>${schemeCount}</strong> painted`);
-        if (modelCount > schemeCount) summaryParts.push(`<strong>${modelCount}</strong> models`);
-        if (benchCount)   summaryParts.push(`<strong>${benchCount}</strong> in progress`);
-        if (plannedCount) summaryParts.push(`<strong>${plannedCount}</strong> planned`);
-        if (recipeCount)  summaryParts.push(`<strong>${recipeCount}</strong> recipe${recipeCount === 1 ? '' : 's'}`);
-
-        const schemesBlock = schemeCount
-          ? `<div class="faction-section"><div class="faction-section-title">Field Record</div><div class="faction-scheme-grid">${f.schemes.map(schemeThumb).join('')}</div></div>`
-          : '';
-
-        const recipesBlock = recipeCount
-          ? `<div class="faction-section"><div class="faction-section-title">Doctrine</div><div class="faction-chips">${f.recipes.map(recipeChip).join('')}</div></div>`
-          : '';
-
-        const flightChips = [...f.bench.map(benchChip), ...f.planned.map(plannedChip)].join('');
-        const flightBlock = flightChips
-          ? `<div class="faction-section"><div class="faction-section-title">Active Operations</div><div class="faction-chips">${flightChips}</div></div>`
-          : '';
-
-        let paletteBlock = '';
-        if (f.palette.size) {
-          const sorted = [...f.palette.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-          const pills = sorted.map(([uk, n]) => palettePill(uk, n)).join('');
-          paletteBlock = `<div class="faction-section"><div class="faction-section-title">Materiel &middot; ${sorted.length}</div><div class="faction-palette">${pills}</div></div>`;
+        function paintStatusCls(uk) {
+          if (!paintOwned.has(uk)) return 'missing';
+          const s = paintStock.get(uk);
+          if (s === 'low') return 'low';
+          if (s === 'out') return 'out';
+          if (s === 'wanted') return 'wanted';
+          return 'owned';
         }
 
-        return `<div class="faction-card" id="faction-${esc(f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}"><div class="faction-header"><div class="faction-name">${esc(f.name)}</div><div class="faction-summary">${summaryParts.join(' &middot; ')}</div></div><div class="faction-body">${schemesBlock}${recipesBlock}${flightBlock}${paletteBlock}</div></div>`;
-      }
-
-      function render() {
-        const q = searchEl.value.trim().toLowerCase();
-        const filtered = q ? FACTIONS.filter(f => f.name.toLowerCase().includes(q)) : FACTIONS;
-        if (!FACTIONS.length) {
-          wrap.innerHTML = '';
-          emptyEl.style.display = 'block';
-          countEl.textContent = '';
-          return;
+        function schemeThumb(m) {
+          const img = (m.images || [])[0] || '';
+          const imgContent = img ?
+            `<img src="${esc(img)}" loading="lazy" alt="${esc(m.name)}">` :
+            'NO PHOTO';
+          return `<a class="faction-scheme-mini" onclick="_jumpToScheme('${esc(m.id)}')" title="${esc(m.name)}"><div class="faction-scheme-mini-img">${imgContent}</div><div class="faction-scheme-mini-name">${esc(m.name)}</div></a>`;
         }
-        emptyEl.style.display = 'none';
-        countEl.textContent = filtered.length + ' of ' + FACTIONS.length + ' faction' + (FACTIONS.length === 1 ? '' : 's');
-        wrap.innerHTML = filtered.length ? filtered.map(renderFaction).join('') : '<div style="padding:40px 16px;text-align:center;font-family:Georgia,serif;font-style:italic;color:#4a3a10">No files match.</div>';
-      }
 
-      // Delegation: paint palette pills → inventory filter, bench/planned chips → their tabs with pulse
-      wrap.addEventListener('click', e => {
-        const paintEl = e.target.closest('[data-paint-name]');
-        if (paintEl) {
-          switchToTab('inventory');
-          const s = document.getElementById('search');
-          if (s) { s.value = paintEl.dataset.paintName; s.dispatchEvent(new Event('input')); }
-          return;
+        function recipeChip(r) {
+          return `<span class="faction-chip" onclick="_jumpToRecipe('${esc(r.id)}')" title="${esc(r.description || '')}"><span class="faction-chip-kind kind-recipe">Doctrine</span>${esc(r.name)}</span>`;
         }
-        const b = e.target.closest('[data-bench-id]');
-        if (b) { switchToTab('bench'); setTimeout(() => { const el = document.querySelector('.bench-card[data-id="' + b.dataset.benchId + '"]'); if (el) { el.scrollIntoView({behavior:'smooth',block:'start'}); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); } }, 150); return; }
-        const p = e.target.closest('[data-planned-id]');
-        if (p) { switchToTab('planned'); setTimeout(() => { const el = document.querySelector('.planned-card[data-id="' + p.dataset.plannedId + '"]'); if (el) { el.scrollIntoView({behavior:'smooth',block:'start'}); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); } }, 150); }
-      });
 
-      searchEl.addEventListener('input', render);
-      window._renderFactions = render;
-      render();
-    })();
+        function benchChip(b) {
+          const stage = b.stage || 'built';
+          return `<span class="faction-chip" data-bench-id="${esc(b.id)}" title="${esc(stage)}"><span class="faction-chip-kind kind-bench">${esc(stage)}</span>${esc(b.name)}</span>`;
+        }
+
+        function plannedChip(p) {
+          return `<span class="faction-chip" data-planned-id="${esc(p.id)}"><span class="faction-chip-kind kind-planned">Pending</span>${esc(p.name)}</span>`;
+        }
+
+        function palettePill(uk, count) {
+          const parts = uk.split('|');
+          const name = parts[1] || uk;
+          const brand = parts[0] || '';
+          const paint = PAINT_BY_KEY.get(uk);
+          const hex = paint && /^#[0-9a-fA-F]{6}$/.test(paint.hex || '') ? paint.hex : '#1a1408';
+          const cls = paintStatusCls(uk);
+          const countBadge = count > 1 ? `<span class="faction-palette-count">&times;${count}</span>` : '';
+          return `<span class="faction-palette-pill" data-paint-name="${esc(name)}" title="${esc(brand)} ${esc(name)} - used in ${count} entr${count === 1 ? 'y' : 'ies'}"><span class="faction-palette-swatch" style="background:${esc(hex)}"></span><span class="faction-palette-dot ${cls}"></span>${esc(name)}${countBadge}</span>`;
+        }
+
+        function renderFaction(f) {
+          const schemeCount = f.schemes.length;
+          const recipeCount = f.recipes.length;
+          const benchCount = f.bench.length;
+          const plannedCount = f.planned.length;
+          const modelCount = f.schemes.reduce((n, m) => n + Math.max(1, parseInt(m.count || 1, 10)), 0);
+
+          const summaryParts = [];
+          if (schemeCount) summaryParts.push(`<strong>${schemeCount}</strong> painted`);
+          if (modelCount > schemeCount) summaryParts.push(`<strong>${modelCount}</strong> models`);
+          if (benchCount) summaryParts.push(`<strong>${benchCount}</strong> in progress`);
+          if (plannedCount) summaryParts.push(`<strong>${plannedCount}</strong> planned`);
+          if (recipeCount) summaryParts.push(`<strong>${recipeCount}</strong> recipe${recipeCount === 1 ? '' : 's'}`);
+
+          const schemesBlock = schemeCount ?
+            `<div class="faction-section"><div class="faction-section-title">Field Record</div><div class="faction-scheme-grid">${f.schemes.map(schemeThumb).join('')}</div></div>` :
+            '';
+
+          const recipesBlock = recipeCount ?
+            `<div class="faction-section"><div class="faction-section-title">Doctrine</div><div class="faction-chips">${f.recipes.map(recipeChip).join('')}</div></div>` :
+            '';
+
+          const flightChips = [...f.bench.map(benchChip), ...f.planned.map(plannedChip)].join('');
+          const flightBlock = flightChips ?
+            `<div class="faction-section"><div class="faction-section-title">Active Operations</div><div class="faction-chips">${flightChips}</div></div>` :
+            '';
+
+          let paletteBlock = '';
+          if (f.palette.size) {
+            const sorted = [...f.palette.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+            const pills = sorted.map(([uk, n]) => palettePill(uk, n)).join('');
+            paletteBlock = `<div class="faction-section"><div class="faction-section-title">Materiel &middot; ${sorted.length}</div><div class="faction-palette">${pills}</div></div>`;
+          }
+
+          return `<div class="faction-card" id="faction-${esc(f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}"><div class="faction-header"><div class="faction-name">${esc(f.name)}</div><div class="faction-summary">${summaryParts.join(' &middot; ')}</div></div><div class="faction-body">${schemesBlock}${recipesBlock}${flightBlock}${paletteBlock}</div></div>`;
+        }
+
+        function render() {
+          const q = searchEl.value.trim().toLowerCase();
+          const filtered = q ? FACTIONS.filter(f => f.name.toLowerCase().includes(q)) : FACTIONS;
+          if (!FACTIONS.length) {
+            wrap.innerHTML = '';
+            emptyEl.style.display = 'block';
+            countEl.textContent = '';
+            return;
+          }
+          emptyEl.style.display = 'none';
+          countEl.textContent = filtered.length + ' of ' + FACTIONS.length + ' faction' + (FACTIONS.length === 1 ? '' : 's');
+          wrap.innerHTML = filtered.length ? filtered.map(renderFaction).join('') : '<div style="padding:40px 16px;text-align:center;font-family:Georgia,serif;font-style:italic;color:#4a3a10">No files match.</div>';
+        }
+
+        // Delegation: paint palette pills → inventory filter, bench/planned chips → their tabs with pulse
+        wrap.addEventListener('click', e => {
+          const paintEl = e.target.closest('[data-paint-name]');
+          if (paintEl) {
+            switchToTab('inventory');
+            const s = document.getElementById('search');
+            if (s) {
+              s.value = paintEl.dataset.paintName;
+              s.dispatchEvent(new Event('input'));
+            }
+            return;
+          }
+          const b = e.target.closest('[data-bench-id]');
+          if (b) {
+            switchToTab('bench');
+            setTimeout(() => {
+              const el = document.querySelector('.bench-card[data-id="' + b.dataset.benchId + '"]');
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
+            }, 150);
+            return;
+          }
+          const p = e.target.closest('[data-planned-id]');
+          if (p) {
+            switchToTab('planned');
+            setTimeout(() => {
+              const el = document.querySelector('.planned-card[data-id="' + p.dataset.plannedId + '"]');
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
+            }, 150);
+          }
+        });
+
+        searchEl.addEventListener('input', render);
+        window._renderFactions = render;
+        render();
+      })();
 
     // ── Shopping List ─────────────────────────────────
     function openShoppingList() {
@@ -3267,71 +3685,76 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
     // ── Forces & Rosters ────────────────────────────────
     <?php if ($hasForces): ?>
-    (function() {
-      const grid    = document.getElementById('forces-grid');
-      const emptyEl = document.getElementById('forces-empty');
-      const countEl = document.getElementById('forces-count');
-      const searchEl = document.getElementById('forces-search');
+        (function() {
+          const grid = document.getElementById('forces-grid');
+          const emptyEl = document.getElementById('forces-empty');
+          const countEl = document.getElementById('forces-count');
+          const searchEl = document.getElementById('forces-search');
 
-      // Build a lookup from model ID → model object
-      const MODEL_BY_ID = new Map(MODELS.map(m => [m.id, m]));
+          // Build a lookup from model ID → model object
+          const MODEL_BY_ID = new Map(MODELS.map(m => [m.id, m]));
 
-      function renderForces() {
-        const q = searchEl.value.trim().toLowerCase();
-        let list = FORCES_DATA.slice();
-        if (q) {
-          list = list.filter(f =>
-            (f.name || '').toLowerCase().includes(q) ||
-            (f.faction || '').toLowerCase().includes(q) ||
-            (f.system || '').toLowerCase().includes(q) ||
-            (f.notes || '').toLowerCase().includes(q)
-          );
-        }
-        list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+          function renderForces() {
+            const q = searchEl.value.trim().toLowerCase();
+            let list = FORCES_DATA.slice();
+            if (q) {
+              list = list.filter(f =>
+                (f.name || '').toLowerCase().includes(q) ||
+                (f.faction || '').toLowerCase().includes(q) ||
+                (f.system || '').toLowerCase().includes(q) ||
+                (f.notes || '').toLowerCase().includes(q)
+              );
+            }
+            list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
-        countEl.textContent = q ?
-          list.length + ' of ' + FORCES_DATA.length + ' force' + (FORCES_DATA.length !== 1 ? 's' : '') :
-          FORCES_DATA.length + ' force' + (FORCES_DATA.length !== 1 ? 's' : '');
+            countEl.textContent = q ?
+              list.length + ' of ' + FORCES_DATA.length + ' force' + (FORCES_DATA.length !== 1 ? 's' : '') :
+              FORCES_DATA.length + ' force' + (FORCES_DATA.length !== 1 ? 's' : '');
 
-        if (!list.length) {
-          grid.innerHTML = '';
-          emptyEl.style.display = 'block';
-          return;
-        }
-        emptyEl.style.display = 'none';
+            if (!list.length) {
+              grid.innerHTML = '';
+              emptyEl.style.display = 'block';
+              return;
+            }
+            emptyEl.style.display = 'none';
 
-        grid.innerHTML = list.map(f => {
-          const painted = (f.models || []).reduce((sum, mid) => {
-            const m = MODEL_BY_ID.get(mid);
-            return sum + Math.max(1, parseInt((m && m.count) || 1, 10));
-          }, 0);
-          const target  = f.target_count || 0;
-          const pct     = target ? Math.min(100, Math.round(painted / target * 100)) : 0;
-          const sysHtml = f.system ?
-            `<span class="sys-game-badge sys-${sysSlug(f.system)}">${esc(f.system)}</span>` : '';
-          const metaParts = [
-            f.faction ? esc(f.faction) : '',
-            painted + ' painted' + (target ? ' / ' + target + ' target' : ''),
-            f.target_points ? f.target_points + ' pts' : '',
-          ].filter(Boolean);
+            grid.innerHTML = list.map(f => {
+              const painted = (f.models || []).reduce((sum, mid) => {
+                const m = MODEL_BY_ID.get(mid);
+                return sum + Math.max(1, parseInt((m && m.count) || 1, 10));
+              }, 0);
+              const target = f.target_count || 0;
+              const pct = target ? Math.min(100, Math.round(painted / target * 100)) : 0;
+              const sysHtml = f.system ?
+                `<span class="sys-game-badge sys-${sysSlug(f.system)}">${esc(f.system)}</span>` : '';
+              const metaParts = [
+                f.faction ? esc(f.faction) : '',
+                painted + ' painted' + (target ? ' / ' + target + ' target' : ''),
+                f.target_points ? f.target_points + ' pts' : '',
+              ].filter(Boolean);
 
-          // First image from any linked scheme, used as full-width hero
-          let heroMid = null, heroImg = null;
-          for (const mid of (f.models || [])) {
-            const m = MODEL_BY_ID.get(mid);
-            const img = m && (m.images || [])[0];
-            if (img) { heroMid = mid; heroImg = img; break; }
-          }
-          const heroHtml = heroImg
-            ? `<img class="force-card-hero" src="${esc(heroImg)}" loading="lazy" alt="${esc(f.name)}" onclick="_jumpToScheme('${esc(heroMid)}')">`
-            : '';
+              // First image from any linked scheme, used as full-width hero
+              let heroMid = null,
+                heroImg = null;
+              for (const mid of (f.models || [])) {
+                const m = MODEL_BY_ID.get(mid);
+                const img = m && (m.images || [])[0];
+                if (img) {
+                  heroMid = mid;
+                  heroImg = img;
+                  break;
+                }
+              }
+              const heroHtml = heroImg ?
+                `<img class="force-card-hero" src="${esc(heroImg)}" loading="lazy" alt="${esc(f.name)}" onclick="_jumpToScheme('${esc(heroMid)}')">` :
+                '';
 
-          const progressBar = target ?
-            `<div class="force-progress"><div class="force-progress-fill" style="width:${pct}%"></div></div>` : '';
+              const progressBar = target ?
+                `<div class="force-progress"><div class="force-progress-fill" style="width:${pct}%"></div></div>` : '';
 
-          const isPinned = !!f.pinned;
-          const forceBodyContent = progressBar + (f.notes ? `<div class="force-card-notes">${esc(f.notes)}</div>` : '') + (f.roster_url ? `<a class="force-roster-link" href="${esc(f.roster_url)}" target="_blank" rel="noopener">View Roster ↗</a>` : '');
-          return `<div class="force-card${isPinned ? ' force-card-pinned' : ''}" data-id="${esc(f.id)}">
+              const isPinned = !!f.pinned;
+              const forceBodyContent = progressBar + (f.notes ? `<div class="force-card-notes">${esc(f.notes)}</div>` : '') + (f.roster_url ? `<a class="force-roster-link" href="${esc(f.roster_url)}" target="_blank" rel="noopener">View Roster ↗</a>` : '');
+              return `<div class="force-card${isPinned ? ' force-card-pinned' : ''}" data-id="${esc(f.id)}">
             ${heroHtml}
             <div class="force-card-header">
               <div class="force-card-name"><span>${esc(f.name)}</span>${isPinned ? '<span class="force-pin-indicator" title="Pinned">★</span>' : ''}</div>
@@ -3339,13 +3762,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             </div>
             ${forceBodyContent ? `<div class="force-card-body">${forceBodyContent}</div>` : ''}
           </div>`;
-        }).join('');
-      }
+            }).join('');
+          }
 
-      searchEl.addEventListener('input', renderForces);
-      window._renderForces = renderForces;
-      renderForces();
-    })();
+          searchEl.addEventListener('input', renderForces);
+          window._renderForces = renderForces;
+          renderForces();
+        })();
     <?php endif; ?>
 
     // ── Equivalency Search ──────────────────────────────
@@ -3473,7 +3896,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       navigator.clipboard.writeText(url).then(() => {
         const prev = el.textContent;
         el.textContent = '✓';
-        setTimeout(() => { el.textContent = prev; }, 1500);
+        setTimeout(() => {
+          el.textContent = prev;
+        }, 1500);
       });
     }
 
@@ -3516,22 +3941,34 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     (function() {
       const trigger = document.getElementById('gs-trigger');
       const overlay = document.getElementById('gs-overlay');
-      const input   = document.getElementById('gs-input');
-      const listEl  = document.getElementById('gs-results');
+      const input = document.getElementById('gs-input');
+      const listEl = document.getElementById('gs-results');
       if (!trigger || !overlay || !input || !listEl) return;
 
       const hasRecipes = typeof RECIPES_DATA !== 'undefined';
-      const hasBench   = typeof BENCH_DATA   !== 'undefined';
+      const hasBench = typeof BENCH_DATA !== 'undefined';
       const hasBrushes = typeof BRUSHES_DATA !== 'undefined';
-      const hasBooks   = typeof BOOKS_DATA   !== 'undefined';
-      const hasShame   = typeof SHAME_DATA   !== 'undefined';
-      const hasForces  = typeof FORCES_DATA  !== 'undefined';
+      const hasBooks = typeof BOOKS_DATA !== 'undefined';
+      const hasShame = typeof SHAME_DATA !== 'undefined';
+      const hasForces = typeof FORCES_DATA !== 'undefined';
 
-      const WTYPE_LABEL_GS = {paint:'Paint',model:'Model',brush:'Brush',codex:'Codex'};
+      const WTYPE_LABEL_GS = {
+        paint: 'Paint',
+        model: 'Model',
+        brush: 'Brush',
+        codex: 'Codex'
+      };
       const TYPE_LABEL = {
-        paint: 'Paint', scheme: 'Scheme', recipe: 'Recipe',
-        planned: 'Planned', bench: 'On Bench', brush: 'Brush',
-        book: 'Codex', shame: 'Shame Pile', force: 'Force', wish: 'Wishlist'
+        paint: 'Paint',
+        scheme: 'Scheme',
+        recipe: 'Recipe',
+        planned: 'Planned',
+        bench: 'On Bench',
+        brush: 'Brush',
+        book: 'Codex',
+        shame: 'Shame Pile',
+        force: 'Force',
+        wish: 'Wishlist'
       };
       const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'brush', 'book', 'wish'];
       const PER_TYPE_CAP = 8;
@@ -3641,7 +4078,12 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
         if (typeof WISHLIST_DATA !== 'undefined') WISHLIST_DATA.forEach(w => {
           const hay = [w.name, w.brand, w.faction, w.system, w.notes, w.type].filter(Boolean).join(' ');
-          if (match(hay)) out.push({type:'wish', key:w.id, name:w.name, meta:[WTYPE_LABEL_GS[w.type||'paint'], w.brand||w.faction].filter(Boolean).join(' · ')});
+          if (match(hay)) out.push({
+            type: 'wish',
+            key: w.id,
+            name: w.name,
+            meta: [WTYPE_LABEL_GS[w.type || 'paint'], w.brand || w.faction].filter(Boolean).join(' · ')
+          });
         });
 
         return out;
@@ -3660,7 +4102,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           return;
         }
         const groups = {};
-        results.forEach(r => { (groups[r.type] = groups[r.type] || []).push(r); });
+        results.forEach(r => {
+          (groups[r.type] = groups[r.type] || []).push(r);
+        });
 
         let html = '';
         flatResults = [];
@@ -3685,7 +4129,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         const rows = listEl.querySelectorAll('.gs-result');
         rows.forEach((r, i) => r.classList.toggle('selected', i === selectedIdx));
         const sel = rows[selectedIdx];
-        if (sel) sel.scrollIntoView({ block: 'nearest' });
+        if (sel) sel.scrollIntoView({
+          block: 'nearest'
+        });
       }
 
       function open() {
@@ -3720,54 +4166,116 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             switchToTab('planned');
             setTimeout(() => {
               const el = document.querySelector('.planned-card[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 120);
           } else if (r.type === 'bench') {
             switchToTab('bench');
             setTimeout(() => {
               const el = document.querySelector('.bench-card[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 150);
           } else if (r.type === 'brush') {
             switchToTab('brushes');
             setTimeout(() => {
               const el = document.querySelector('.brush-entry[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 150);
           } else if (r.type === 'book') {
             switchToTab('books');
             setTimeout(() => {
               const el = document.querySelector('.bl-row[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 150);
           } else if (r.type === 'shame') {
             switchToTab('shame');
             setTimeout(() => {
               const el = document.querySelector('.shame-card[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 150);
           } else if (r.type === 'force') {
             switchToTab('forces');
             setTimeout(() => {
               const el = document.querySelector('.force-card[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight'); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start'
+                });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
             }, 150);
           } else if (r.type === 'wish') {
             switchToTab('wishlist');
             setTimeout(() => {
               const el = document.querySelector('.wishlist-card[data-id="' + r.key + '"]');
-              if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background .3s'; el.style.background = '#3a2a08'; setTimeout(() => el.style.background = '', 700); }
+              if (el) {
+                el.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center'
+                });
+                el.style.transition = 'background .3s';
+                el.style.background = '#3a2a08';
+                setTimeout(() => el.style.background = '', 700);
+              }
             }, 200);
           }
         }, 40);
       }
 
       trigger.addEventListener('click', open);
-      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) close();
+      });
       input.addEventListener('input', () => render(input.value));
 
       input.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+          return;
+        }
         if (!flatResults.length) return;
         if (e.key === 'ArrowDown') {
           e.preventDefault();
@@ -3849,7 +4357,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
-
   </script>
 
   <div id="install-banner">
@@ -3866,9 +4373,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       var btn = document.getElementById('back-to-top');
       window.addEventListener('scroll', function() {
         btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
-      }, { passive: true });
+      }, {
+        passive: true
+      });
       btn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
       });
     })();
   </script>
