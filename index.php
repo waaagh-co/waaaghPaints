@@ -372,7 +372,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <?php if ($hasJournal && !empty($journalData)):
         $jnLatest = $journalData[0];
         $jnDate   = $jnLatest['date'] ?? '';
-        $jnSnip   = function_exists('mb_strimwidth') ? mb_strimwidth($jnLatest['body'] ?? '', 0, 90, '…') : (strlen($jnLatest['body'] ?? '') > 90 ? substr($jnLatest['body'], 0, 90) . '…' : ($jnLatest['body'] ?? ''));
+        $jnRaw    = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $jnLatest['body'] ?? '');
+        $jnSnip   = function_exists('mb_strimwidth') ? mb_strimwidth($jnRaw, 0, 90, '…') : (strlen($jnRaw) > 90 ? substr($jnRaw, 0, 90) . '…' : $jnRaw);
       ?>
       <a class="hero-note-strip" data-jump="journals" title="Jump to Scrap Notes">
         <span class="hero-note-label">Latest Note<?= $jnDate ? ' &middot; ' . htmlspecialchars($jnDate) : '' ?></span>
