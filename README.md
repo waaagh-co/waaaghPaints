@@ -15,6 +15,10 @@ no dependencies beyond a PHP host. Drop it on any shared host and go.
 
 ![Admin panel](img/admin.jpg)
 
+## Admin panel - Hobby Stats
+
+![Admin panel Stats](img/stats.jpg)
+
 ---
 
 ## What it does
