@@ -238,15 +238,15 @@ if (empty($_SESSION['admin'])) {
     <p>Below the strip, the page is laid out in sections:</p>
     <ul>
       <li><strong>The Handbook</strong> - Recipes, featured prominently at the top since it's the heart of the technique library</li>
-      <li><strong>The Work</strong> - Paint Schemes, Factions, Pile of Shame, Planned, On the Bench</li>
+      <li><strong>The Work</strong> - Paint Schemes, Factions, Pile of Shame, Planned, On the Bench, Battle Honours</li>
       <li><strong>The Collection</strong> - Paint Inventory, Brushes</li>
       <li><strong>Reference Tools</strong> - Equivalency</li>
       <li><strong>Reading &amp; Inspiration</strong> - Codices, Scrap Notes</li>
     </ul>
-    <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
+    <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, Battle Honours, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
 
     <h3>Global Search</h3>
-    <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, codices, and journal entries.</p>
+    <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, battles, codices, and journal entries.</p>
     <ul>
       <li><strong>Open with</strong> Ctrl+K (Windows/Linux), Cmd+K (Mac), the <strong>/</strong> key when not typing in a field, or the gold magnifier button fixed at the top-right of the page</li>
       <li>Results are grouped by type (Scheme, Recipe, Paint, Planned, etc.), each capped at 8 results per type</li>
@@ -350,7 +350,18 @@ if (empty($_SESSION['admin'])) {
       <li>Each force card shows the game system badge, a progress bar (painted models vs your target), scheme thumbnails, and notes</li>
       <li><strong>Readiness progress bar</strong> - fills as your painted model count approaches the target. Model count is the actual number of miniatures (using the scheme's "Models Painted" count), not just the number of scheme entries</li>
       <li><strong>Scheme thumbnails</strong> - click any thumbnail to jump to that scheme in the Paint Schemes tab</li>
+      <li><strong>W/L/D record</strong> - if Battle Honours is active and any battles are linked to this force, a win/loss/draw chip appears on the card</li>
       <li><strong>Search box</strong> - filters by force name, system, or notes</li>
+    </ul>
+
+    <h3>Battle Honours tab</h3>
+    <p>Your game log - every battle recorded with result, opponent, army, mission, and notes. Only visible once started in Admin.</p>
+    <ul>
+      <li><strong>Filter pills</strong> - All / Win / Loss / Draw to narrow the list instantly</li>
+      <li><strong>Cards</strong> show: date, colour-coded result badge (green Win / red Loss / amber Draw), your army vs your opponent and their army, game system badge, points, mission, and notes</li>
+      <li><strong>Force chip</strong> - if the battle is linked to one of your Forces &amp; Rosters, the force name appears as a small chip next to your army. That force's card in Forces &amp; Rosters will show the cumulative W/L/D record</li>
+      <li><strong>Search</strong> filters across opponent, army, mission, and notes</li>
+      <li><strong>Global search</strong> (Ctrl+K) finds battles by matchup text and jumps directly to the card</li>
     </ul>
 
     <h3>Recipes tab</h3>
@@ -548,6 +559,21 @@ if (empty($_SESSION['admin'])) {
       <li>The model count shown on the main site sums the actual miniature count from each linked scheme (the "Models Painted" field), not just the number of scheme entries - so a scheme with 12 Ork Kommandos counts as 12, not 1</li>
       <li><strong>Edit / &times;</strong> - update or remove any roster</li>
     </ul>
+
+    <h3>Battle Honours</h3>
+    <p>Click <strong>Start Battle Honours</strong> to activate it. Once active, every game you play can be logged here.</p>
+    <ul>
+      <li><strong>Date &amp; Result</strong> (required) - the date and whether you won, lost, or drew</li>
+      <li><strong>My Army</strong> - free text; what you fielded (e.g. "Death Guard")</li>
+      <li><strong>Linked Force</strong> - optionally link the battle to one of your Forces &amp; Rosters. Once linked, the force card on the main site shows a cumulative W/L/D record chip</li>
+      <li><strong>Game System</strong> - optional; drives the coloured system badge on the card</li>
+      <li><strong>Points</strong> - optional game size</li>
+      <li><strong>Opponent &amp; Opponent's Army</strong> - who you played and what they brought</li>
+      <li><strong>Mission</strong> - optional; the mission or scenario name</li>
+      <li><strong>Notes</strong> - freeform; how it went, key moments, what to do differently</li>
+      <li><strong>Edit</strong> - click Edit on any row to pre-fill the form; <strong>Cancel</strong> returns to add mode without saving</li>
+    </ul>
+    <div class="tip">Linking battles to Forces is optional but recommended if you want to track a force's record over time - the W/L/D chip on the force card is a nice at-a-glance stat.</div>
 
     <h3>Recipe Library</h3>
     <p>Reusable technique recipes - author "How I Paint X" once and reference it from every model that uses it.</p>

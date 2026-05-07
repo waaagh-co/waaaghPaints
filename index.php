@@ -94,6 +94,15 @@ $hasWishlist      = file_exists($wishlistFile);
 $wishlistData     = $hasWishlist ? (json_decode(file_get_contents($wishlistFile), true) ?? []) : [];
 $wishlistDataJson = $hasWishlist ? json_encode($wishlistData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
 
+$battlesFile     = __DIR__ . '/data/battles.json';
+$hasBattles      = file_exists($battlesFile);
+$battlesData     = $hasBattles ? (json_decode(file_get_contents($battlesFile), true) ?? []) : [];
+$battlesDataJson = $hasBattles ? json_encode($battlesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : '[]';
+$cnt_battles     = count($battlesData);
+$latestBattle    = ($hasBattles && $cnt_battles > 0) ? $battlesData[0] : null;
+$battleRecord    = ['w' => 0, 'l' => 0, 'd' => 0];
+foreach ($battlesData as $_bh) { $battleRecord[$_bh['result'] === 'win' ? 'w' : ($_bh['result'] === 'loss' ? 'l' : 'd')]++; }
+
 $goalsData    = file_exists(__DIR__ . '/data/goals.json') ? (json_decode(file_get_contents(__DIR__ . '/data/goals.json'), true) ?? []) : [];
 $curYear      = date('Y');
 $rawGoal      = $goalsData[$curYear] ?? null;
@@ -190,7 +199,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=23">
+  <link rel="stylesheet" href="styles.css?v=25">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -220,6 +229,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <!-- Your Armies -->
     <?php if ($hasFactions): ?><button class="tab-btn tab-group-start" data-tab="factions" title="Your Armies">Factions</button><?php endif; ?>
     <?php if ($hasForces): ?><button class="tab-btn<?= $hasFactions ? '' : ' tab-group-start' ?>" data-tab="forces" title="Your Armies">Forces</button><?php endif; ?>
+    <?php if ($hasBattles): ?><button class="tab-btn<?= (!$hasFactions && !$hasForces) ? ' tab-group-start' : '' ?>" data-tab="battles" title="Your Armies"><span class="tab-full">Battle Honours</span><span class="tab-short">Battles</span></button><?php endif; ?>
     <!-- The Workbench -->
     <button class="tab-btn tab-group-start" data-tab="inventory" title="The Workbench"><span class="tab-full">Paint Inventory</span><span class="tab-short">Inventory</span></button>
     <?php if ($hasBrushes): ?><button class="tab-btn" data-tab="brushes" title="The Workbench">Brushes</button><?php endif; ?>
@@ -458,11 +468,23 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               </a>
             <?php endif; ?>
           </div>
+          <?php if ($latestBattle): ?>
+            <?php $bhRes = $latestBattle['result'] ?? 'draw'; ?>
+            <a class="pipeline-battle-strip" data-jump="battles" title="Jump to Battle Honours">
+              <span class="pipeline-battle-label">Last Battle<?= !empty($latestBattle['date']) ? ' &middot; ' . htmlspecialchars($latestBattle['date']) : '' ?></span>
+              <span class="bh-result-badge bh-result-<?= $bhRes ?>"><?= ucfirst($bhRes) ?></span>
+              <?php $bhOpp = !empty($latestBattle['opponent']) ? $latestBattle['opponent'] : (!empty($latestBattle['opponent_army']) ? $latestBattle['opponent_army'] : null); ?>
+              <?php if (!empty($latestBattle['my_army']) || $bhOpp): ?>
+                <span class="pipeline-battle-matchup"><?= htmlspecialchars($latestBattle['my_army'] ?? '?') ?> vs <?= htmlspecialchars($bhOpp ?? '?') ?></span>
+              <?php endif; ?>
+              <span class="pipeline-battle-record"><?= $battleRecord['w'] ?>W <?= $battleRecord['l'] ?>L <?= $battleRecord['d'] ?>D</span>
+            </a>
+          <?php endif; ?>
         </div>
 
         <!-- ── Your Armies + The Workbench ── -->
         <div class="armies-workbench-row">
-          <?php if ($hasFactions || $hasForces): ?>
+          <?php if ($hasFactions || $hasForces || $hasBattles): ?>
             <div class="armies-section">
               <div class="contents-section-title">Your Armies</div>
               <?php if ($hasFactions): ?>
@@ -477,6 +499,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                   <div class="contents-entry-name">Forces &amp; Rosters</div>
                   <div class="contents-entry-blurb">Named rosters for Kill Team, OPR, Blood Bowl, and more - painted count vs. target, with scheme thumbnails.</div>
                   <div class="contents-entry-count"><?= $cnt_forces ?> force<?= $cnt_forces !== 1 ? 's' : '' ?> assembled</div>
+                </a>
+              <?php endif; ?>
+              <?php if ($hasBattles): ?>
+                <a class="contents-entry" data-jump="battles">
+                  <div class="contents-entry-name">Battle Honours</div>
+                  <div class="contents-entry-blurb">Every game logged - result, opponent, army, mission. The record of war, win or lose.</div>
+                  <div class="contents-entry-count"><?= $cnt_battles ?> battle<?= $cnt_battles !== 1 ? 's' : '' ?> recorded</div>
                 </a>
               <?php endif; ?>
             </div>
@@ -778,6 +807,24 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div><!-- #tab-forces -->
   <?php endif; ?>
 
+  <?php if ($hasBattles): ?>
+    <div id="tab-battles" class="tab-panel">
+      <div id="battles-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'battles')" title="Copy link to this tab">Battle Honours</a>
+        <input type="search" id="bh-search" class="tab-search" placeholder="Search opponent, army, mission&hellip;" autocomplete="off">
+        <div id="bh-filter-pills" class="pill-row">
+          <button class="bh-fp active" data-bhr="">All</button>
+          <button class="bh-fp" data-bhr="win">Win</button>
+          <button class="bh-fp" data-bhr="loss">Loss</button>
+          <button class="bh-fp" data-bhr="draw">Draw</button>
+        </div>
+        <span id="bh-count"></span>
+      </div>
+      <p class="tab-blurb">Every battle logged, every opponent faced. The record of war, for glory and for shame.</p>
+      <div class="battles-grid" id="battles-grid"></div>
+      <div id="battles-empty" class="tab-empty hidden">No battles logged yet.</div>
+    </div><!-- #tab-battles -->
+  <?php endif; ?>
 
   <?php if ($hasBooks): ?>
     <div id="tab-books" class="tab-panel">
@@ -1027,6 +1074,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <?php if ($hasShame): ?>const SHAME_DATA = <?= json_encode($shameData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
     <?php endif; ?>
     <?php if ($hasJournal): ?>const JOURNAL_DATA = <?= json_encode($journalData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+    <?php endif; ?>
+    <?php if ($hasBattles): ?>const BATTLES_DATA = <?= $battlesDataJson ?>;
     <?php endif; ?>
     const paintByKeyLC = new Map(PAINTS.map(p => [(p.brand + '|' + p.name).toLowerCase(), p.stock || '']));
 
@@ -1552,6 +1601,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         if (btn.dataset.tab === 'brushes' && window._renderBrushes) window._renderBrushes();
         if (btn.dataset.tab === 'bench' && window._renderBench) window._renderBench();
         if (btn.dataset.tab === 'forces' && window._renderForces) window._renderForces();
+        if (btn.dataset.tab === 'battles' && window._renderBattles) window._renderBattles();
         if (btn.dataset.tab === 'shame' && window._renderShame) window._renderShame();
         if (btn.dataset.tab === 'wishlist' && window._renderWishlist) window._renderWishlist();
         if (btn.dataset.tab === 'recipes' && window._renderRecipes) window._renderRecipes();
@@ -3683,6 +3733,20 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       if (e.target === document.getElementById('notes-overlay')) closeNotes();
     });
 
+    // ── Battle Honours: force record map (gallery scope, read by Forces IIFE) ──
+    const BH_FORCE_RECORD = new Map();
+    <?php if ($hasBattles): ?>
+    (function() {
+      if (typeof BATTLES_DATA === 'undefined') return;
+      BATTLES_DATA.forEach(b => {
+        if (!b.force_id) return;
+        if (!BH_FORCE_RECORD.has(b.force_id)) BH_FORCE_RECORD.set(b.force_id, {w:0,l:0,d:0});
+        const r = BH_FORCE_RECORD.get(b.force_id);
+        if (b.result === 'win') r.w++; else if (b.result === 'loss') r.l++; else r.d++;
+      });
+    })();
+    <?php endif; ?>
+
     // ── Forces & Rosters ────────────────────────────────
     <?php if ($hasForces): ?>
         (function() {
@@ -3753,12 +3817,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 `<div class="force-progress"><div class="force-progress-fill" style="width:${pct}%"></div></div>` : '';
 
               const isPinned = !!f.pinned;
+              const rec = BH_FORCE_RECORD.get(f.id);
+              const recordHtml = rec ? `<span class="bh-force-record">${rec.w}W&nbsp;${rec.l}L&nbsp;${rec.d}D</span>` : '';
               const forceBodyContent = progressBar + (f.notes ? `<div class="force-card-notes">${esc(f.notes)}</div>` : '') + (f.roster_url ? `<a class="force-roster-link" href="${esc(f.roster_url)}" target="_blank" rel="noopener">View Roster ↗</a>` : '');
               return `<div class="force-card${isPinned ? ' force-card-pinned' : ''}" data-id="${esc(f.id)}">
             ${heroHtml}
             <div class="force-card-header">
               <div class="force-card-name"><span>${esc(f.name)}</span>${isPinned ? '<span class="force-pin-indicator" title="Pinned">★</span>' : ''}</div>
-              <div class="force-card-meta">${sysHtml}${metaParts.map(p => `<span>${p}</span>`).join('')}</div>
+              <div class="force-card-meta">${sysHtml}${metaParts.map(p => `<span>${p}</span>`).join('')}${recordHtml}</div>
             </div>
             ${forceBodyContent ? `<div class="force-card-body">${forceBodyContent}</div>` : ''}
           </div>`;
@@ -3768,6 +3834,74 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           searchEl.addEventListener('input', renderForces);
           window._renderForces = renderForces;
           renderForces();
+        })();
+    <?php endif; ?>
+
+    // ── Battle Honours ────────────────────────────────────
+    <?php if ($hasBattles): ?>
+        (function() {
+          const grid    = document.getElementById('battles-grid');
+          const emptyEl = document.getElementById('battles-empty');
+          const countEl = document.getElementById('bh-count');
+          const searchEl = document.getElementById('bh-search');
+          let bhResultFilter = '', bhSearch = '';
+
+          const BH_FORCE_NAMES = new Map();
+          <?php if ($hasForces && !empty($forcesData)): ?>
+          (function() {
+            if (typeof FORCES_DATA === 'undefined') return;
+            FORCES_DATA.forEach(f => BH_FORCE_NAMES.set(f.id, f.name));
+          })();
+          <?php endif; ?>
+
+          document.querySelectorAll('#bh-filter-pills .bh-fp').forEach(btn => {
+            btn.addEventListener('click', function() {
+              document.querySelectorAll('#bh-filter-pills .bh-fp').forEach(b => b.classList.remove('active'));
+              this.classList.add('active');
+              bhResultFilter = this.dataset.bhr;
+              renderBattles();
+            });
+          });
+
+          function renderBattles() {
+            if (typeof BATTLES_DATA === 'undefined') { grid.innerHTML = ''; emptyEl.classList.remove('hidden'); return; }
+            const q = bhSearch.toLowerCase();
+            let list = BATTLES_DATA.filter(b => {
+              if (bhResultFilter && (b.result || '') !== bhResultFilter) return false;
+              if (!q) return true;
+              return [b.date, b.my_army, b.opponent, b.opponent_army, b.mission, b.notes].some(f => f && f.toLowerCase().includes(q));
+            });
+            countEl.textContent = list.length + ' battle' + (list.length !== 1 ? 's' : '');
+            if (!list.length) { grid.innerHTML = ''; emptyEl.classList.remove('hidden'); return; }
+            emptyEl.classList.add('hidden');
+            const resultLabel = {win:'Win',loss:'Loss',draw:'Draw'};
+            grid.innerHTML = list.map(b => {
+              const res = b.result || 'draw';
+              const forceName = b.force_id ? BH_FORCE_NAMES.get(b.force_id) : null;
+              const armyDisplay = b.my_army || forceName || '';
+              const armyHtml = armyDisplay ? `<span class="bh-my-army">${esc(armyDisplay)}</span>` : '';
+              const forceChip = forceName && b.my_army && b.force_id ? `<span class="bh-force-chip bh-force-chip-link" onclick="event.stopPropagation();switchToTab('forces');setTimeout(()=>{const el=document.querySelector('.force-card[data-id=\\'${esc(b.force_id)}\\']');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});el.classList.add('highlight');setTimeout(()=>el.classList.remove('highlight'),1200);}},150)" title="Jump to ${esc(forceName)} in Forces &amp; Rosters">${esc(forceName)}</span>` : '';
+              const oppHtml = (b.opponent || b.opponent_army) ?
+                `<span class="bh-vs">vs</span><span class="bh-opp">${esc(b.opponent || '')}${b.opponent && b.opponent_army ? ' &mdash; ' : ''}${esc(b.opponent_army || '')}</span>` : '';
+              const sysHtml = b.system ? `<span class="bh-sys-chip" style="background:${SYS_COLORS[b.system]||'#2a2a2a'}">${esc(b.system)}</span>` : '';
+              const ptsHtml = b.points ? `<span class="bh-pts-chip">${esc(String(b.points))}pts</span>` : '';
+              const missionHtml = b.mission ? `<div class="bh-mission">${esc(b.mission)}</div>` : '';
+              const notesHtml = b.notes ? `<div class="bh-notes">${esc(b.notes)}</div>` : '';
+              return `<div class="battle-card bh-result-border-${res}" data-id="${esc(b.id)}">
+  <div class="bh-card-header">
+    <span class="bh-date">${esc(b.date||'')}</span>
+    <span class="bh-result-badge bh-result-${res}">${resultLabel[res]||res}</span>
+    ${sysHtml}${ptsHtml}
+  </div>
+  <div class="bh-matchup">${armyHtml}${forceChip}${oppHtml}</div>
+  ${missionHtml}${notesHtml}
+</div>`;
+            }).join('');
+          }
+
+          if (searchEl) searchEl.addEventListener('input', function() { bhSearch = this.value; renderBattles(); });
+          window._renderBattles = renderBattles;
+          renderBattles();
         })();
     <?php endif; ?>
 
@@ -3968,9 +4102,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         book: 'Codex',
         shame: 'Shame Pile',
         force: 'Force',
+        battle: 'Battle',
         wish: 'Wishlist'
       };
-      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'brush', 'book', 'wish'];
+      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'battle', 'brush', 'book', 'wish'];
       const PER_TYPE_CAP = 8;
 
       let selectedIdx = 0;
@@ -4073,6 +4208,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             key: f.id,
             name: f.name,
             meta: [f.system, f.faction].filter(Boolean).join(' · ')
+          });
+        });
+
+        if (typeof BATTLES_DATA !== 'undefined') BATTLES_DATA.forEach(b => {
+          const hay = [b.date, b.my_army, b.opponent, b.opponent_army, b.mission, b.notes].filter(Boolean).join(' ');
+          if (match(hay)) out.push({
+            type: 'battle',
+            key: b.id,
+            name: (b.my_army || 'Battle') + ' vs ' + (b.opponent_army || b.opponent || '?'),
+            meta: [b.date, b.result ? b.result.charAt(0).toUpperCase() + b.result.slice(1) : '', b.system].filter(Boolean).join(' · ')
           });
         });
 
@@ -4241,6 +4386,17 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                   behavior: 'smooth',
                   block: 'start'
                 });
+                el.classList.remove('highlight');
+                void el.offsetWidth;
+                el.classList.add('highlight');
+              }
+            }, 150);
+          } else if (r.type === 'battle') {
+            switchToTab('battles');
+            setTimeout(() => {
+              const el = document.querySelector('.battle-card[data-id="' + r.key + '"]');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 el.classList.remove('highlight');
                 void el.offsetWidth;
                 el.classList.add('highlight');

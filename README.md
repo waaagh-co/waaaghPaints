@@ -34,6 +34,7 @@ no dependencies beyond a PHP host. Drop it on any shared host and go.
   bench projects
 - **Factions** - automatic per-army rollup of schemes, recipes, bench work, and paint palette
 - **Forces & Rosters** - group painted schemes into named game rosters with readiness progress
+- **Battle Honours** - NEW! - log every game played with result, opponent, army, mission, and notes; W/L/D record shown on force cards
 - **Pile of Shame** - track unbuilt boxes; promote to Planned or Bench when ready
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit
 - **Brush Inventory** - track brush condition (Prime / Workhorse / Retired)
@@ -173,6 +174,7 @@ All data lives in flat JSON files under `data/`. These are **not** included in t
 | `data/shame.json` | Start Pile of Shame button |
 | `data/wishlist.json` | Start Hobby Wishlist button |
 | `data/forces.json` | Start Forces & Rosters button |
+| `data/battles.json` | Start Battle Honours button |
 
 Model photos go in `img/models/`; bench WIP photos go in `img/bench/`. Both are excluded from
 git and created automatically on first use.
