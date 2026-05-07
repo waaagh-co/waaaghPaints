@@ -1650,6 +1650,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         bump(b.last_touched);
         (b.history || []).forEach(h => bump(h.date));
       });
+      if (typeof BATTLES_DATA !== 'undefined') BATTLES_DATA.forEach(b => bump(b.date));
       const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const today = new Date();
