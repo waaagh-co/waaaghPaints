@@ -1711,6 +1711,25 @@
       color: var(--gold-dim);
     }
 
+    .footer-oss {
+      margin-top: 10px;
+      font-family: var(--font-heading);
+      font-size: .5rem;
+      color: #2a1e08;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .footer-oss a {
+      color: #3a2c0e;
+      text-decoration: none;
+      transition: color .2s;
+    }
+
+    .footer-oss a:hover {
+      color: var(--gold-dim);
+    }
+
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .tab-full  { display: none; }
