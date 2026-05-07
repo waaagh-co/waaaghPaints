@@ -799,7 +799,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <span id="equiv-count"></span>
     </div>
     <div class="equiv-explainer">
-      <p>Maps Citadel colours to Vallejo, Pro Acryl, and Two Thin Coats for practical substitution at the desk. Vallejo is the anchor system - ratings reflect real-world results in practice. Pro Acryl and Two Thin Coats are evaluated independently. Washes, Contrast, and technical paints are approximations.</p>
+      <p>All equivalences are compared against Citadel (now Warhammer Paints) colours. Match ratings reflect personal real-world results - coverage and colour on a model, not theory. Washes, Contrast, and technical paints are approximations only. (Click &#9998; for notes or ★ for rating.)</p>
       <div class="equiv-match-legend">
         <span class="equiv-legend-item"><span class="eq-match-dot eq-match-near"></span>Near identical - safe 1:1 swap</span>
         <span class="equiv-legend-item"><span class="eq-match-dot eq-match-usable"></span>Usable - slight shift, fine for tabletop</span>
