@@ -2510,11 +2510,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 const matUse = [b.material, b.use].filter(Boolean).join(' · ');
                 const date = fmtBRMonth(b.date_start || '');
                 const starsN = b.stars || 0;
-                const starsHtml = starsN ? `<span class="brush-stars">${Array.from({length:5},(_,i)=>` < span class = "br-star${i<starsN?' on':''}" > ★ < /span>`).join('')}</span > ` : '';
+                const starsHtml = starsN ? `<span class="brush-stars">${Array.from({length:5},(_,i)=>`<span class="br-star${i<starsN?' on':''}">★</span>`).join('')}</span>` : '';
                 const seriesHtml = seriesSize ? esc(seriesSize) : '<span style="color:#3a2a10">-</span>';
-                const dateHtml = date ? ` < span style = "font-family:'Cinzel',serif;letter-spacing:.03em" > $ {
-                  esc(date)
-                } < /span>` : '';
+                const dateHtml = date ? `<span style="font-family:'Cinzel',serif;letter-spacing:.03em">${esc(date)}</span>` : '';
                 const notesHtml = b.notes ? `<div class="brush-entry-notes">${esc(b.notes)}</div>` : '';
                 return `<div class="brush-entry" data-id="${esc(b.id || '')}"><div class="brush-entry-top"><span class="brush-entry-series">${seriesHtml}</span><span class="brush-entry-right">${starsHtml}<span class="brush-cond-badge cond-${esc(cond)}">${esc(condLabel)}</span></span></div><div class="brush-entry-bottom"><span>${esc(matUse)}</span>${dateHtml}</div>${notesHtml}</div>`;
               }).join('');
