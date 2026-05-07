@@ -2157,7 +2157,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php if ($hasBooks): ?>
           <div class="stat-card">
             <div class="stat-num"><?= count($booksData) ?></div>
-            <div class="stat-label">Books Read</div>
+            <div class="stat-label">Codex Library</div>
           </div>
         <?php endif; ?>
         <?php if ($hasBrushes): ?>
