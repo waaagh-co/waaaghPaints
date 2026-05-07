@@ -3,9 +3,15 @@
 A personal Warhammer hobby paint collection manager. Flat-file PHP - no database, no framework,
 no dependencies beyond a PHP host. Drop it on any shared host and go.
 
+**[Live Site](https://waaagh.co)**
+
 > **Work in progress.** This is a personal tool shared as-is with the Warhammer hobby community.
 > Features are added when they're needed. Bugs may exist. No support is guaranteed.
 > Use at your own risk.
+
+## Admin panel
+
+![Admin panel](img/admin.jpg)
 
 ---
 
