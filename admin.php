@@ -191,6 +191,7 @@ if (isset($_POST['password'])) {
     session_regenerate_id(true);
     $_SESSION['admin'] = true;
   } else {
+    sleep(1);
     $authError = 'Incorrect password.';
   }
 }
