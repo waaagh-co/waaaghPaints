@@ -6080,7 +6080,7 @@ if ($authed && isset($_GET['edit_force'])) {
     </script>
   <?php endif; ?>
 
-  <?php if ($authed && $missingPlanned > 0): ?>
+  <?php if ($authed && ($missingPlanned ?? 0) > 0): ?>
     <div class="adm-shop-overlay" id="adm-shop-overlay" onclick="if(event.target===this)closeAdmShopModal()">
       <div class="adm-shop-sheet">
         <div class="adm-shop-title">Missing Paints - Planned Schemes</div>

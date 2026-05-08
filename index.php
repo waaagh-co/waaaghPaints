@@ -4478,36 +4478,40 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     })();
 
     // ── PWA Install Prompt ────────────────────────────
-    let deferredInstallPrompt = null;
-    const installBanner = document.getElementById('install-banner');
-    const installBtn = document.getElementById('install-btn');
-    const installDismiss = document.getElementById('install-dismiss');
+    (function() {
+      const installBanner = document.getElementById('install-banner');
+      const installBtn = document.getElementById('install-btn');
+      const installDismiss = document.getElementById('install-dismiss');
+      if (!installBanner || !installBtn || !installDismiss) return;
 
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      installBanner.classList.add('visible');
-    });
+      let deferredInstallPrompt = null;
 
-    installBtn.addEventListener('click', async () => {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      const {
-        outcome
-      } = await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      installBanner.classList.remove('visible');
-    });
+      window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        installBanner.classList.add('visible');
+      });
 
-    installDismiss.addEventListener('click', () => {
-      installBanner.classList.remove('visible');
-      deferredInstallPrompt = null;
-    });
+      installBtn.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        const {
+          outcome
+        } = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installBanner.classList.remove('visible');
+      });
 
-    window.addEventListener('appinstalled', () => {
-      installBanner.classList.remove('visible');
-      deferredInstallPrompt = null;
-    });
+      installDismiss.addEventListener('click', () => {
+        installBanner.classList.remove('visible');
+        deferredInstallPrompt = null;
+      });
+
+      window.addEventListener('appinstalled', () => {
+        installBanner.classList.remove('visible');
+        deferredInstallPrompt = null;
+      });
+    })();
 
     // Register service worker
     if ('serviceWorker' in navigator) {
