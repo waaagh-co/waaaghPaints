@@ -143,6 +143,9 @@ if (file_exists($convPath)) {
 }
 $conversionsDataJson = json_encode($conversionsData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+
 // ── Tab traffic tracker ───────────────────────────────
 if (($_POST['action'] ?? '') === 'track_tab') {
   header('Content-Type: application/json');

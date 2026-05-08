@@ -176,12 +176,19 @@ foreach ([__DIR__ . '/data', __DIR__ . '/img/models', __DIR__ . '/img/bench', __
   }
 }
 
-session_start();
+session_start([
+  'cookie_httponly' => true,
+  'cookie_samesite' => 'Lax',
+  'use_strict_mode' => true,
+]);
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
 
 // ── Auth ─────────────────────────────────────────────
 $authError = '';
 if (isset($_POST['password'])) {
   if ($_POST['password'] === ADMIN_PASSWORD) {
+    session_regenerate_id(true);
     $_SESSION['admin'] = true;
   } else {
     $authError = 'Incorrect password.';
@@ -1095,7 +1102,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
       $file = $_FILES[$key];
       if ($file['error'] !== UPLOAD_ERR_OK) continue;
       if ($file['size'] > MAX_FILE_BYTES) continue;
-      $mime = mime_content_type($file['tmp_name']);
+      $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
       if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) continue;
       $filename = $id . '_' . $slot . '.' . imageExt($mime);
       if (saveModelImage($file['tmp_name'], BENCH_IMG_DIR . $filename, $mime)) {
@@ -1383,7 +1390,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_recipe', 'edit_recipe'], t
       $image = '';
     } elseif (!empty($_FILES['rc_image']['name']) && $_FILES['rc_image']['error'] === UPLOAD_ERR_OK) {
       $file = $_FILES['rc_image'];
-      $mime = mime_content_type($file['tmp_name']);
+      $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
       if (in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif']) && $file['size'] <= MAX_FILE_BYTES) {
         $filename = $id . '_1.' . imageExt($mime);
         if (saveModelImage($file['tmp_name'], RECIPE_IMG_DIR . $filename, $mime)) {
@@ -1516,7 +1523,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
         $formError = "Image $i exceeds 8 MB limit.";
         break;
       }
-      $mime = mime_content_type($file['tmp_name']);
+      $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
       if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) {
         $formError = "Image $i is not a supported image type.";
         break;
@@ -1645,7 +1652,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
           $formError = "Image $slot exceeds 25 MB limit.";
           break;
         }
-        $mime = mime_content_type($file['tmp_name']);
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) {
           $formError = "Image $slot is not a supported image type.";
           break;
