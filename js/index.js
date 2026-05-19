@@ -17,16 +17,13 @@
       return _legacyUpgrade.get(c) || c;
     }
 
-    // Brand slug for CSS class
     function brandSlug(b) {
       return b.toLowerCase().replace(/\s+/g, '');
     }
 
-    // Sort state
     let sortCol = 'name';
     let sortDir = 1; // 1=asc, -1=desc
 
-    // Controls
     const searchEl = document.getElementById('search');
     const filterBrand = document.getElementById('filter-brand');
     const filterColor = document.getElementById('filter-color');
@@ -54,7 +51,6 @@
         return true;
       });
 
-      // Sort
       filtered.sort((a, b) => {
         if (sortCol === 'schemes') {
           const av = paintUsage.get(paintKey(a)) || 0;
@@ -68,7 +64,6 @@
         return a.name.localeCompare(b.name);
       });
 
-      // Render rows
       if (filtered.length === 0) {
         tbody.innerHTML = '';
         table.style.display = 'none';
@@ -106,7 +101,6 @@
 
       countEl.textContent = filtered.length + ' of ' + PAINTS.length + ' paints';
 
-      // Update sort indicators
       headers.forEach(th => {
         const icon = th.querySelector('.sort-icon');
         if (!icon) return;
@@ -128,7 +122,6 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Recipe reference badges helper - emits "Uses: [Recipe A] [Recipe B]" row or empty string
     function collectAllPaints(direct, recipeIds) {
       const seen = new Set();
       const out = [];
@@ -167,7 +160,6 @@
       return badges ? `<div class="recipe-ref-row"><span style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.06em;color:#4a3a1a;margin-right:4px">Uses</span>${badges}</div>` : '';
     }
 
-    // Sort on header click
     headers.forEach(th => {
       if (!th.querySelector('.sort-icon')) return; // swatch column has no icon
       th.addEventListener('click', () => {
@@ -182,7 +174,6 @@
       });
     });
 
-    // Filter/search events
     searchEl.addEventListener('input', render);
     filterBrand.addEventListener('change', render);
     filterColor.addEventListener('change', render);
@@ -198,7 +189,6 @@
       render();
     });
 
-    // ── Gallery ──────────────────────────────────────
     MODELS.forEach(m => {
       const mc = Math.max(1, parseInt(m.count || 1, 10));
       (m.colors || []).forEach(c => {
@@ -497,14 +487,12 @@
       renderGallery();
     });
 
-    // Active faction pill - click to clear
     document.getElementById('active-faction-pill').addEventListener('click', () => {
       factionFilter = '';
       showAllGallery = false;
       renderGallery();
     });
 
-    // Tab switching
     function switchToTab(tabName) {
       const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
       if (!btn) return false;
@@ -551,7 +539,6 @@
       });
     });
 
-    // Contents-page jump entries
     document.querySelectorAll('[data-jump]').forEach(el => {
       el.addEventListener('click', e => {
         e.preventDefault();
@@ -560,7 +547,6 @@
     });
 
 
-    // ── Hobby Activity Heatmap ───────────────────────
     (function() {
       const el = document.getElementById('hero-heatmap');
       if (!el) return;
@@ -624,7 +610,6 @@
       if (hmScroll) hmScroll.scrollLeft = hmScroll.scrollWidth;
     })();
 
-    // ── Lightbox ─────────────────────────────────────
     let lbImages = [],
       lbIdx = 0;
     const lbOverlay = document.getElementById('lightbox');
@@ -745,7 +730,6 @@
       }
     });
 
-    // ── Used In ──
     function showUsedIn(brand, name, layer) {
       const key3 = brand + '|' + name + '|' + (layer || '');
       const schemes = MODELS.filter(m => effectiveColors(m).some(c => upgradeKey(c) === key3));
@@ -815,7 +799,6 @@
       showUsedIn(row.dataset.brand, row.dataset.name, row.dataset.layer);
     });
 
-    // ── Pull Sheet ──
     function renderPullLi(raw, name) {
       const key = upgradeKey(raw);
       const stock = paintStock.get(key) || '';
@@ -941,7 +924,6 @@
       if (e.target === document.getElementById('pull-overlay')) closePull();
     });
 
-    // ── Planned Tab ──────────────────────────────────
     const plannedSearchEl = document.getElementById('planned-search');
     plannedSearchEl.addEventListener('input', renderPlanned);
     let plannedSystemFilter = '';
@@ -1109,7 +1091,6 @@
       });
     });
 
-    // ── Codices ──────────────────────────────────────────
         (function() {
           const blSearchEl = document.getElementById('bl-search');
           const blCountEl = document.getElementById('bl-count');
@@ -1176,7 +1157,6 @@
           renderBooks();
         })();
 
-    // ── Hobby Journal ────────────────────────────────────
         (function() {
           const jnSearchEl = document.getElementById('jn-search');
           const jnCountEl = document.getElementById('jn-count');
@@ -1197,7 +1177,6 @@
           const now = new Date();
           let jnCursor = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
 
-          // collect all YYYY-MM values that actually have entries
           const jnMonthsWithData = [...new Set(journalData.map(e => e.date ? e.date.slice(0, 7) : null).filter(Boolean))].sort();
 
           function fmtCursor(ym) {
@@ -1359,7 +1338,6 @@
           window._renderJournals = renderJournals;
         })();
 
-    // ── Brush Inventory ───────────────────────────────
         (function() {
           const brSearchEl = document.getElementById('brush-search');
           const brCountEl = document.getElementById('brush-count');
@@ -1462,7 +1440,6 @@
           renderBrushes();
         })();
 
-    // ── Hobby Wishlist ─────────────────────────────────
         (function() {
           const gridEl = document.getElementById('wishlist-grid');
           const emptyEl = document.getElementById('wishlist-empty');
@@ -1634,7 +1611,6 @@
           renderWishlist();
         })();
 
-    // ── Pile of Shame ────────────────────────────────
         (function() {
           const gridEl = document.getElementById('shame-grid');
           const emptyEl = document.getElementById('shame-empty');
@@ -1780,7 +1756,6 @@
           window._renderShame = renderShame;
         })();
 
-    // ── On the Bench ─────────────────────────────────
         (function() {
           const STAGES = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
           const STAGE_LABEL = {
@@ -1955,9 +1930,6 @@
           renderBench();
         })();
 
-    // ── Recipes ─────────────────────────────────────
-
-    // ── Recipes ─────────────────────────────────────
         (function() {
           if (!RECIPES_DATA) return;
           const RECIPE_BY_ID = new Map(RECIPES_DATA.map(r => [r.id, r]));
@@ -2216,7 +2188,6 @@
 
           renderRecipes();
 
-          // ── Step-by-step Recipe Guide ──
           (function() {
             let _gr = null,
               _gi = 0;
@@ -2313,7 +2284,6 @@
       window.closeRecipeGuide = function() {};
       window.stepGuide = function() {};
 
-      // ── Factions Overview ────────────────────────────
       (function() {
         const wrap = document.getElementById('factions-wrap');
         const searchEl = document.getElementById('factions-search');
@@ -2524,7 +2494,6 @@
         render();
       })();
 
-    // ── Shopping List ─────────────────────────────────
     function openShoppingList() {
       const mustBuy = {};
       const restock = {};
@@ -2619,7 +2588,6 @@
     });
 
 
-    // ── Paint Notes Drawer ───────────────────────────────
     function drawerStarSet(n) {
       document.querySelectorAll('#notes-star-picker .nsp-star').forEach(s => {
         s.classList.toggle('on', parseInt(s.dataset.val) <= n);
@@ -2647,7 +2615,6 @@
       if (e.target === document.getElementById('notes-overlay')) closeNotes();
     });
 
-    // ── Battle Honours: force record map (gallery scope, read by Forces IIFE) ──
     const BH_FORCE_RECORD = new Map();
     (function() {
       if (!BATTLES_DATA) return;
@@ -2659,7 +2626,6 @@
       });
     })();
 
-    // ── Forces & Rosters ────────────────────────────────
         (function() {
           const grid = document.getElementById('forces-grid');
           const emptyEl = document.getElementById('forces-empty');
@@ -2748,7 +2714,6 @@
           renderForces();
         })();
 
-    // ── Battle Honours ────────────────────────────────────
         (function() {
           if (!BATTLES_DATA) return;
           const grid    = document.getElementById('battles-grid');
@@ -2813,7 +2778,6 @@
           renderBattles();
         })();
 
-    // ── Equivalency Search ──────────────────────────────
     const equivSearchEl = document.getElementById('equiv-search');
     const equivCountEl = document.getElementById('equiv-count');
     const equivTbody = document.getElementById('equiv-tbody');
@@ -2979,7 +2943,6 @@
       });
     })();
 
-    // ── Global Search ────────────────────────────────
     (function() {
       const trigger = document.getElementById('gs-trigger');
       const overlay = document.getElementById('gs-overlay');
@@ -3385,7 +3348,6 @@
       });
     })();
 
-    // ── PWA Install Prompt ────────────────────────────
     (function() {
       const installBanner = document.getElementById('install-banner');
       const installBtn = document.getElementById('install-btn');

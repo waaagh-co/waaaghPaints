@@ -4,7 +4,6 @@ if (!defined('ADMIN_FILENAME')) define('ADMIN_FILENAME', 'admin.php');
 if (!function_exists('mb_substr'))    { function mb_substr($s,$start,$len=null)  { return $len===null ? substr($s,$start) : substr($s,$start,$len); } }
 if (!function_exists('mb_strlen'))    { function mb_strlen($s)                   { return strlen($s); } }
 if (!function_exists('mb_strimwidth')){ function mb_strimwidth($s,$start,$w,$t=''){ $r=substr($s,$start,$w); return (strlen($s)-$start>$w) ? $r.$t : $r; } }
-// ── Config ───────────────────────────────────────────
 define('MODELS_FILE',    __DIR__ . '/data/models.json');
 define('IMAGES_DIR',     __DIR__ . '/img/models/');
 define('IMAGES_WEB',     'img/models/');           // web-relative prefix stored in JSON
@@ -26,7 +25,6 @@ define('WISHLIST_FILE',  __DIR__ . '/data/wishlist.json');
 define('BATTLES_FILE',   __DIR__ . '/data/battles.json');
 define('GOALS_FILE',     __DIR__ . '/data/goals.json');
 
-// ── Helpers ───────────────────────────────────────────
 function e(string $s): string
 {
   return htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
@@ -184,7 +182,6 @@ session_start([
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
-// ── Auth ─────────────────────────────────────────────
 $authError = '';
 if (isset($_POST['password'])) {
   if ($_POST['password'] === ADMIN_PASSWORD) {
@@ -202,7 +199,6 @@ if (isset($_POST['logout'])) {
 }
 $authed = !empty($_SESSION['admin']);
 
-// ── Load paints (JSON if available, else CSVs) ───────
 $paints = [];
 if (file_exists(PAINTS_FILE)) {
   $paints = json_decode(file_get_contents(PAINTS_FILE), true) ?? [];
@@ -243,7 +239,6 @@ $battlesData  = $hasBattles ? (json_decode(file_get_contents(BATTLES_FILE), true
 $tabStatsFile = __DIR__ . '/data/tab_stats.json';
 $tabStats     = file_exists($tabStatsFile) ? (json_decode(file_get_contents($tabStatsFile), true) ?? []) : [];
 
-// ── Master paint lookup (for checker substitutes) ─────
 // Starts from CSVs so we can look up color/layer for paints not yet in inventory
 $_csvPaints   = loadPaintsFromCsvs();
 $masterPaints = [];
@@ -259,7 +254,6 @@ foreach ($paints as $p) {
 }
 $masterPaintsJson = json_encode($masterPaints, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-// ── Conversions lookup (inventory/conversions.csv) ────
 // Format: Citadel Name | Vallejo Name | Pro Acryl Name | Match Quality
 // Builds bidirectional map: 'brand|name' → [{brand, name, quality}]
 $conversions = [];
@@ -294,7 +288,6 @@ if (file_exists($convPath)) {
 }
 $conversionsJson = json_encode($conversions, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-// ── Paint inventory handlers ──────────────────────────
 define('HEX_SEED_FILE', __DIR__ . '/data/paint_hex_seed.json');
 
 if ($authed && ($_POST['action'] ?? '') === 'apply_hex_seed') {
@@ -419,7 +412,6 @@ if ($authed && ($_POST['action'] ?? '') === 'set_stock') {
   exit;
 }
 
-// ── Planned scheme handlers ──────────────────────────
 if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
   $name        = trim($_POST['pl_name']        ?? '');
   $model        = trim($_POST['pl_model']        ?? '');
@@ -531,7 +523,6 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
   exit;
 }
 
-// ── Black Library handlers ────────────────────────────
 function bookSort(array &$arr): void
 {
   usort($arr, fn($a, $b) => ($a['faction'] ?? '') <=> ($b['faction'] ?? '') ?: ($a['title'] ?? '') <=> ($b['title'] ?? ''));
@@ -672,7 +663,6 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_journal') {
   exit;
 }
 
-// ── Pile of Shame handlers ────────────────────────────
 function shameSort(array &$arr): void
 {
   usort($arr, function ($a, $b) {
@@ -841,7 +831,6 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_wishlist') {
   exit;
 }
 
-// ── Conversion chart handlers ─────────────────────────
 if ($authed && ($_POST['action'] ?? '') === 'add_conversion') {
   $cit  = trim($_POST['cv_citadel'] ?? '');
   $val  = trim($_POST['cv_vallejo'] ?? '');
@@ -897,7 +886,6 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_conversion') {
   exit;
 }
 
-// ── Brush inventory handlers ──────────────────────────
 function brushSort(array &$arr): void
 {
   $rank = ['prime' => 0, 'workhorse' => 1, 'retired' => 2];
@@ -1028,7 +1016,6 @@ if ($authed && ($_POST['action'] ?? '') === 'set_brush_condition') {
   exit;
 }
 
-// ── Bench (Workbench) handlers ────────────────────────
 const BENCH_STAGES = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
 const BENCH_MAX_IMAGES = 8;
 
@@ -1312,7 +1299,6 @@ if ($authed && ($_POST['action'] ?? '') === 'log_gallery_session') {
   exit;
 }
 
-// ── Recipe library handlers ──────────────────────────
 const RECIPE_TECHNIQUES = ['basecoat', 'wash', 'shade', 'layer', 'edge', 'highlight', 'glaze', 'drybrush', 'stipple', 'blend', 'special'];
 
 function recipeSort(array &$arr): void
@@ -1447,17 +1433,14 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_recipe') {
   exit;
 }
 
-// ── Handle model submission ───────────────────────────
 $successMsg = '';
 $formError  = '';
 
-// Flash message set before redirect (used after successful edit)
 if (!empty($_SESSION['flash'])) {
   $successMsg = $_SESSION['flash'];
   unset($_SESSION['flash']);
 }
 
-// ── Backup export: bundle all JSON data files into one downloadable blob ──
 if ($authed && isset($_POST['action']) && $_POST['action'] === 'export_backup') {
   $bundle = [
     '_meta' => [
@@ -1514,7 +1497,6 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
     $id     = (string)time();
     $images = [];
 
-    // Handle up to 4 image uploads
     for ($i = 1; $i <= 4; $i++) {
       $key = 'image' . $i;
       if (empty($_FILES[$key]['name'])) continue;
@@ -1564,7 +1546,6 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
   }
 }
 
-// ── Cleanup scheme colors covered by recipes ──────────
 if ($authed && isset($_POST['action']) && $_POST['action'] === 'cleanup_scheme_colors') {
   $models      = file_exists(MODELS_FILE)   ? (json_decode(file_get_contents(MODELS_FILE),   true) ?? []) : [];
   $recipesData = file_exists(RECIPES_FILE)  ? (json_decode(file_get_contents(RECIPES_FILE),  true) ?? []) : [];
@@ -1590,7 +1571,6 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'cleanup_scheme_c
   $successMsg = "Removed $removed duplicate paint reference" . ($removed !== 1 ? 's' : '') . " from scheme color lists.";
 }
 
-// ── Handle model deletion ─────────────────────────────
 if ($authed && isset($_POST['action']) && $_POST['action'] === 'delete_model') {
   $delId  = $_POST['model_id'] ?? '';
   $models = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
@@ -1599,7 +1579,6 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'delete_model') {
   $successMsg = 'Entry deleted.';
 }
 
-// ── Handle model edit ─────────────────────────────────
 if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
   $editId       = trim($_POST['model_id']      ?? '');
   $name         = trim($_POST['model_name']    ?? '');
@@ -1635,16 +1614,13 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
     if ($idx === null) {
       $formError = 'Model not found.';
     } else {
-      // Build slot-based image array (slot 1 = index 0, etc.), starting from existing
       $slotImages = array_pad(array_values($models[$idx]['images'] ?? []), 4, null);
       for ($slot = 1; $slot <= 4; $slot++) {
-        // Delete requested?
         if (($_POST['delete_img_' . $slot] ?? '0') === '1' && $slotImages[$slot - 1] !== null) {
           $filePath = __DIR__ . '/' . $slotImages[$slot - 1];
           if (file_exists($filePath)) @unlink($filePath);
           $slotImages[$slot - 1] = null;
         }
-        // New upload for this slot?
         $key = 'image' . $slot;
         if (empty($_FILES[$key]['name'])) continue;
         $file = $_FILES[$key];
@@ -1692,11 +1668,9 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
   }
 }
 
-// ── Reload models for display ─────────────────────────
 $models    = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
 $convRows  = readConversionsCsv();
 
-// ── Forces / Roster handlers ──────────────────────────
 if ($authed && ($_POST['action'] ?? '') === 'create_forces_file') {
   if (!file_exists(FORCES_FILE)) file_put_contents(FORCES_FILE, '[]', LOCK_EX);
   $_SESSION['flash'] = 'Forces & Rosters started.';
@@ -1815,7 +1789,6 @@ function battlesSort(array &$arr): void
   usort($arr, fn($x, $y) => strcmp($y['date'] . $y['id'], $x['date'] . $x['id']));
 }
 
-// ── Battle Honours handlers ───────────────────────────
 if ($authed && ($_POST['action'] ?? '') === 'create_battles_file') {
   if (!file_exists(BATTLES_FILE)) file_put_contents(BATTLES_FILE, '[]', LOCK_EX);
   $hasBattles = true;
@@ -1865,7 +1838,6 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_battle') {
   exit;
 }
 
-// ── Wishlist handlers ─────────────────────────────────
 if ($authed && ($_POST['action'] ?? '') === 'create_wishlist_file') {
   if (!file_exists(WISHLIST_FILE)) file_put_contents(WISHLIST_FILE, '[]', LOCK_EX);
   $hasWishlist = true;
@@ -2030,7 +2002,6 @@ if ($authed && ($_POST['action'] ?? '') === 'seed_wishlist_from_planned') {
   exit;
 }
 
-// ── Edit mode detection ───────────────────────────────
 $editModel = null;
 if ($authed && isset($_GET['edit'])) {
   $reqEditId = $_GET['edit'];
@@ -2087,7 +2058,6 @@ if ($authed && isset($_GET['edit_force'])) {
   <div class="admin-wrap">
 
     <?php if (!$authed): ?>
-      <!-- ── Login ── -->
       <div class="auth-box">
         <h2>Admin Access</h2>
         <?php if ($authError): ?><div class="alert alert-error"><?= e($authError) ?></div><?php endif; ?>
@@ -2113,7 +2083,6 @@ if ($authed && isset($_GET['edit_force'])) {
       <?php if ($successMsg): ?><div class="alert alert-success"><?= e($successMsg) ?></div><?php endif; ?>
       <?php if ($formError):   ?><div class="alert alert-error"><?= e($formError) ?></div><?php endif; ?>
 
-      <!-- ── Quick navigation ── -->
       <nav class="admin-quicknav">
         <a href="#section-recipes">Recipes</a>
         <a href="#section-gallery">Add Scheme</a>
@@ -2134,7 +2103,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <a href="guide.php" target="_blank">User Guide ↗</a>
       </nav>
 
-      <!-- ── Hobby Stats ── -->
       <h2 id="section-stats">Hobby Stats</h2>
       <?php
       $ownedPaints = array_values(array_filter($paints, fn($p) => ($p['stock'] ?? '') !== 'wanted'));
@@ -2409,7 +2377,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endforeach; ?>
       <?php endif; ?>
 
-      <!-- ── Add / Edit model form ── -->
       <?php if ($editModel): ?>
         <h2 id="section-gallery">Edit: <?= e($editModel['name']) ?></h2>
       <?php else: ?>
@@ -2578,7 +2545,6 @@ if ($authed && isset($_GET['edit_force'])) {
         </div>
       </form>
 
-      <!-- ── Existing entries ── -->
       <?php if ($models): ?>
         <h2 id="section-entries" style="margin-top:40px">Edit Scheme
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($models) ?> entr<?= count($models) !== 1 ? 'ies' : 'y' ?></span>
@@ -2629,7 +2595,6 @@ if ($authed && isset($_GET['edit_force'])) {
         </div>
       <?php endif; ?>
 
-      <!-- ── Paint Inventory ── -->
       <h2 id="section-inventory" style="margin-top:40px">Paint Inventory
         <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($paints) ?> paints</span>
       </h2>
@@ -2869,7 +2834,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <div id="paintVisibleCount" style="font-size:11px;color:#4a3a1a;margin-top:6px;font-family:'Cinzel',serif;letter-spacing:.04em"></div>
       <?php endif; ?>
 
-      <!-- ── Brush Inventory ── -->
       <h2 id="section-brushes" style="margin-top:40px">Brush Inventory
         <?php if ($hasBrushes): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($brushesData) ?> brush<?= count($brushesData) !== 1 ? 'es' : '' ?></span>
@@ -3071,7 +3035,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Paint Checker ── -->
       <h2 id="section-checker" style="margin-top:40px">Paint Checker</h2>
       <p style="font-size:12px;color:#6a5a30;margin-bottom:14px;line-height:1.6">
         Paste a list of paint names (one per line) to see which you own, which are low or out, and which are missing entirely.
@@ -3093,7 +3056,6 @@ if ($authed && isset($_GET['edit_force'])) {
         style="width:100%;background:#0a0806;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;padding:10px;font-family:inherit;resize:vertical;outline:none"></textarea>
       <div id="checkerResults"></div>
 
-      <!-- ── Conversion Chart Editor ── -->
       <h2 id="section-conversions" style="margin-top:40px">Conversion Chart
         <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($convRows) ?> rows</span>
       </h2>
@@ -3212,7 +3174,6 @@ if ($authed && isset($_GET['edit_force'])) {
         </table>
       </div>
 
-      <!-- ── Pile of Shame ── -->
       <h2 id="section-shame" class="collapsible" style="margin-top:40px">Pile of Shame
         <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($shameData) ?> box<?= count($shameData) !== 1 ? 'es' : '' ?></span>
       </h2>
@@ -3339,7 +3300,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Planned Schemes ── -->
       <h2 id="section-planned" style="margin-top:40px">Planned Schemes
         <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($planned) ?> scheme<?= count($planned) !== 1 ? 's' : '' ?></span>
       </h2>
@@ -3461,7 +3421,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <p style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em;padding:12px 0">No planned schemes yet.</p>
       <?php endif; ?>
 
-      <!-- ── On the Bench (Workbench) ── -->
       <h2 id="section-bench" style="margin-top:40px">On the Bench
         <?php if ($hasBench): ?>
           <?php $activeBench = count(array_filter($benchData, fn($b) => ($b['stage'] ?? 'built') !== 'done')); ?>
@@ -3677,7 +3636,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Forces & Rosters ── -->
       <h2 id="section-forces" class="collapsible" style="margin-top:40px">Forces &amp; Rosters
         <?php if ($hasForces): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($forcesData) ?> force<?= count($forcesData) !== 1 ? 's' : '' ?></span>
@@ -3806,7 +3764,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       </div>
 
-      <!-- ── Recipe Library ── -->
       <h2 id="section-recipes" style="margin-top:40px">Recipe Library
         <?php if ($hasRecipes): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($recipesData) ?> recipe<?= count($recipesData) !== 1 ? 's' : '' ?></span>
@@ -3940,7 +3897,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Battle Honours ── -->
       <h2 id="section-battles" class="collapsible" style="margin-top:40px">Battle Honours
         <?php if ($hasBattles && count($battlesData)): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($battlesData) ?> battle<?= count($battlesData) !== 1 ? 's' : '' ?></span>
@@ -4087,7 +4043,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       </div>
 
-      <!-- ── Hobby Wishlist ── -->
       <h2 id="section-wishlist" class="collapsible" style="margin-top:40px">Hobby Wishlist
         <?php if ($hasWishlist): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($wishlistData) ?> item<?= count($wishlistData) !== 1 ? 's' : '' ?></span>
@@ -4254,7 +4209,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Codex Library ── -->
       <h2 id="section-books" style="margin-top:40px">Codex Library
         <?php if ($hasBooks): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($booksData) ?> cod<?= count($booksData) !== 1 ? 'ices' : 'ex' ?></span>
@@ -4364,7 +4318,6 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php endif; ?>
       <?php endif; ?>
 
-      <!-- ── Hobby Journal ── -->
       <h2 id="section-journal" class="collapsible" style="margin-top:40px">Scrap Notes
         <?php if ($hasJournal): ?>
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($journalData) ?> entr<?= count($journalData) !== 1 ? 'ies' : 'y' ?></span>
@@ -4510,7 +4463,7 @@ if ($authed && isset($_GET['edit_force'])) {
       const PRE_SELECTED = <?= json_encode($editModel ? ($editModel['colors'] ?? []) : []) ?>;
       const JN_MENTIONABLES_DATA = <?= json_encode($jnMentionables) ?>;
     </script>
-    <script src="js/admin.js?v=2"></script>
+    <script src="js/admin.js?v=3"></script>
   <?php endif; ?>
 
   <button id="back-to-top" title="Back to top">↑</button>

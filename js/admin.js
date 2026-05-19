@@ -57,7 +57,6 @@
       buildList('');
       updateHidden(); // sync pre-selected colors to hidden inputs immediately (edit mode)
 
-      // ── Paint inventory ──────────────────────────────
       function openPaintAdd() {
         document.getElementById('paintFormTitle').textContent = 'Add Paint';
         document.getElementById('paintAction').value = 'add_paint';
@@ -165,7 +164,6 @@
       document.getElementById('paintBrandFilter')?.addEventListener('change', filterPaints);
       filterPaints();
 
-      // ── Planned Schemes ──────────────────────────────
       let selectedPl = new Set();
 
       function buildListPl(filter) {
@@ -267,7 +265,6 @@
         document.getElementById('plannedFormWrap').style.display = 'none';
       });
 
-      // ── Paint Checker ──────────────────────────────
       function escA(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       }
@@ -416,8 +413,6 @@
         document.getElementById('checkerResults').innerHTML = '';
       }
 
-      // ── Black Library ────────────────────────────────────────
-
         function openBookAdd() {
           document.getElementById('bookFormTitle').textContent = 'Add Codex';
           document.getElementById('bookAction').value = 'add_book';
@@ -460,8 +455,6 @@
         document.getElementById('bookCancelBtn')?.addEventListener('click', () => {
           document.getElementById('bookFormWrap').style.display = 'none';
         });
-
-      // ── Hobby Journal ──────────────────────────────────────────
 
         function openJournalAdd() {
           document.getElementById('journalFormTitle').textContent = 'Add Journal Entry';
@@ -725,7 +718,6 @@
             });
           })();
 
-      // ── Brush Inventory ──────────────────────────────────────────
         const COND_CYCLE = {
           prime: 'workhorse',
           workhorse: 'retired',
@@ -862,7 +854,6 @@
           }
         }
 
-      // ── Forces pin toggle ──────────────────────────────────────
         document.querySelectorAll('.fo-pin-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const fd = new FormData();
@@ -885,7 +876,6 @@
           });
         });
 
-      // ── On the Bench (Workbench) ──────────────────────────────
         const BENCH_STAGE_CYCLE = {
           built: 'primed',
           primed: 'basecoated',
@@ -1117,7 +1107,6 @@
           }
         }
 
-      // ── Recipe Library (admin) ──────────────────────────────
         const RC_TECHNIQUES = ['basecoat', 'wash', 'shade', 'layer', 'edge', 'highlight', 'glaze', 'drybrush', 'stipple', 'blend', 'special'];
 
         function recipeStepTpl(step) {
@@ -1216,8 +1205,6 @@
           document.getElementById('recipeFormWrap').style.display = 'none';
         });
 
-      // ── Recipe pill pickers on scheme forms ──────────────────
-
         function setRecipePickerSelection(pickerId, inputsId, inputName, ids) {
           const picker = document.getElementById(pickerId);
           const host = document.getElementById(inputsId);
@@ -1257,7 +1244,6 @@
           });
         });
 
-        // ── Conversion chart editor ──────────────────────────────
         (function() {
           const searchEl = document.getElementById('conv-search');
           const countEl = document.getElementById('conv-count');
@@ -1309,7 +1295,6 @@
         document.getElementById('conv-form').reset();
       }
 
-      // ── Collapsible sections: all collapsed by default ────────
       function initAdminSections() {
         const headings = Array.from(document.querySelectorAll('h2[id^="section-"]'));
         if (!headings.length) return;
@@ -1392,7 +1377,6 @@
         initAdminSections();
       }
 
-      // ── Back to top + scroll-spy ──────────────────────────────
       document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('back-to-top');
         if (!btn) return;
@@ -1409,7 +1393,6 @@
         });
       });
 
-      // ── Bench session logging modal ──────────────────────────────
       let _sessModalBid = '';
       function openSessionModal(btn) {
         _sessModalBid = btn.dataset.bid;
@@ -1445,7 +1428,6 @@
         if (e.key === 'Escape' && document.getElementById('sess-modal-overlay').classList.contains('open')) closeSessionModal();
       });
 
-      // ── Gallery session logging modal ──────────────────────────────
       let _galSessMid = '';
       function openGallerySessionModal(btn) {
         _galSessMid = btn.dataset.mid;
@@ -1482,7 +1464,6 @@
         if (e.key === 'Escape' && document.getElementById('gallery-sess-overlay').classList.contains('open')) closeGallerySessionModal();
       });
 
-      // ── Planned shop modal, wishlist, battles edit handlers ──────────────────────────────
       function openPlannedShopModal() {
         const mustBuy = {};
         PLANNED_DATA.forEach(pl => {

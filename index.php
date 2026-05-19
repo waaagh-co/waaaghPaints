@@ -26,7 +26,6 @@ if (file_exists($paintsJsonFile)) {
 
 $paintsJson = json_encode($paints, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
-// Load gallery models
 $modelsFile = __DIR__ . '/data/models.json';
 $models = file_exists($modelsFile) ? (json_decode(file_get_contents($modelsFile), true) ?? []) : [];
 $modelsJson = json_encode($models, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
@@ -119,7 +118,6 @@ if ($curYearGoal > 0) {
 }
 $goalPct = $curYearGoal > 0 ? min(100, (int)round($curYearCount / $curYearGoal * 100)) : 0;
 
-// Load conversions for equivalency tab
 $conversionsData = [];
 $convPath = __DIR__ . '/inventory/conversions.csv';
 if (file_exists($convPath)) {
@@ -146,7 +144,6 @@ $conversionsDataJson = json_encode($conversionsData, JSON_HEX_TAG | JSON_HEX_APO
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
-// ── Tab traffic tracker ───────────────────────────────
 if (($_POST['action'] ?? '') === 'track_tab') {
   header('Content-Type: application/json');
   $tab     = trim($_POST['tab'] ?? '');
@@ -439,7 +436,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       ?>
       <div class="contents-grid">
 
-        <!-- ── The Pipeline ── -->
         <div class="pipeline-band">
           <div class="pipeline-band-title">The Pipeline<span class="pipeline-band-sub">from idea to table</span></div>
           <div class="pipeline-nodes">
@@ -485,7 +481,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <?php endif; ?>
         </div>
 
-        <!-- ── Your Armies + The Workbench ── -->
         <div class="armies-workbench-row">
           <?php if ($hasFactions || $hasForces || $hasBattles): ?>
             <div class="armies-section">
@@ -544,7 +539,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           </div>
         </div>
 
-        <!-- ── The Library ── -->
         <div class="library-band">
           <div class="library-band-title">The Library</div>
           <div class="library-entries">
@@ -945,7 +939,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <div class="footer-oss"><a href="https://github.com/waaagh-co/waaaghPaints" target="_blank" rel="noopener">Open source on GitHub</a> &nbsp;&middot;&nbsp; Polyform Noncommercial License</div>
   </footer>
 
-  <!-- ── Notes Drawer ── -->
   <div class="notes-overlay" id="notes-overlay">
     <div class="notes-sheet">
       <div class="notes-sheet-header">
@@ -969,7 +962,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <!-- ── Used-In ── -->
   <div class="used-in-overlay" id="used-in-overlay">
     <div class="used-in-sheet">
       <div class="used-in-paint-name" id="used-in-paint-name"></div>
@@ -979,7 +971,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <!-- ── Pull Sheet ── -->
   <div class="pull-overlay" id="pull-overlay">
     <div class="pull-sheet">
       <div class="pull-title" id="pull-title"></div>
@@ -993,7 +984,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <!-- ── Shopping List ── -->
   <div class="shop-overlay" id="shop-overlay">
     <div class="shop-sheet">
       <div class="shop-title">Shopping List</div>
@@ -1007,7 +997,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <!-- ── Lightbox ── -->
   <div class="lightbox-overlay" id="lightbox">
     <span class="lb-close" id="lb-close">&times;</span>
     <span class="lb-arrow lb-prev" id="lb-prev">&#8249;</span>
@@ -1016,7 +1005,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <span class="lb-counter" id="lb-counter"></span>
   </div>
 
-  <!-- ── Recipe Guide ── -->
   <div class="recipe-guide-overlay" id="recipe-guide-overlay">
     <div class="recipe-guide-card">
       <button class="recipe-guide-close" onclick="closeRecipeGuide()">&times;</button>
@@ -1031,7 +1019,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <!-- ── Global Search ── -->
   <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="7" />
@@ -1069,7 +1056,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const BATTLES_DATA = <?= $hasBattles ? $battlesDataJson : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=5"></script>
+  <script src="js/index.js?v=6"></script>
 
   <div id="install-banner">
     <div class="install-banner-text">
