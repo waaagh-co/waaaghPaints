@@ -3161,7 +3161,7 @@
     .wm-gauge { position: relative; width: 100%; aspect-ratio: 3/2; }
     .wm-fill {
       position: absolute; inset: 0;
-      clip-path: polygon(50% 80%, 8% 80%, 8% 44%, 28% 14%, 50% 9%, 72% 14%, 92% 44%, 92% 80%);
+      clip-path: polygon(50% 80%, 14% 77%, 9% 58%, 8% 44%, 28% 14%, 50% 9%, 72% 14%, 92% 44%, 91% 58%, 86% 77%);
       background: conic-gradient(from 270deg at 50% 80%, #c02010 0deg, #c9a227 90deg, #3a8a3a 180deg, transparent 180deg, transparent 360deg);
       -webkit-mask-image: conic-gradient(from 270deg at 50% 80%, black 0deg, black var(--wm-end), transparent var(--wm-end), transparent 360deg);
       mask-image: conic-gradient(from 270deg at 50% 80%, black 0deg, black var(--wm-end), transparent var(--wm-end), transparent 360deg);
