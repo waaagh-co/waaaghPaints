@@ -55,6 +55,11 @@ $hasBrushes      = file_exists($brushesFile);
 $brushesData     = $hasBrushes ? (json_decode(file_get_contents($brushesFile), true) ?? []) : [];
 $brushesDataJson = $hasBrushes ? json_encode($brushesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
 
+$suppliesFile     = __DIR__ . '/data/supplies.json';
+$hasSupplies      = file_exists($suppliesFile);
+$suppliesData     = $hasSupplies ? (json_decode(file_get_contents($suppliesFile), true) ?? []) : [];
+$suppliesDataJson = $hasSupplies ? json_encode($suppliesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '[]';
+
 $benchFile     = __DIR__ . '/data/bench.json';
 $hasBench      = file_exists($benchFile);
 $benchData     = $hasBench ? (json_decode(file_get_contents($benchFile), true) ?? []) : [];
@@ -147,7 +152,7 @@ header('X-Content-Type-Options: nosniff');
 if (($_POST['action'] ?? '') === 'track_tab') {
   header('Content-Type: application/json');
   $tab     = trim($_POST['tab'] ?? '');
-  $allowed = ['contents', 'inventory', 'brushes', 'gallery', 'factions', 'equiv', 'recipes', 'planned', 'bench', 'shame', 'wd', 'books', 'journals'];
+  $allowed = ['contents', 'inventory', 'brushes', 'supplies', 'gallery', 'factions', 'equiv', 'recipes', 'planned', 'bench', 'shame', 'wd', 'books', 'journals'];
   if (in_array($tab, $allowed, true)) {
     $file  = __DIR__ . '/data/tab_stats.json';
     $stats = file_exists($file) ? (json_decode(file_get_contents($file), true) ?? []) : [];
@@ -199,7 +204,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -233,6 +238,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <!-- The Workbench -->
     <button class="tab-btn tab-group-start" data-tab="inventory" title="The Workbench"><span class="tab-full">Paint Inventory</span><span class="tab-short">Inventory</span></button>
     <?php if ($hasBrushes): ?><button class="tab-btn" data-tab="brushes" title="The Workbench">Brushes</button><?php endif; ?>
+    <?php if ($hasSupplies): ?><button class="tab-btn" data-tab="supplies" title="The Workbench">Supplies</button><?php endif; ?>
     <?php if ($hasShame): ?><button class="tab-btn" data-tab="shame" title="The Workbench"><span class="tab-full">Pile of Shame</span><span class="tab-short">Shame</span></button><?php endif; ?>
     <?php if ($hasWishlist): ?><button class="tab-btn" data-tab="wishlist" title="The Workbench"><span class="tab-full">Wishlist</span><span class="tab-short">Wish</span></button><?php endif; ?>
     <!-- The Library -->
@@ -258,6 +264,25 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div id="brush-list"></div>
       <div id="brush-empty" class="hidden">No brushes yet - add one in admin.</div>
     </div><!-- #tab-brushes -->
+  <?php endif; ?>
+
+  <?php if ($hasSupplies): ?>
+    <div id="tab-supplies" class="tab-panel">
+      <div id="supply-controls">
+        <a class="tab-label" href="#" onclick="copyTabLink(event,'supplies')" title="Copy link to this tab">Supplies</a>
+        <input type="search" id="supply-search" class="tab-search" placeholder="Search name, brand, type, notes&hellip;" autocomplete="off">
+        <div class="supply-filter-pills" id="supply-filter-pills">
+          <button class="supply-filter-pill active" data-cond="all">All</button>
+          <button class="supply-filter-pill" data-cond="prime">Prime</button>
+          <button class="supply-filter-pill" data-cond="workhorse">Workhorse</button>
+          <button class="supply-filter-pill" data-cond="retired">Retired</button>
+        </div>
+        <span id="supply-count"></span>
+      </div>
+      <p class="tab-blurb">Palettes, mats, lamps, and the rest of the kit. Everything that keeps the session running.</p>
+      <div id="supply-list"></div>
+      <div id="supply-empty" class="hidden">No supplies yet - add one in admin.</div>
+    </div><!-- #tab-supplies -->
   <?php endif; ?>
 
   <div id="tab-gallery" class="tab-panel">
@@ -305,7 +330,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       $cnt_models   = count($models);
       $cnt_models_painted = array_sum(array_map(fn($m) => max(1, (int)($m['count'] ?? 1)), $models));
       $cnt_planned  = count($planned);
-      $cnt_brushes  = $hasBrushes ? count(array_filter($brushesData, fn($b) => ($b['condition'] ?? 'prime') !== 'retired')) : 0;
+      $cnt_brushes   = $hasBrushes  ? count(array_filter($brushesData,  fn($b) => ($b['condition'] ?? 'prime') !== 'retired')) : 0;
+      $cnt_supplies  = $hasSupplies ? count(array_filter($suppliesData, fn($s) => ($s['condition'] ?? 'prime') !== 'retired')) : 0;
       $cnt_bench    = $hasBench   ? count(array_filter($benchData, fn($b) => ($b['stage'] ?? 'built') !== 'done')) : 0;
       $cnt_recipes  = $hasRecipes ? count($recipesData) : 0;
       $cnt_books    = $hasBooks   ? count($booksData) : 0;
@@ -520,6 +546,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 <div class="contents-entry-name">Brushes</div>
                 <div class="contents-entry-blurb">Prime, workhorse, retired - the tools that actually touch the paint.</div>
                 <div class="contents-entry-count"><?= $cnt_brushes ?> active</div>
+              </a>
+            <?php endif; ?>
+            <?php if ($hasSupplies): ?>
+              <a class="contents-entry" data-jump="supplies">
+                <div class="contents-entry-name">Supplies</div>
+                <div class="contents-entry-blurb">Palettes, mats, lamps, and the rest of the kit. The infrastructure of the hobby.</div>
+                <div class="contents-entry-count"><?= $cnt_supplies ?> active</div>
               </a>
             <?php endif; ?>
             <?php if ($hasShame): ?>
@@ -1047,6 +1080,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const CONVERSIONS_DATA = <?= $conversionsDataJson ?>;
     const BOOKS_DATA = <?= $hasBooks ? $booksDataJson : 'null' ?>;
     const BRUSHES_DATA = <?= $hasBrushes ? $brushesDataJson : 'null' ?>;
+    const SUPPLIES_DATA = <?= $hasSupplies ? $suppliesDataJson : 'null' ?>;
     const BENCH_DATA = <?= $hasBench ? $benchDataJson : 'null' ?>;
     const RECIPES_DATA = <?= $hasRecipes ? $recipesDataJson : 'null' ?>;
     const FORCES_DATA = <?= $hasForces ? $forcesDataJson : 'null' ?>;

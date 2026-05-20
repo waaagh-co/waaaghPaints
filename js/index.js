@@ -512,6 +512,7 @@
         if (btn.dataset.tab === 'books' && window._renderBooks) window._renderBooks();
         if (btn.dataset.tab === 'journals' && window._renderJournals) window._renderJournals();
         if (btn.dataset.tab === 'brushes' && window._renderBrushes) window._renderBrushes();
+        if (btn.dataset.tab === 'supplies' && window._renderSupplies) window._renderSupplies();
         if (btn.dataset.tab === 'bench' && window._renderBench) window._renderBench();
         if (btn.dataset.tab === 'forces' && window._renderForces) window._renderForces();
         if (btn.dataset.tab === 'battles' && window._renderBattles) window._renderBattles();
@@ -1438,6 +1439,73 @@
           brSearchEl.addEventListener('input', renderBrushes);
           window._renderBrushes = renderBrushes;
           renderBrushes();
+        })();
+
+        (function() {
+          if (!SUPPLIES_DATA) return;
+
+          const spSearchEl = document.getElementById('supply-search');
+          const spListEl   = document.getElementById('supply-list');
+          const spEmptyEl  = document.getElementById('supply-empty');
+          const spCountEl  = document.getElementById('supply-count');
+          if (!spSearchEl || !spListEl || !spEmptyEl) return;
+
+          const SP_TOTAL = SUPPLIES_DATA.length;
+          let spCondFilter = 'all';
+
+          const SP_COND_LABEL = { prime: 'Prime', workhorse: 'Workhorse', retired: 'Retired' };
+          const SP_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+          function fmtSPMonth(m) {
+            if (!m) return '';
+            const [y, mo] = m.split('-');
+            return (SP_MONTHS[parseInt(mo, 10) - 1] || mo) + ' ' + y;
+          }
+
+          function renderSupplies() {
+            const q = spSearchEl.value.trim().toLowerCase();
+
+            let filtered = spCondFilter === 'all' ? SUPPLIES_DATA.slice() : SUPPLIES_DATA.filter(s => (s.condition || 'prime') === spCondFilter);
+
+            if (q) {
+              filtered = filtered.filter(s =>
+                (s.name   || '').toLowerCase().includes(q) ||
+                (s.brand  || '').toLowerCase().includes(q) ||
+                (s.type   || '').toLowerCase().includes(q) ||
+                (s.notes  || '').toLowerCase().includes(q)
+              );
+            }
+
+            spCountEl.textContent = filtered.length + ' of ' + SP_TOTAL + ' item' + (SP_TOTAL !== 1 ? 's' : '');
+
+            if (!SP_TOTAL) { spListEl.innerHTML = ''; spEmptyEl.style.display = 'block'; return; }
+            spEmptyEl.style.display = 'none';
+            if (!filtered.length) { spListEl.innerHTML = '<div class="grid-empty">No supplies match.</div>'; return; }
+
+            spListEl.innerHTML = filtered.map(s => {
+              const cond      = s.condition || 'prime';
+              const condLabel = SP_COND_LABEL[cond] || cond;
+              const date      = fmtSPMonth(s.acquired || '');
+              const typeHtml  = s.type ? `<span class="supply-type-badge">${esc(s.type)}</span>` : '';
+              const brandHtml = s.brand ? `<span class="supply-card-brand">${esc(s.brand)}</span>` : '';
+              const dateHtml  = date ? `<span class="supply-card-date">${esc(date)}</span>` : '';
+              const notesHtml = s.notes ? `<div class="supply-card-notes">${esc(s.notes)}</div>` : '';
+              return `<div class="supply-card" data-id="${esc(s.id || '')}"><div class="supply-card-top">${typeHtml}<span class="supply-card-name">${esc(s.name)}</span></div><div class="supply-card-meta">${brandHtml}${dateHtml}</div><div class="supply-card-bottom"><span class="brush-cond-badge cond-${esc(cond)}">${esc(condLabel)}</span></div>${notesHtml}</div>`;
+            }).join('');
+          }
+
+          document.querySelectorAll('.supply-filter-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+              document.querySelectorAll('.supply-filter-pill').forEach(p => p.classList.remove('active'));
+              pill.classList.add('active');
+              spCondFilter = pill.dataset.cond;
+              renderSupplies();
+            });
+          });
+
+          spSearchEl.addEventListener('input', renderSupplies);
+          window._renderSupplies = renderSupplies;
+          renderSupplies();
         })();
 
         (function() {
@@ -2952,7 +3020,8 @@
 
       const hasRecipes = RECIPES_DATA !== null;
       const hasBench = BENCH_DATA !== null;
-      const hasBrushes = BRUSHES_DATA !== null;
+      const hasBrushes  = BRUSHES_DATA !== null;
+      const hasSupplies = SUPPLIES_DATA !== null;
       const hasBooks = BOOKS_DATA !== null;
       const hasShame = SHAME_DATA !== null;
       const hasForces = FORCES_DATA !== null;
@@ -2970,13 +3039,14 @@
         planned: 'Planned',
         bench: 'On Bench',
         brush: 'Brush',
+        supply: 'Supply',
         book: 'Codex',
         shame: 'Shame Pile',
         force: 'Force',
         battle: 'Battle',
         wish: 'Wishlist'
       };
-      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'battle', 'brush', 'book', 'wish'];
+      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'battle', 'brush', 'supply', 'book', 'wish'];
       const PER_TYPE_CAP = 8;
 
       let selectedIdx = 0;
@@ -3050,6 +3120,16 @@
               meta: [br.size, br.material, br.use].filter(Boolean).join(' · ')
             });
           }
+        });
+
+        if (hasSupplies) SUPPLIES_DATA.forEach(s => {
+          const hay = [s.name, s.brand, s.type, s.notes].filter(Boolean).join(' ');
+          if (match(hay)) out.push({
+            type: 'supply',
+            key: s.id,
+            name: s.name,
+            meta: [s.brand, s.type].filter(Boolean).join(' · ')
+          });
         });
 
         if (hasBooks) BOOKS_DATA.forEach(b => {
@@ -3211,13 +3291,17 @@
             setTimeout(() => {
               const el = document.querySelector('.brush-entry[data-id="' + r.key + '"]');
               if (el) {
-                el.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'start'
-                });
-                el.classList.remove('highlight');
-                void el.offsetWidth;
-                el.classList.add('highlight');
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight');
+              }
+            }, 150);
+          } else if (r.type === 'supply') {
+            switchToTab('supplies');
+            setTimeout(() => {
+              const el = document.querySelector('.supply-card[data-id="' + r.key + '"]');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight');
               }
             }, 150);
           } else if (r.type === 'book') {

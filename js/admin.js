@@ -834,6 +834,60 @@
           document.getElementById('brushFormWrap').style.display = 'none';
         });
 
+        document.getElementById('supplyCancelBtn')?.addEventListener('click', () => {
+          document.getElementById('supplyFormWrap').style.display = 'none';
+        });
+
+        function openSupplyAdd() {
+          document.getElementById('supplyFormTitle').textContent = 'Add Supply';
+          document.getElementById('supplyAction').value = 'add_supply';
+          document.getElementById('supplyId').value = '';
+          document.getElementById('sp_name').value = '';
+          document.getElementById('sp_brand').value = '';
+          document.getElementById('sp_type').value = '';
+          document.getElementById('sp_condition').value = 'prime';
+          document.getElementById('sp_acquired').value = '';
+          document.getElementById('sp_notes').value = '';
+          document.getElementById('supplySubmitBtn').textContent = 'Add Supply';
+          const wrap = document.getElementById('supplyFormWrap');
+          wrap.style.display = 'block';
+          document.getElementById('sp_name').focus();
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function openSupplyEdit(btn) {
+          document.getElementById('supplyFormTitle').textContent = 'Edit Supply';
+          document.getElementById('supplyAction').value = 'edit_supply';
+          document.getElementById('supplyId').value = btn.dataset.id;
+          document.getElementById('sp_name').value = btn.dataset.name;
+          document.getElementById('sp_brand').value = btn.dataset.brand || '';
+          document.getElementById('sp_type').value = btn.dataset.type || '';
+          document.getElementById('sp_condition').value = btn.dataset.condition || 'prime';
+          document.getElementById('sp_acquired').value = btn.dataset.acquired || '';
+          document.getElementById('sp_notes').value = btn.dataset.notes || '';
+          document.getElementById('supplySubmitBtn').textContent = 'Save Changes';
+          const wrap = document.getElementById('supplyFormWrap');
+          wrap.style.display = 'block';
+          wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function toggleSupplyCond(btn) {
+          const sid = btn.dataset.bid;
+          const cur = btn.dataset.cond;
+          const next = COND_CYCLE[cur] ?? 'prime';
+          const fd = new FormData();
+          fd.append('action', 'set_supply_condition');
+          fd.append('supply_id', sid);
+          fd.append('condition', next);
+          const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.ok) {
+            btn.dataset.cond = next;
+            btn.textContent = COND_LABEL[next];
+            btn.className = 'brush-cond-btn cond-' + next;
+          }
+        }
+
         async function toggleBrushCond(btn) {
           const bid = btn.dataset.bid;
           const cur = btn.dataset.cond;

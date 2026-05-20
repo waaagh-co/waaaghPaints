@@ -5274,6 +5274,153 @@
       }
     }
 
+    /* ── Supplies ── */
+    #supply-controls {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-base);
+      border-bottom: 1px solid #1a1208;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #supply-count {
+      font-family: var(--font-heading);
+      font-size: 10px;
+      letter-spacing: .06em;
+      color: var(--bg-mid);
+      margin-left: auto;
+    }
+
+    .supply-filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .supply-filter-pill {
+      font-family: var(--font-heading);
+      font-size: 10px;
+      letter-spacing: .06em;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid #2a1e0a;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+
+    .supply-filter-pill:hover {
+      background: #1a1208;
+      color: var(--gold);
+    }
+
+    .supply-filter-pill.active {
+      background: #1a1208;
+      color: var(--gold);
+      border-color: #6a4f10;
+    }
+
+    #supply-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .supply-card {
+      background: #100e08;
+      border: 1px solid #1e1810;
+      border-radius: 4px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .supply-card-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .supply-card-name {
+      font-family: var(--font-heading);
+      font-size: .85rem;
+      color: var(--gold);
+      letter-spacing: .04em;
+    }
+
+    .supply-type-badge {
+      font-family: var(--font-heading);
+      font-size: 9px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: #1a1a2a;
+      color: #7a8aaa;
+      white-space: nowrap;
+    }
+
+    .supply-card-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .supply-card-brand {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .supply-card-date {
+      font-family: var(--font-heading);
+      font-size: 10px;
+      color: #4a3a1a;
+      letter-spacing: .03em;
+    }
+
+    .supply-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .supply-card-notes {
+      font-size: 11px;
+      color: #5a4a28;
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    #supply-empty {
+      padding: 32px 16px;
+      font-family: var(--font-heading);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--bg-mid);
+      text-align: center;
+    }
+
+    .gs-type-supply { background: #1a1a2a; color: #7a8aaa; }
+
+    @media (max-width: 600px) {
+      #supply-list {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+    }
+
     /* ── Codices ── */
     #bl-controls {
       position: sticky;

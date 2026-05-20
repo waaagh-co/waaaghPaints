@@ -287,6 +287,16 @@ if (empty($_SESSION['admin'])) {
       <li>Condition badges are colour-coded: <strong>Prime</strong> (gold - in great shape), <strong>Workhorse</strong> (amber - still useful), <strong>Retired</strong> (grey - worn out)</li>
     </ul>
 
+    <h3>Supplies tab</h3>
+    <p>Track palettes, mats, lamps, holders, and other hobby tools - only visible once started in Admin.</p>
+    <ul>
+      <li><strong>Condition filter pills</strong> - same Prime / Workhorse / Retired system as brushes</li>
+      <li><strong>Search box</strong> - searches across name, brand, type, and notes</li>
+      <li>Each card shows the item name, type badge (palette, wet-palette, lamp, etc.), brand, acquisition date, condition badge, and notes</li>
+      <li>Condition badges are colour-coded the same as brushes: <strong>Prime</strong> (gold), <strong>Workhorse</strong> (amber), <strong>Retired</strong> (grey)</li>
+      <li>Appears in the global search (Ctrl/Cmd+K) under type "Supply"</li>
+    </ul>
+
     <h3>Paint Schemes tab</h3>
     <p>Your gallery of completed models.</p>
     <ul>
@@ -495,6 +505,15 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Condition toggle button</strong> - click on any entry to cycle through Prime &rarr; Workhorse &rarr; Retired &rarr; Prime without a page reload; the table re-sorts automatically</li>
       <li><strong>Condition levels</strong> - <em>Prime</em> = in great shape, <em>Workhorse</em> = still useful but showing wear, <em>Retired</em> = worn out; entries sort Prime first, then Workhorse, then Retired</li>
       <li>Use the notes field for anything worth recording - stiffness, split tips, what it's good for now that it's worn</li>
+      <li><strong>Edit / &times;</strong> - update or remove any entry</li>
+    </ul>
+
+    <h3>Supplies</h3>
+    <p>Click <strong>Start Supplies Inventory</strong> to activate it - creates the data file and makes the Supplies tab appear on the main site. Once active:</p>
+    <ul>
+      <li><strong>+ Add Supply</strong> - enter name (required), brand, type (free text with suggestions: palette, wet-palette, dry-palette, cutting-mat, lamp, holder, storage, tool, other), condition, acquired date (YYYY-MM), and notes</li>
+      <li><strong>Condition toggle button</strong> - cycles Prime &rarr; Workhorse &rarr; Retired &rarr; Prime without a page reload; same pattern as brushes</li>
+      <li>Entries sort by condition rank (Prime first), then by type, then by name</li>
       <li><strong>Edit / &times;</strong> - update or remove any entry</li>
     </ul>
 
