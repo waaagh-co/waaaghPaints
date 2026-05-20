@@ -40,6 +40,8 @@ collapsible left-rail sidebar grouped into four sections.
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit
 - **Brush Inventory** - track brush condition (Prime / Workhorse / Retired)
 - **Supplies Inventory** - track hobby supplies (palettes, wet palettes, mats, lamps, etc.) with condition cycling
+- **Waaagh! Index** - persistent sidebar momentum gauge scoring your rolling 7-day activity across sessions, bench work, and journal entries; five states from DOZIN' to FULL WAAAGH!!
+- **Dis Week** - one-line hero strip summarising models painted, bench sessions, battles fought, and notes scribbled in the last 7 days
 - **Equivalency Search** - Citadel vs Vallejo vs Pro Acryl conversion table with owned-paint dots
 - **Codex Library** - optional army book and supplement tracker
 - **Scrap Notes** - optional freeform hobby journal with @mention linking to schemes and recipes

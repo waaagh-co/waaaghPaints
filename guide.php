@@ -234,8 +234,16 @@ if (empty($_SESSION['admin'])) {
     <div class="page-section-title"><span class="section-icon">🎨</span> The Main Site</div>
 
     <h3>Looted Knowledge (landing tab)</h3>
-    <p>The first thing you see - a magazine-style contents page. The top strip shows live counts for the most important numbers (Recipes, Schemes, On the Bench, Planned, Pile of Shame) as clickable anchors, laid out in a 3-column grid. A green <strong>Ready Now</strong> stat also appears whenever you have planned schemes where you already own every paint - click it to jump straight to the Planned tab filtered to those schemes. If you have an active bench project, the most recently touched one appears alongside the stats.</p>
-    <p>Below the strip, the page is laid out in sections:</p>
+    <p>The first thing you see. The hero area at the top contains several live widgets stacked vertically:</p>
+    <ul>
+      <li><strong>Under Da Brush</strong> - your most recently touched active bench project (photo, name, faction, current stage). Click to jump to the Bench tab. Only shown when you have active projects.</li>
+      <li><strong>Hobby Activity heatmap</strong> - a GitHub-style contribution grid showing 52 weeks of activity across schemes, bench work, journal entries, and battles. Today is always visible at the right edge.</li>
+      <li><strong>Dis Week</strong> - a one-line rolling 7-day summary: models painted, bench sessions, battles fought, notes scribbled. Only the non-zero stats appear. Goes quiet (italic Ork grumble) if nothing's been logged this week.</li>
+      <li><strong>Latest Note</strong> - first 90 characters of your most recent Scrap Notes entry with its date. Click to jump to the Scrap Notes tab. Only shown when Scrap Notes has been started.</li>
+      <li><strong>Annual Goal bar</strong> - progress toward your painted-model target for the current year. Only shown when a goal has been set in Admin Stats.</li>
+    </ul>
+    <p>Below the hero, <strong>The Pipeline</strong> shows Recipes → Paint Schemes → Planned → On the Bench as large stat cards with a green <strong>ready now</strong> count whenever you own every paint for a planned scheme. The last battle result also appears here if you have Battle Honours.</p>
+    <p>Below the pipeline, the page is laid out in sections:</p>
     <ul>
       <li><strong>The Handbook</strong> - Recipes, featured prominently at the top since it's the heart of the technique library</li>
       <li><strong>The Work</strong> - Paint Schemes, Factions, Pile of Shame, Planned, On the Bench, Battle Honours</li>
@@ -244,6 +252,15 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Reading &amp; Inspiration</strong> - Codices, Scrap Notes</li>
     </ul>
     <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, Battle Honours, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
+
+    <h3>Waaagh! Index</h3>
+    <p>A momentum gauge permanently visible at the bottom of the sidebar, between the nav groups and the Search button. It reads your current painting momentum at a glance - no clicking required.</p>
+    <ul>
+      <li>Scores your activity over the rolling 7 days: models painted, bench sessions logged, journal entries, and how recently you last touched the bench</li>
+      <li>Five states from dormant to frenzied: <strong>DOZIN'</strong> &rarr; <strong>STIRRIN'</strong> &rarr; <strong>ON DA WARPATH</strong> &rarr; <strong>WAAAGH!</strong> &rarr; <strong>FULL WAAAGH!!</strong></li>
+      <li>The needle on the gauge face points to your current level; the top two states pulse to signal a hot streak</li>
+      <li>Entirely passive - updates automatically each page load, nothing to set up or configure</li>
+    </ul>
 
     <h3>Global Search</h3>
     <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, battles, codices, and journal entries.</p>

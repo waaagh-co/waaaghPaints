@@ -146,6 +146,51 @@ if (file_exists($convPath)) {
 }
 $conversionsDataJson = json_encode($conversionsData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
+// Waaagh! Meter: rolling 7-day momentum score
+$_mWkAgo = date('Y-m-d', strtotime('-6 days'));
+$_mScore = 0;
+$_mModels = 0;
+foreach ($models as $_mm) {
+  foreach ($_mm['sessions'] ?? [] as $_ms) {
+    if (($_ms['date'] ?? '') >= $_mWkAgo) $_mModels += max(1, (int)($_ms['count'] ?? 1));
+  }
+}
+if ($_mModels > 0) { $_mScore += 3; if ($_mModels >= 3) $_mScore += 1; }
+$_mBench = 0;
+if ($hasBench) {
+  foreach ($benchData as $_mb) {
+    foreach ($_mb['sessions'] ?? [] as $_bs) {
+      if (($_bs['date'] ?? '') >= $_mWkAgo) $_mBench++;
+    }
+  }
+}
+if ($_mBench > 0) { $_mScore += 2; if ($_mBench >= 3) $_mScore += 1; }
+if ($hasJournal) {
+  foreach ($journalData as $_mj) {
+    if (($_mj['date'] ?? '') >= $_mWkAgo) { $_mScore += 1; break; }
+  }
+}
+if ($hasBench && !empty($benchData)) {
+  $_mActive = array_values(array_filter($benchData, fn($b) => ($b['stage'] ?? '') !== 'done'));
+  if (!empty($_mActive)) {
+    usort($_mActive, fn($a, $b) => strcmp($b['last_touched'] ?? '', $a['last_touched'] ?? ''));
+    $_mTs = strtotime($_mActive[0]['last_touched'] ?? '');
+    if ($_mTs) {
+      $_mDays = floor((time() - $_mTs) / 86400);
+      if      ($_mDays <= 1) $_mScore += 2;
+      elseif  ($_mDays <= 3) $_mScore += 1;
+      elseif  ($_mDays > 7)  $_mScore -= 1;
+    }
+  }
+}
+$meterScore = max(0, min(10, $_mScore));
+if      ($meterScore <= 1) { $meterState = "DOZIN'";         $meterClass = 'meter-s0'; $meterPips = 1; }
+elseif  ($meterScore <= 3) { $meterState = "STIRRIN'";       $meterClass = 'meter-s1'; $meterPips = 2; }
+elseif  ($meterScore <= 5) { $meterState = "ON DA WARPATH";  $meterClass = 'meter-s2'; $meterPips = 3; }
+elseif  ($meterScore <= 7) { $meterState = "WAAAGH!";        $meterClass = 'meter-s3'; $meterPips = 4; }
+else                        { $meterState = "FULL WAAAGH!!"; $meterClass = 'meter-s4'; $meterPips = 5; }
+unset($_mWkAgo, $_mScore, $_mModels, $_mBench, $_mm, $_ms, $_mb, $_bs, $_mj, $_mActive, $_mTs, $_mDays);
+
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
@@ -204,7 +249,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=39">
+  <link rel="stylesheet" href="styles.css?v=47">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -271,6 +316,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         </ul>
       </div>
     </nav>
+    <div class="waaagh-meter <?= $meterClass ?>">
+      <img src="img/waaagh.png" class="wm-title-img" alt="Waaagh! Index">
+      <div class="wm-gauge">
+        <div class="wm-fill"></div>
+        <img src="img/gauge.png" class="wm-gauge-img" alt="">
+        <div class="wm-needle"></div>
+        <div class="wm-pivot"></div>
+      </div>
+      <div class="wm-state"><?= htmlspecialchars($meterState) ?></div>
+    </div>
     <div class="sidebar-footer">
       <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -408,6 +463,36 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       unset($ownedKeys, $_p, $_pl, $_c, $allOwned, $parts2, $k2, $st);
 
+      // Dis Week: rolling 7-day activity summary
+      $weekAgo     = date('Y-m-d', strtotime('-6 days'));
+      $weekModels  = 0;
+      $weekBench   = 0;
+      $weekNotes   = 0;
+      $weekBattles = 0;
+      foreach ($models as $_m) {
+        foreach ($_m['sessions'] ?? [] as $_s) {
+          if (($_s['date'] ?? '') >= $weekAgo) $weekModels += max(1, (int)($_s['count'] ?? 1));
+        }
+      }
+      if ($hasBench) {
+        foreach ($benchData as $_b) {
+          foreach ($_b['sessions'] ?? [] as $_s) {
+            if (($_s['date'] ?? '') >= $weekAgo) $weekBench++;
+          }
+        }
+      }
+      if ($hasJournal) {
+        foreach ($journalData as $_j) {
+          if (($_j['date'] ?? '') >= $weekAgo) $weekNotes++;
+        }
+      }
+      if ($hasBattles) {
+        foreach ($battlesData as $_bh) {
+          if (($_bh['date'] ?? '') >= $weekAgo) $weekBattles++;
+        }
+      }
+      $weekActive = $weekModels || $weekBench || $weekNotes || $weekBattles;
+
       // Most-recently-touched active bench project (for the "Currently on the Bench" strip)
       $latestBench = null;
       if ($hasBench && !empty($benchData)) {
@@ -472,6 +557,22 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <?php endif; ?>
 
           <div id="hero-heatmap" class="hero-heatmap"></div>
+        </div>
+
+        <?php
+          $wkParts = [];
+          if ($weekModels  > 0) $wkParts[] = $weekModels  . ' model'          . ($weekModels  !== 1 ? 's' : '') . ' painted';
+          if ($weekBench   > 0) $wkParts[] = $weekBench   . ' bench session'   . ($weekBench   !== 1 ? 's' : '');
+          if ($weekBattles > 0) $wkParts[] = $weekBattles . ' battle'          . ($weekBattles !== 1 ? 's' : '') . ' fought';
+          if ($weekNotes   > 0) $wkParts[] = $weekNotes   . ' note'            . ($weekNotes   !== 1 ? 's' : '') . ' scribbled';
+        ?>
+        <div class="hero-week-strip<?= $weekActive ? '' : ' hero-week-quiet' ?>">
+          <span class="hero-week-label">Dis Week</span>
+          <?php if ($weekActive): ?>
+            <span class="hero-week-body"><?= implode(' &middot; ', $wkParts) ?></span>
+          <?php else: ?>
+            <span class="hero-week-body">Nowt done yet. Dem brushes ain't gonna pick demselves up.</span>
+          <?php endif; ?>
         </div>
 
         <?php if ($hasJournal && !empty($journalData)):
