@@ -1056,7 +1056,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const BATTLES_DATA = <?= $hasBattles ? $battlesDataJson : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=6"></script>
+  <script src="js/index.js?v=7"></script>
 
   <div id="install-banner">
     <div class="install-banner-text">

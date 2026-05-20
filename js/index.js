@@ -3348,58 +3348,60 @@
       });
     })();
 
-    (function() {
-      const installBanner = document.getElementById('install-banner');
-      const installBtn = document.getElementById('install-btn');
-      const installDismiss = document.getElementById('install-dismiss');
-      if (!installBanner || !installBtn || !installDismiss) return;
-
-      let deferredInstallPrompt = null;
-
-      window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredInstallPrompt = e;
-        installBanner.classList.add('visible');
-      });
-
-      installBtn.addEventListener('click', async () => {
-        if (!deferredInstallPrompt) return;
-        deferredInstallPrompt.prompt();
-        const {
-          outcome
-        } = await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        installBanner.classList.remove('visible');
-      });
-
-      installDismiss.addEventListener('click', () => {
-        installBanner.classList.remove('visible');
-        deferredInstallPrompt = null;
-      });
-
-      window.addEventListener('appinstalled', () => {
-        installBanner.classList.remove('visible');
-        deferredInstallPrompt = null;
-      });
-    })();
-
     // Register service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
 
-    (function() {
-      var btn = document.getElementById('back-to-top');
-      if (!btn) return;
-      window.addEventListener('scroll', function() {
-        btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
-      }, {
-        passive: true
-      });
-      btn.addEventListener('click', function() {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth'
+    document.addEventListener('DOMContentLoaded', function() {
+      (function() {
+        const installBanner = document.getElementById('install-banner');
+        const installBtn = document.getElementById('install-btn');
+        const installDismiss = document.getElementById('install-dismiss');
+        if (!installBanner || !installBtn || !installDismiss) return;
+
+        let deferredInstallPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', e => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          installBanner.classList.add('visible');
         });
-      });
-    })();
+
+        installBtn.addEventListener('click', async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          const {
+            outcome
+          } = await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          installBanner.classList.remove('visible');
+        });
+
+        installDismiss.addEventListener('click', () => {
+          installBanner.classList.remove('visible');
+          deferredInstallPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+          installBanner.classList.remove('visible');
+          deferredInstallPrompt = null;
+        });
+      })();
+
+      (function() {
+        var btn = document.getElementById('back-to-top');
+        if (!btn) return;
+        window.addEventListener('scroll', function() {
+          btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
+        }, {
+          passive: true
+        });
+        btn.addEventListener('click', function() {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+      })();
+    });
