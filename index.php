@@ -204,7 +204,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=28">
+  <link rel="stylesheet" href="styles.css?v=32">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -216,36 +216,76 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </script>
 </head>
 
-<body>
+<body class="has-sidebar">
 
-  <header>
-    <img src="img/logo_sm.png" alt="Waaagh! Paint Collection" class="logo">
-    <p>Warhammer 40k hobby paints &nbsp;-&nbsp; Notes</p>
-    <p class="header-disclaimer">Personal hobby journal - not an official or commercial resource. Paint schemes, conversions, and notes are my own. Feel free to reference anything here.</p>
-  </header>
+  <!-- Mobile nav toggle -->
+  <button id="sidebar-toggle" aria-label="Open navigation">&#9776;</button>
+  <div id="sidebar-backdrop"></div>
 
-  <nav class="tab-nav">
-    <button class="tab-btn active" data-tab="contents"><span class="tab-full">Looted Knowledge</span><span class="tab-short">Contents</span></button>
-    <!-- The Pipeline -->
-    <?php if ($hasRecipes): ?><button class="tab-btn tab-group-start tab-pipeline" data-tab="recipes" title="The Pipeline">Recipes</button><?php endif; ?>
-    <button class="tab-btn tab-pipeline<?= $hasRecipes ? '' : ' tab-group-start' ?>" data-tab="gallery" title="The Pipeline"><span class="tab-full">Paint Schemes</span><span class="tab-short">Schemes</span></button>
-    <button class="tab-btn tab-pipeline" data-tab="planned" title="The Pipeline">Planned</button>
-    <?php if ($hasBench): ?><button class="tab-btn tab-pipeline" data-tab="bench" title="The Pipeline"><span class="tab-full">On the Bench</span><span class="tab-short">Bench</span></button><?php endif; ?>
-    <!-- Your Armies -->
-    <?php if ($hasFactions): ?><button class="tab-btn tab-group-start" data-tab="factions" title="Your Armies">Factions</button><?php endif; ?>
-    <?php if ($hasForces): ?><button class="tab-btn<?= $hasFactions ? '' : ' tab-group-start' ?>" data-tab="forces" title="Your Armies">Forces</button><?php endif; ?>
-    <?php if ($hasBattles): ?><button class="tab-btn<?= (!$hasFactions && !$hasForces) ? ' tab-group-start' : '' ?>" data-tab="battles" title="Your Armies"><span class="tab-full">Battle Honours</span><span class="tab-short">Battles</span></button><?php endif; ?>
-    <!-- The Workbench -->
-    <button class="tab-btn tab-group-start" data-tab="inventory" title="The Workbench"><span class="tab-full">Paint Inventory</span><span class="tab-short">Inventory</span></button>
-    <?php if ($hasBrushes): ?><button class="tab-btn" data-tab="brushes" title="The Workbench">Brushes</button><?php endif; ?>
-    <?php if ($hasSupplies): ?><button class="tab-btn" data-tab="supplies" title="The Workbench">Supplies</button><?php endif; ?>
-    <?php if ($hasShame): ?><button class="tab-btn" data-tab="shame" title="The Workbench"><span class="tab-full">Pile of Shame</span><span class="tab-short">Shame</span></button><?php endif; ?>
-    <?php if ($hasWishlist): ?><button class="tab-btn" data-tab="wishlist" title="The Workbench"><span class="tab-full">Wishlist</span><span class="tab-short">Wish</span></button><?php endif; ?>
-    <!-- The Library -->
-    <button class="tab-btn tab-group-start tab-equiv-rainbow" data-tab="equiv" title="The Library"><span class="tab-full">Equivalency</span><span class="tab-short">Equiv.</span></button>
-    <?php if ($hasBooks): ?><button class="tab-btn" data-tab="books" title="The Library"><span class="tab-full">Codices</span><span class="tab-short">Codex</span></button><?php endif; ?>
-    <?php if ($hasJournal): ?><button class="tab-btn<?= $hasBooks ? '' : ' tab-group-start' ?>" data-tab="journals" title="The Library"><span class="tab-full">Scrap Notes</span><span class="tab-short">Scrap</span></button><?php endif; ?>
-  </nav>
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <img src="img/logo_sm.png" alt="Waaagh! Paint" class="sidebar-logo">
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-home">
+        <a href="#" data-tab="contents" class="active">Looted Knowledge</a>
+      </div>
+
+      <div class="sidebar-group" data-group="pipeline">
+        <button class="sg-header" type="button"><span class="sg-arrow">&#9660;</span>The Pipeline</button>
+        <ul class="sg-items">
+          <?php if ($hasRecipes): ?><li class="sg-item"><a href="#" data-tab="recipes">Recipes</a></li><?php endif; ?>
+          <li class="sg-item"><a href="#" data-tab="gallery">Paint Schemes</a></li>
+          <li class="sg-item"><a href="#" data-tab="planned">Planned</a></li>
+          <?php if ($hasBench): ?><li class="sg-item"><a href="#" data-tab="bench">On the Bench</a></li><?php endif; ?>
+        </ul>
+      </div>
+
+      <div class="sidebar-group" data-group="armies">
+        <button class="sg-header" type="button"><span class="sg-arrow">&#9660;</span>Your Armies</button>
+        <ul class="sg-items">
+          <li class="sg-item"><a href="#" data-tab="factions">Factions</a></li>
+          <?php if ($hasForces): ?><li class="sg-item"><a href="#" data-tab="forces">Forces</a></li><?php endif; ?>
+          <?php if ($hasBattles): ?><li class="sg-item"><a href="#" data-tab="battles">Battle Honours</a></li><?php endif; ?>
+        </ul>
+      </div>
+
+      <div class="sidebar-group" data-group="workbench">
+        <button class="sg-header" type="button"><span class="sg-arrow">&#9660;</span>The Workbench</button>
+        <ul class="sg-items">
+          <li class="sg-item"><a href="#" data-tab="inventory">Paint Inventory</a></li>
+          <?php if ($hasBrushes): ?><li class="sg-item"><a href="#" data-tab="brushes">Brushes</a></li><?php endif; ?>
+          <?php if ($hasSupplies): ?><li class="sg-item"><a href="#" data-tab="supplies">Supplies</a></li><?php endif; ?>
+          <?php if ($hasShame): ?><li class="sg-item"><a href="#" data-tab="shame">Pile of Shame</a></li><?php endif; ?>
+          <?php if ($hasWishlist): ?><li class="sg-item"><a href="#" data-tab="wishlist">Wishlist</a></li><?php endif; ?>
+        </ul>
+      </div>
+
+      <div class="sidebar-group" data-group="library">
+        <button class="sg-header" type="button"><span class="sg-arrow">&#9660;</span>The Library</button>
+        <ul class="sg-items">
+          <li class="sg-item"><a href="#" data-tab="equiv">Equivalency</a></li>
+          <?php if ($hasBooks): ?><li class="sg-item"><a href="#" data-tab="books">Codices</a></li><?php endif; ?>
+          <?php if ($hasJournal): ?><li class="sg-item"><a href="#" data-tab="journals">Scrap Notes</a></li><?php endif; ?>
+        </ul>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <span class="gs-label">Search All</span>
+        <span class="gs-hint">Ctrl+K</span>
+      </button>
+      <p class="sidebar-disclaimer">Personal hobby journal &mdash; not an official or commercial resource.</p>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main-content">
 
   <?php if ($hasBrushes): ?>
     <div id="tab-brushes" class="tab-panel">
@@ -1052,12 +1092,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
-  <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="11" cy="11" r="7" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-  </button>
+  </div><!-- /.main-content -->
 
   <div id="gs-overlay" class="gs-overlay" role="dialog" aria-modal="true">
     <div class="gs-modal">
@@ -1090,7 +1125,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const BATTLES_DATA = <?= $hasBattles ? $battlesDataJson : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=7"></script>
+  <script src="js/index.js?v=8"></script>
 
   <div id="install-banner">
     <div class="install-banner-text">

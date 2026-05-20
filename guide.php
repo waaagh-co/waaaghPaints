@@ -248,7 +248,7 @@ if (empty($_SESSION['admin'])) {
     <h3>Global Search</h3>
     <p>Search everything at once - paints, schemes, recipes, planned schemes, bench projects, brushes, forces, battles, codices, and journal entries.</p>
     <ul>
-      <li><strong>Open with</strong> Ctrl+K (Windows/Linux), Cmd+K (Mac), the <strong>/</strong> key when not typing in a field, or the gold magnifier button fixed at the top-right of the page</li>
+      <li><strong>Open with</strong> Ctrl+K (Windows/Linux), Cmd+K (Mac), the <strong>/</strong> key when not typing in a field, or the <strong>Search All</strong> button at the bottom of the sidebar</li>
       <li>Results are grouped by type (Scheme, Recipe, Paint, Planned, etc.), each capped at 8 results per type</li>
       <li>Use <strong>arrow keys</strong> to navigate the list, <strong>Enter</strong> to jump to the highlighted result, <strong>Esc</strong> to close</li>
       <li>Clicking a result jumps directly to it - switching tab, scrolling to the entry, and pulsing it gold</li>

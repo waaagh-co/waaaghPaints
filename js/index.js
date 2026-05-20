@@ -469,10 +469,7 @@
       const parts = pill.dataset.paint.split('|');
       const brand = parts[0] || '';
       const name = parts[1] || parts[0];
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelector('[data-tab="inventory"]').classList.add('active');
-      document.getElementById('tab-inventory').classList.add('active');
+      activateTab('inventory');
       filterBrand.value = brand;
       searchEl.value = name;
       sortCol = 'name';
@@ -493,50 +490,49 @@
       renderGallery();
     });
 
-    function switchToTab(tabName) {
-      const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-      if (!btn) return false;
-      btn.click();
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+    function activateTab(tabName) {
+      const panel = document.getElementById('tab-' + tabName);
+      if (!panel) return false;
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-nav [data-tab]').forEach(a => a.classList.remove('active'));
+      panel.classList.add('active');
+      const navLink = document.querySelector(`.sidebar-nav [data-tab="${tabName}"]`);
+      if (navLink) navLink.classList.add('active');
+      if (tabName === 'books'    && window._renderBooks)    window._renderBooks();
+      if (tabName === 'journals' && window._renderJournals) window._renderJournals();
+      if (tabName === 'brushes'  && window._renderBrushes)  window._renderBrushes();
+      if (tabName === 'supplies' && window._renderSupplies) window._renderSupplies();
+      if (tabName === 'bench'    && window._renderBench)    window._renderBench();
+      if (tabName === 'forces'   && window._renderForces)   window._renderForces();
+      if (tabName === 'battles'  && window._renderBattles)  window._renderBattles();
+      if (tabName === 'shame'    && window._renderShame)    window._renderShame();
+      if (tabName === 'wishlist' && window._renderWishlist) window._renderWishlist();
+      if (tabName === 'recipes'  && window._renderRecipes)  window._renderRecipes();
+      if (tabName === 'factions' && window._renderFactions) window._renderFactions();
+      fetch('index.php', { method: 'POST', body: new URLSearchParams({ action: 'track_tab', tab: tabName }) });
+      if (typeof gtag !== 'undefined') gtag('event', 'tab_view', { tab_name: tabName });
+      const _tabUrl = new URL(location.href);
+      if (tabName === 'contents') { _tabUrl.searchParams.delete('tab'); } else { _tabUrl.searchParams.set('tab', tabName); }
+      history.replaceState(null, '', _tabUrl.toString());
       return true;
     }
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'books' && window._renderBooks) window._renderBooks();
-        if (btn.dataset.tab === 'journals' && window._renderJournals) window._renderJournals();
-        if (btn.dataset.tab === 'brushes' && window._renderBrushes) window._renderBrushes();
-        if (btn.dataset.tab === 'supplies' && window._renderSupplies) window._renderSupplies();
-        if (btn.dataset.tab === 'bench' && window._renderBench) window._renderBench();
-        if (btn.dataset.tab === 'forces' && window._renderForces) window._renderForces();
-        if (btn.dataset.tab === 'battles' && window._renderBattles) window._renderBattles();
-        if (btn.dataset.tab === 'shame' && window._renderShame) window._renderShame();
-        if (btn.dataset.tab === 'wishlist' && window._renderWishlist) window._renderWishlist();
-        if (btn.dataset.tab === 'recipes' && window._renderRecipes) window._renderRecipes();
-        if (btn.dataset.tab === 'factions' && window._renderFactions) window._renderFactions();
-        fetch('index.php', {
-          method: 'POST',
-          body: new URLSearchParams({
-            action: 'track_tab',
-            tab: btn.dataset.tab
-          })
-        });
-        if (typeof gtag !== 'undefined') gtag('event', 'tab_view', {
-          tab_name: btn.dataset.tab
-        });
-        const _tabUrl = new URL(location.href);
-        if (btn.dataset.tab === 'contents') {
-          _tabUrl.searchParams.delete('tab');
-        } else {
-          _tabUrl.searchParams.set('tab', btn.dataset.tab);
-        }
-        history.replaceState(null, '', _tabUrl.toString());
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-backdrop').classList.remove('visible');
+    }
+
+    function switchToTab(tabName) {
+      const ok = activateTab(tabName);
+      if (ok) window.scrollTo({ top: 0, behavior: 'smooth' });
+      return ok;
+    }
+
+    document.querySelectorAll('.sidebar-nav [data-tab]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        activateTab(link.dataset.tab);
+        if (window.innerWidth <= 768) closeSidebar();
       });
     });
 
@@ -763,10 +759,7 @@
 
     function gotoModel(id) {
       closeUsedIn();
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelector('[data-tab="gallery"]').classList.add('active');
-      document.getElementById('tab-gallery').classList.add('active');
+      activateTab('gallery');
       showAllGallery = true;
       factionFilter = '';
       renderGallery();
@@ -2213,11 +2206,7 @@
           searchEl.addEventListener('input', renderRecipes);
           window._renderRecipes = renderRecipes;
           window._jumpToRecipe = function(rid) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            const tab = document.querySelector('[data-tab="recipes"]');
-            if (tab) tab.classList.add('active');
-            document.getElementById('tab-recipes').classList.add('active');
+            activateTab('recipes');
             renderRecipes();
             const el = document.getElementById('recipe-' + rid);
             if (el) {
@@ -2231,11 +2220,7 @@
             }
           };
           window._jumpToScheme = function(mid) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            const tab = document.querySelector('[data-tab="gallery"]');
-            if (tab) tab.classList.add('active');
-            document.getElementById('tab-gallery').classList.add('active');
+            activateTab('gallery');
             if (typeof showAllGallery !== 'undefined') {
               showAllGallery = true;
               if (typeof renderGallery === 'function') renderGallery();
@@ -2978,10 +2963,7 @@
 
     const urlModel = new URLSearchParams(location.search).get('model');
     if (urlModel) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelector('[data-tab="gallery"]').classList.add('active');
-      document.getElementById('tab-gallery').classList.add('active');
+      activateTab('gallery');
       showAllGallery = true;
       renderGallery();
       const card = document.querySelector(`.model-card[data-id="${urlModel}"]`);
@@ -2999,16 +2981,10 @@
       window._jumpToRecipe(urlRecipe);
     }
 
-    // Track whichever tab is active on page load (covers default Paint Inventory + direct links)
+    // Track whichever tab is active on page load (covers default + direct links)
     (function() {
-      const active = document.querySelector('.tab-btn.active');
-      if (active) fetch('index.php', {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'track_tab',
-          tab: active.dataset.tab
-        })
-      });
+      const active = document.querySelector('.sidebar-nav [data-tab].active');
+      if (active) fetch('index.php', { method: 'POST', body: new URLSearchParams({ action: 'track_tab', tab: active.dataset.tab }) });
     })();
 
     (function() {
@@ -3438,6 +3414,35 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+      (function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (!sidebar || !toggle || !backdrop) return;
+
+        toggle.addEventListener('click', () => {
+          sidebar.classList.add('open');
+          backdrop.classList.add('visible');
+        });
+
+        backdrop.addEventListener('click', closeSidebar);
+
+        const GROUPS_KEY = 'sidebar-groups';
+        const saved = JSON.parse(localStorage.getItem(GROUPS_KEY) || '{}');
+
+        document.querySelectorAll('.sidebar-group').forEach(group => {
+          const id = group.dataset.group;
+          if (saved[id] === true) group.classList.add('collapsed');
+
+          group.querySelector('.sg-header').addEventListener('click', () => {
+            group.classList.toggle('collapsed');
+            const state = JSON.parse(localStorage.getItem(GROUPS_KEY) || '{}');
+            state[id] = group.classList.contains('collapsed');
+            localStorage.setItem(GROUPS_KEY, JSON.stringify(state));
+          });
+        });
+      })();
+
       (function() {
         const installBanner = document.getElementById('install-banner');
         const installBtn = document.getElementById('install-btn');
