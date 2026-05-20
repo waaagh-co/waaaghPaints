@@ -204,7 +204,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=37">
+  <link rel="stylesheet" href="styles.css?v=39">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -357,8 +357,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <div id="tab-contents" class="tab-panel active">
     <div class="contents-wrap">
       <div class="contents-mast">
-        <div class="contents-issue">Scrap Log Nº <?= date('Y') ?></div>
-        <h2 class="contents-title">Looted Knowledge</h2>
+        <img src="img/looted.png" alt="Looted Knowledge" class="contents-title-img">
         <p class="contents-tagline">Dis is not a blog. It's a paintin' tool. Use it. Steal from it. Ignore half of it.</p>
       </div>
 
@@ -1125,7 +1124,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const BATTLES_DATA = <?= $hasBattles ? $battlesDataJson : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=8"></script>
+  <script src="js/index.js?v=9"></script>
 
   <div id="install-banner">
     <div class="install-banner-text">

@@ -2332,10 +2332,12 @@
 
         })(); // end recipes IIFE
 
-      window._jumpToRecipe = function() {};
-      window.openRecipeGuide = function() {};
-      window.closeRecipeGuide = function() {};
-      window.stepGuide = function() {};
+      if (!RECIPES_DATA) {
+        window._jumpToRecipe = function() {};
+        window.openRecipeGuide = function() {};
+        window.closeRecipeGuide = function() {};
+        window.stepGuide = function() {};
+      }
 
       (function() {
         const wrap = document.getElementById('factions-wrap');
