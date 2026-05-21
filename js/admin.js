@@ -1353,11 +1353,9 @@
         const headings = Array.from(document.querySelectorAll('h2[id^="section-"]'));
         if (!headings.length) return;
 
-        // Wrap each section's sibling content in a collapsible body
         headings.forEach(function(h2) {
-          h2.classList.add('collapsible', 'collapsed');
           const body = document.createElement('div');
-          body.className = 'admin-section-body collapsed';
+          body.className = 'admin-section-body';
           body.dataset.for = h2.id;
           let next = h2.nextSibling;
           while (next) {
@@ -1369,62 +1367,42 @@
           h2.after(body);
         });
 
-        function expand(h2) {
+        function showSection(id) {
+          headings.forEach(function(h) {
+            h.classList.remove('section-active');
+            const b = h.nextElementSibling;
+            if (b && b.classList.contains('admin-section-body')) b.classList.remove('section-active');
+          });
+          document.querySelectorAll('.as-link').forEach(function(l) { l.classList.remove('active'); });
+          const h2 = document.getElementById(id);
+          if (!h2) return;
+          h2.classList.add('section-active');
           const body = h2.nextElementSibling;
-          if (!body || !body.classList.contains('admin-section-body')) return;
-          h2.classList.remove('collapsed');
-          body.classList.remove('collapsed');
+          if (body && body.classList.contains('admin-section-body')) body.classList.add('section-active');
+          const link = document.querySelector('.as-link[href="#' + id + '"]');
+          if (link) link.classList.add('active');
+          history.replaceState(null, '', '#' + id);
+          window.scrollTo(0, 0);
         }
 
-        function collapse(h2) {
-          const body = h2.nextElementSibling;
-          if (!body || !body.classList.contains('admin-section-body')) return;
-          h2.classList.add('collapsed');
-          body.classList.add('collapsed');
-        }
-
-        function collapseAll() {
-          document.querySelectorAll('h2.collapsible').forEach(collapse);
-        }
-
-        document.querySelectorAll('h2.collapsible').forEach(function(h2) {
-          h2.addEventListener('click', function() {
-            if (h2.classList.contains('collapsed')) expand(h2);
-            else collapse(h2);
+        document.querySelectorAll('.as-link[href^="#section-"]').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            showSection(link.getAttribute('href').slice(1));
+            const sidebar = document.getElementById('admin-sidebar');
+            if (sidebar) sidebar.classList.remove('open');
           });
         });
 
-        document.querySelectorAll('.admin-quicknav a[href^="#section-"]').forEach(function(link) {
-          link.addEventListener('click', function() {
-            const id = link.getAttribute('href').slice(1);
-            const target = document.getElementById(id);
-            if (!target) return;
-            collapseAll();
-            expand(target);
-          });
-        });
-
-        // Auto-expand target from URL hash or body data attribute
-        let openTarget = null;
+        let targetId = 'section-stats';
         if (location.hash && location.hash.indexOf('#section-') === 0) {
-          openTarget = document.getElementById(location.hash.slice(1));
+          targetId = location.hash.slice(1);
+        } else if (document.body.dataset.openSection) {
+          targetId = document.body.dataset.openSection;
         }
-        if (!openTarget && document.body.dataset.openSection) {
-          openTarget = document.getElementById(document.body.dataset.openSection);
-        }
-        if (!openTarget) {
-          openTarget = document.getElementById('section-stats');
-        }
-        if (openTarget) {
-          expand(openTarget);
-          // Re-scroll after expand so the anchor jump lands correctly
-          setTimeout(function() {
-            openTarget.scrollIntoView({
-              block: 'start'
-            });
-          }, 0);
-        }
+        showSection(targetId);
       }
+
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAdminSections);
       } else {
@@ -1433,18 +1411,26 @@
 
       document.addEventListener('DOMContentLoaded', function() {
         const btn = document.getElementById('back-to-top');
-        if (!btn) return;
-        window.addEventListener('scroll', function() {
-          btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
-        }, {
-          passive: true
-        });
-        btn.addEventListener('click', function() {
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+        if (btn) {
+          window.addEventListener('scroll', function() {
+            btn.style.display = window.scrollY > 200 ? 'flex' : 'none';
+          }, { passive: true });
+          btn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           });
-        });
+        }
+
+        (function() {
+          const toggle = document.getElementById('admin-sidebar-toggle');
+          const sidebar = document.getElementById('admin-sidebar');
+          if (!toggle || !sidebar) return;
+          toggle.addEventListener('click', function() { sidebar.classList.toggle('open'); });
+          document.addEventListener('click', function(e) {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== toggle) {
+              sidebar.classList.remove('open');
+            }
+          });
+        })();
       });
 
       let _sessModalBid = '';

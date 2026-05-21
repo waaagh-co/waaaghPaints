@@ -2375,15 +2375,63 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=5">
+  <link rel="stylesheet" href="admin.css?v=6">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
 
+  <?php if (!$authed): ?>
   <header>
     <a href="index.php"><img src="img/logo_sm.png" alt="Waaagh! Paint" class="logo"></a>
     <p>Gallery Admin</p>
   </header>
+  <?php endif; ?>
+
+  <?php if ($authed): ?>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="as-header">
+      <a href="index.php"><img src="img/logo_sm.png" alt="Waaagh! Paint" class="as-logo"></a>
+      <div class="as-badge">Admin Panel</div>
+    </div>
+    <nav class="as-nav">
+      <div class="as-group">
+        <div class="as-group-label">The Work</div>
+        <a href="#section-bench" class="as-link">On the Bench</a>
+        <a href="#section-gallery" class="as-link">Add Scheme</a>
+        <a href="#section-entries" class="as-link">Edit Schemes</a>
+        <a href="#section-planned" class="as-link">Planned</a>
+        <?php if ($hasShame): ?><a href="#section-shame" class="as-link">Pile of Shame</a><?php endif; ?>
+        <?php if ($hasRescues): ?><a href="#section-rescues" class="as-link">Rescue Tracker</a><?php endif; ?>
+        <?php if ($hasForces): ?><a href="#section-forces" class="as-link">Forces</a><?php endif; ?>
+        <?php if ($hasBattles): ?><a href="#section-battles" class="as-link">Battle Honours</a><?php endif; ?>
+        <?php if ($hasRecipes): ?><a href="#section-recipes" class="as-link">Recipes</a><?php endif; ?>
+        <?php if ($hasJournal): ?><a href="#section-journal" class="as-link">Scrap Notes</a><?php endif; ?>
+      </div>
+      <div class="as-group">
+        <div class="as-group-label">Collection</div>
+        <a href="#section-inventory" class="as-link">Paint Inventory</a>
+        <?php if ($hasBrushes): ?><a href="#section-brushes" class="as-link">Brushes</a><?php endif; ?>
+        <?php if ($hasSupplies): ?><a href="#section-supplies" class="as-link">Supplies</a><?php endif; ?>
+        <?php if ($hasWishlist): ?><a href="#section-wishlist" class="as-link">Wishlist</a><?php endif; ?>
+        <?php if ($hasBooks): ?><a href="#section-books" class="as-link">Codices</a><?php endif; ?>
+      </div>
+      <div class="as-group">
+        <div class="as-group-label">Tools</div>
+        <a href="#section-stats" class="as-link">Hobby Stats</a>
+        <a href="#section-checker" class="as-link">Paint Checker</a>
+        <a href="#section-conversions" class="as-link">Equivalency</a>
+        <a href="guide.php" target="_blank" class="as-link">User Guide &#8599;</a>
+      </div>
+    </nav>
+    <div class="as-footer">
+      <a href="index.php" class="as-back-link">&#8592; Back to site</a>
+      <form method="post" style="margin:0"><input type="hidden" name="action" value="export_backup"><button type="submit" class="btn btn-sm" title="Download a JSON backup of every data file">Export Backup</button></form>
+      <form method="post" style="margin:0"><button name="logout" value="1" class="btn btn-sm">Log out</button></form>
+    </div>
+  </aside>
+  <button class="admin-sidebar-toggle" id="admin-sidebar-toggle" aria-label="Toggle navigation">&#9776;</button>
+  <div class="admin-main">
+  <?php endif; ?>
 
   <div class="admin-wrap">
 
@@ -2399,41 +2447,8 @@ if ($authed && isset($_GET['edit_force'])) {
       </div>
 
     <?php else: ?>
-      <a href="index.php" class="back-link">← Back to site</a>
-      <div style="float:right;display:flex;gap:8px;align-items:center">
-        <form method="post" style="margin:0">
-          <input type="hidden" name="action" value="export_backup">
-          <button type="submit" class="btn btn-sm" title="Download a JSON backup of every data file">Export Backup</button>
-        </form>
-        <form method="post" style="margin:0">
-          <button name="logout" value="1" class="btn btn-sm">Log out</button>
-        </form>
-      </div>
-
       <?php if ($successMsg): ?><div class="alert alert-success"><?= e($successMsg) ?></div><?php endif; ?>
       <?php if ($formError):   ?><div class="alert alert-error"><?= e($formError) ?></div><?php endif; ?>
-
-      <nav class="admin-quicknav">
-        <a href="#section-recipes">Recipes</a>
-        <a href="#section-gallery">Add Scheme</a>
-        <a href="#section-entries">Edit Scheme</a>
-        <a href="#section-planned">Planned</a>
-        <a href="#section-bench">On the Bench</a>
-        <?php if ($hasForces): ?><a href="#section-forces">Forces</a><?php endif; ?>
-        <?php if ($hasBattles): ?><a href="#section-battles">Battle Honours</a><?php endif; ?>
-        <a href="#section-inventory">Paint Inventory</a>
-        <?php if ($hasBrushes): ?><a href="#section-brushes">Brush Inventory</a><?php endif; ?>
-        <?php if ($hasSupplies): ?><a href="#section-supplies">Supplies</a><?php endif; ?>
-        <?php if ($hasShame): ?><a href="#section-shame">Pile of Shame</a><?php endif; ?>
-        <?php if ($hasRescues): ?><a href="#section-rescues">Rescue Tracker</a><?php endif; ?>
-        <?php if ($hasWishlist): ?><a href="#section-wishlist">Wishlist</a><?php endif; ?>
-        <a href="#section-conversions">Equivalency</a>
-        <?php if ($hasBooks): ?><a href="#section-books">Codices</a><?php endif; ?>
-        <?php if ($hasJournal): ?><a href="#section-journal">Scrap Notes</a><?php endif; ?>
-        <a href="#section-checker">Paint Checker</a>
-        <a href="#section-stats">Stats</a>
-        <a href="guide.php" target="_blank">User Guide ↗</a>
-      </nav>
 
       <h2 id="section-stats">Hobby Stats</h2>
       <?php
@@ -5209,7 +5224,8 @@ if ($authed && isset($_GET['edit_force'])) {
       <?php endif; ?>
 
     <?php endif; ?>
-  </div>
+  </div><!-- /admin-wrap -->
+  <?php if ($authed): ?></div><!-- /admin-main --><?php endif; ?>
 
   <?php if ($authed): ?>
     <?php
