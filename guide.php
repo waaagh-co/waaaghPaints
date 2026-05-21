@@ -234,14 +234,15 @@ if (empty($_SESSION['admin'])) {
     <div class="page-section-title"><span class="section-icon">🎨</span> The Main Site</div>
 
     <h3>Looted Knowledge (landing tab)</h3>
-    <p>The first thing you see. The hero area at the top contains several live widgets stacked vertically:</p>
+    <p>The first thing you see. The hero area splits into two halves side by side:</p>
+    <p><strong>Left half</strong> stacks three live widgets:</p>
     <ul>
       <li><strong>Under Da Brush</strong> - your most recently touched active bench project (photo, name, faction, current stage). Click to jump to the Bench tab. Only shown when you have active projects.</li>
       <li><strong>Hobby Activity heatmap</strong> - a GitHub-style contribution grid showing 52 weeks of activity across schemes, bench work, journal entries, and battles. Today is always visible at the right edge.</li>
-      <li><strong>Dis Week</strong> - a one-line rolling 7-day summary: models painted, bench sessions, battles fought, notes scribbled. Only the non-zero stats appear. Goes quiet (italic Ork grumble) if nothing's been logged this week.</li>
-      <li><strong>Latest Note</strong> - first 90 characters of your most recent Scrap Notes entry with its date. Click to jump to the Scrap Notes tab. Only shown when Scrap Notes has been started.</li>
       <li><strong>Annual Goal bar</strong> - progress toward your painted-model target for the current year. Only shown when a goal has been set in Admin Stats.</li>
     </ul>
+    <p><strong>Right half</strong> is the <strong>Scrap Notes panel</strong> - your most recent journal entry displayed in handwritten style over an Ork clipboard background. Click anywhere on it to jump to the Scrap Notes tab. Only shown when Scrap Notes has been started and has at least one entry.</p>
+    <p>The sidebar <strong>Waaagh! Index</strong> gauge also shows a rolling 7-day <strong>Dis Week</strong> summary just below the state label: models painted, bench sessions, battles fought, notes scribbled.</p>
     <p>Below the hero, <strong>The Pipeline</strong> shows Recipes → Paint Schemes → Planned → On the Bench as large stat cards with a green <strong>ready now</strong> count whenever you own every paint for a planned scheme. The last battle result also appears here if you have Battle Honours.</p>
     <p>Below the pipeline, the page is laid out in sections:</p>
     <ul>

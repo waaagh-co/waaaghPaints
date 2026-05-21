@@ -3113,49 +3113,47 @@
       box-shadow: none;
     }
 
-    .hero-note-strip {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 14px;
-      background: #0c0b08;
-      border-top: 1px solid #1e1a10;
-      text-decoration: none;
-      cursor: pointer;
-      overflow: hidden;
-      transition: background .15s;
-    }
-    .hero-note-strip:hover { background: #100e08; }
-    .hero-note-label {
-      font-family: var(--font-heading);
-      font-size: 9px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--gold);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .hero-note-body {
-      font-size: 11px;
-      color: #7a6a48;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-style: italic;
-    }
-    .hero-note-strip:hover .hero-note-body { color: #9a8a60; }
     .hero-goal-strip { display: flex; align-items: center; gap: 10px; background: #0c0b08; border-top: 1px solid #1e1a10; padding: 7px 14px; }
+    .pipeline-goal-strip { background: transparent; border-top: none; border-bottom: 1px solid #2a2010; margin: -22px -24px 16px; padding: 7px 24px; border-radius: 3px 3px 0 0; }
     .hero-goal-label { font-family: var(--font-heading); font-size: 9px; color: var(--gold); letter-spacing: .12em; text-transform: uppercase; flex-shrink: 0; }
     .hero-goal-bar-wrap { flex: 1; height: 4px; background: #1e1a10; border-radius: 2px; overflow: hidden; }
     .hero-goal-bar-fill { height: 4px; background: var(--gold); border-radius: 2px; }
     .hero-goal-num { font-size: 11px; color: #6a5a38; flex-shrink: 0; }
     .hero-goal-pct { font-family: var(--font-heading); font-size: 10px; color: var(--gold); letter-spacing: .04em; flex-shrink: 0; }
     .hero-goal-pct.goal-complete { color: #5a9a5a; }
-    .hero-week-strip { display: flex; align-items: center; gap: 10px; background: #0c0b08; border-top: 1px solid #1e1a10; border-left: 2px solid #3a2a00; padding: 7px 14px; }
-    .hero-week-strip.hero-week-quiet { border-left-color: #1e1a10; }
-    .hero-week-label { font-family: var(--font-heading); font-size: 9px; color: var(--gold); letter-spacing: .12em; text-transform: uppercase; flex-shrink: 0; }
-    .hero-week-body { font-size: 11px; color: #7a6a48; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .hero-week-quiet .hero-week-body { color: #4a4030; font-style: italic; }
+    .pipeline-notes-row { display: flex; align-items: stretch; margin-bottom: 24px; }
+    .pipeline-notes-row .pipeline-band { flex: 1 1 50%; min-width: 0; margin-bottom: 0; }
+    .hero-notes-panel {
+      flex: 1 1 50%;
+      min-width: 0;
+      position: relative;
+      display: block;
+      text-decoration: none;
+      cursor: pointer;
+      overflow: hidden;
+      background: url('img/notes.png') center/cover no-repeat;
+      min-height: 160px;
+      transition: filter .2s;
+    }
+    .hero-notes-panel:hover { filter: brightness(1.08); }
+    .hero-notes-text {
+      position: absolute;
+      top: calc(34% - 20px);
+      left: 22%;
+      right: 22%;
+      bottom: 18%;
+      font-family: 'Caveat', cursive;
+      font-size: 21px;
+      font-weight: 700;
+      color: #2a1808;
+      line-height: 1.45;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transform: rotate(-8deg);
+      transform-origin: center;
+    }
+    .wm-week { font-size: 8px; color: #5a4a28; text-align: center; padding: 3px 6px 4px; font-style: italic; line-height: 1.4; }
     .waaagh-meter { margin: 0 10px 8px; padding: 6px 8px; background: #080706; border-radius: 2px; flex-shrink: 0; }
     .wm-title-img { display: block; width: 75%; margin: 0 auto 4px; }
     .wm-gauge { position: relative; width: 100%; aspect-ratio: 3/2; }
@@ -3214,6 +3212,12 @@
       }
       .hero-bench {
         width: auto;
+      }
+      .pipeline-notes-row {
+        flex-direction: column;
+      }
+      .hero-notes-panel {
+        display: none;
       }
     }
 
@@ -3490,7 +3494,6 @@
 
     /* ── Landing: Pipeline band ── */
     .pipeline-band {
-      grid-column: 1 / -1;
       background: linear-gradient(180deg, #14110a 0%, #0e0c08 100%);
       border: 1px solid var(--bg-mid);
       border-left: 3px solid var(--gold);
@@ -3531,14 +3534,15 @@
     }
 
     .pipeline-nodes {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
+    .pipeline-arrow { display: none; }
+
     .pipeline-node {
-      flex: 1 1 120px;
+      flex: none;
       display: block;
       text-decoration: none;
       cursor: pointer;
@@ -3581,15 +3585,6 @@
       line-height: 1.4;
     }
 
-    .pipeline-arrow {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      font-size: 1.4rem;
-      color: #4a3a18;
-      flex-shrink: 0;
-      align-self: center;
-    }
 
     /* ── Landing: Armies + Workbench row ── */
     .armies-workbench-row {
@@ -3675,16 +3670,8 @@
     }
 
     @media (max-width: 600px) {
-      .pipeline-arrow {
-        display: none;
-      }
-
       .pipeline-nodes {
-        gap: 10px;
-      }
-
-      .pipeline-node {
-        flex: 1 1 calc(50% - 10px);
+        grid-template-columns: 1fr 1fr;
       }
 
       .armies-workbench-row {

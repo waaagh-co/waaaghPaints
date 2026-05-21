@@ -189,7 +189,18 @@ elseif  ($meterScore <= 3) { $meterState = "STIRRIN'";       $meterClass = 'mete
 elseif  ($meterScore <= 5) { $meterState = "ON DA WARPATH";  $meterClass = 'meter-s2'; $meterPips = 3; }
 elseif  ($meterScore <= 7) { $meterState = "WAAAGH!";        $meterClass = 'meter-s3'; $meterPips = 4; }
 else                        { $meterState = "FULL WAAAGH!!"; $meterClass = 'meter-s4'; $meterPips = 5; }
-unset($_mWkAgo, $_mScore, $_mModels, $_mBench, $_mm, $_ms, $_mb, $_bs, $_mj, $_mActive, $_mTs, $_mDays);
+// Build Dis Week summary for sidebar
+$_mNotes   = 0;
+$_mBattles = 0;
+if ($hasJournal)  foreach ($journalData as $_mj2) { if (($_mj2['date']  ?? '') >= $_mWkAgo) $_mNotes++; }
+if ($hasBattles)  foreach ($battlesData as $_mbh) { if (($_mbh['date']  ?? '') >= $_mWkAgo) $_mBattles++; }
+$sidebarWkParts = [];
+if ($_mModels  > 0) $sidebarWkParts[] = $_mModels  . ' model'         . ($_mModels  !== 1 ? 's' : '') . ' painted';
+if ($_mBench   > 0) $sidebarWkParts[] = $_mBench   . ' bench session' . ($_mBench   !== 1 ? 's' : '');
+if ($_mBattles > 0) $sidebarWkParts[] = $_mBattles . ' battle'        . ($_mBattles !== 1 ? 's' : '') . ' fought';
+if ($_mNotes   > 0) $sidebarWkParts[] = $_mNotes   . ' note'          . ($_mNotes   !== 1 ? 's' : '') . ' scribbled';
+$sidebarWkActive = !empty($sidebarWkParts);
+unset($_mWkAgo, $_mScore, $_mModels, $_mBench, $_mm, $_ms, $_mb, $_bs, $_mj, $_mActive, $_mTs, $_mDays, $_mNotes, $_mBattles, $_mj2, $_mbh);
 
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
@@ -248,8 +259,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=48">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=56">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -325,6 +336,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <div class="wm-pivot"></div>
       </div>
       <div class="wm-state"><?= htmlspecialchars($meterState) ?></div>
+      <div class="wm-week"><?php if ($sidebarWkActive): ?><?= implode(' &middot; ', $sidebarWkParts) ?><?php else: ?>Nowt done yet&hellip;<?php endif; ?></div>
     </div>
     <div class="sidebar-footer">
       <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
@@ -463,36 +475,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       unset($ownedKeys, $_p, $_pl, $_c, $allOwned, $parts2, $k2, $st);
 
-      // Dis Week: rolling 7-day activity summary
-      $weekAgo     = date('Y-m-d', strtotime('-6 days'));
-      $weekModels  = 0;
-      $weekBench   = 0;
-      $weekNotes   = 0;
-      $weekBattles = 0;
-      foreach ($models as $_m) {
-        foreach ($_m['sessions'] ?? [] as $_s) {
-          if (($_s['date'] ?? '') >= $weekAgo) $weekModels += max(1, (int)($_s['count'] ?? 1));
-        }
-      }
-      if ($hasBench) {
-        foreach ($benchData as $_b) {
-          foreach ($_b['sessions'] ?? [] as $_s) {
-            if (($_s['date'] ?? '') >= $weekAgo) $weekBench++;
-          }
-        }
-      }
-      if ($hasJournal) {
-        foreach ($journalData as $_j) {
-          if (($_j['date'] ?? '') >= $weekAgo) $weekNotes++;
-        }
-      }
-      if ($hasBattles) {
-        foreach ($battlesData as $_bh) {
-          if (($_bh['date'] ?? '') >= $weekAgo) $weekBattles++;
-        }
-      }
-      $weekActive = $weekModels || $weekBench || $weekNotes || $weekBattles;
-
       // Most-recently-touched active bench project (for the "Currently on the Bench" strip)
       $latestBench = null;
       if ($hasBench && !empty($benchData)) {
@@ -524,6 +506,15 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         'varnished' => 'Varnished',
         'done' => 'Done',
       ];
+
+      $jnSnipFull     = '';
+      $showNotesPanel = false;
+      if ($hasJournal && !empty($journalData)) {
+        $_jnRaw     = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $journalData[0]['body'] ?? '');
+        $jnSnipFull = function_exists('mb_strimwidth') ? mb_strimwidth($_jnRaw, 0, 230, '…') : (strlen($_jnRaw) > 230 ? substr($_jnRaw, 0, 230) . '…' : $_jnRaw);
+        $showNotesPanel = !empty($jnSnipFull);
+        unset($_jnRaw);
+      }
       ?>
 
       <div class="hero-wrap">
@@ -555,54 +546,24 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               </div>
             </a>
           <?php endif; ?>
-
           <div id="hero-heatmap" class="hero-heatmap"></div>
         </div>
-
-        <?php
-          $wkParts = [];
-          if ($weekModels  > 0) $wkParts[] = $weekModels  . ' model'          . ($weekModels  !== 1 ? 's' : '') . ' painted';
-          if ($weekBench   > 0) $wkParts[] = $weekBench   . ' bench session'   . ($weekBench   !== 1 ? 's' : '');
-          if ($weekBattles > 0) $wkParts[] = $weekBattles . ' battle'          . ($weekBattles !== 1 ? 's' : '') . ' fought';
-          if ($weekNotes   > 0) $wkParts[] = $weekNotes   . ' note'            . ($weekNotes   !== 1 ? 's' : '') . ' scribbled';
-        ?>
-        <div class="hero-week-strip<?= $weekActive ? '' : ' hero-week-quiet' ?>">
-          <span class="hero-week-label">Dis Week</span>
-          <?php if ($weekActive): ?>
-            <span class="hero-week-body"><?= implode(' &middot; ', $wkParts) ?></span>
-          <?php else: ?>
-            <span class="hero-week-body">Nowt done yet. Dem brushes ain't gonna pick demselves up.</span>
-          <?php endif; ?>
-        </div>
-
-        <?php if ($hasJournal && !empty($journalData)):
-          $jnLatest = $journalData[0];
-          $jnDate   = $jnLatest['date'] ?? '';
-          $jnRaw    = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $jnLatest['body'] ?? '');
-          $jnSnip   = function_exists('mb_strimwidth') ? mb_strimwidth($jnRaw, 0, 90, '…') : (strlen($jnRaw) > 90 ? substr($jnRaw, 0, 90) . '…' : $jnRaw);
-        ?>
-          <a class="hero-note-strip" data-jump="journals" title="Jump to Scrap Notes">
-            <span class="hero-note-label">Latest Note<?= $jnDate ? ' &middot; ' . htmlspecialchars($jnDate) : '' ?></span>
-            <span class="hero-note-body"><?= htmlspecialchars($jnSnip) ?></span>
-          </a>
-        <?php endif; ?>
-        <?php if ($curYearGoal > 0): ?>
-          <div class="hero-goal-strip">
-            <span class="hero-goal-label"><?= $curYear ?> Goal</span>
-            <div class="hero-goal-bar-wrap">
-              <div class="hero-goal-bar-fill" style="width:<?= $goalPct ?>%"></div>
-            </div>
-            <span class="hero-goal-num"><?= $curYearCount ?> / <?= $curYearGoal ?></span>
-            <span class="hero-goal-pct<?= $goalPct >= 100 ? ' goal-complete' : '' ?>"><?= $goalPct ?>%<?= $goalPct >= 100 ? ' &#10003;' : '' ?></span>
-          </div>
-        <?php endif; ?>
       </div>
 
       <?php
       ?>
-      <div class="contents-grid">
-
+      <div class="pipeline-notes-row">
         <div class="pipeline-band">
+          <?php if ($curYearGoal > 0): ?>
+            <div class="hero-goal-strip pipeline-goal-strip">
+              <span class="hero-goal-label"><?= $curYear ?> Goal</span>
+              <div class="hero-goal-bar-wrap">
+                <div class="hero-goal-bar-fill" style="width:<?= $goalPct ?>%"></div>
+              </div>
+              <span class="hero-goal-num"><?= $curYearCount ?> / <?= $curYearGoal ?></span>
+              <span class="hero-goal-pct<?= $goalPct >= 100 ? ' goal-complete' : '' ?>"><?= $goalPct ?>%<?= $goalPct >= 100 ? ' &#10003;' : '' ?></span>
+            </div>
+          <?php endif; ?>
           <div class="pipeline-band-title">The Pipeline<span class="pipeline-band-sub">from idea to table</span></div>
           <div class="pipeline-nodes">
             <?php if ($hasRecipes): ?>
@@ -646,7 +607,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             </a>
           <?php endif; ?>
         </div>
+        <?php if ($showNotesPanel): ?>
+          <a class="hero-notes-panel" data-jump="journals" title="Open Scrap Notes">
+            <div class="hero-notes-text"><?= htmlspecialchars($jnSnipFull) ?></div>
+          </a>
+        <?php endif; ?>
+      </div>
 
+      <div class="contents-grid">
         <div class="armies-workbench-row">
           <?php if ($hasFactions || $hasForces || $hasBattles): ?>
             <div class="armies-section">
