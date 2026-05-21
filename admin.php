@@ -3719,12 +3719,12 @@ if ($authed && isset($_GET['edit_force'])) {
             <input type="hidden" name="rc_id" id="rcId" value="">
             <div class="form-grid">
               <div>
-                <label for="rc_name">Name *</label>
-                <input type="text" id="rc_name" name="rc_name" required placeholder="e.g. Ork Boyz Job Lot">
+                <label for="rsc_name">Name *</label>
+                <input type="text" id="rsc_name" name="rc_name" required placeholder="e.g. Ork Boyz Job Lot">
               </div>
               <div>
-                <label for="rc_system">System</label>
-                <select id="rc_system" name="rc_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+                <label for="rsc_system">System</label>
+                <select id="rsc_system" name="rc_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                   <option value="">- none -</option>
                   <option value="40k">Warhammer 40,000</option>
                   <option value="30k / HH">Horus Heresy / 30k</option>
@@ -3739,16 +3739,16 @@ if ($authed && isset($_GET['edit_force'])) {
                 </select>
               </div>
               <div>
-                <label for="rc_faction">Faction</label>
-                <input type="text" id="rc_faction" name="rc_faction" placeholder="e.g. Orks">
+                <label for="rsc_faction">Faction</label>
+                <input type="text" id="rsc_faction" name="rc_faction" placeholder="e.g. Orks">
               </div>
               <div>
-                <label for="rc_count">Model Count</label>
-                <input type="number" id="rc_count" name="rc_count" min="1" placeholder="e.g. 10">
+                <label for="rsc_count">Model Count</label>
+                <input type="number" id="rsc_count" name="rc_count" min="1" placeholder="e.g. 10">
               </div>
               <div>
-                <label for="rc_source">Source</label>
-                <select id="rc_source" name="rc_source" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+                <label for="rsc_source">Source</label>
+                <select id="rsc_source" name="rc_source" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                   <option value="">- none -</option>
                   <option value="eBay">eBay</option>
                   <option value="Trade">Trade</option>
@@ -3758,8 +3758,8 @@ if ($authed && isset($_GET['edit_force'])) {
                 </select>
               </div>
               <div>
-                <label for="rc_condition">Strip Difficulty</label>
-                <select id="rc_condition" name="rc_condition" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+                <label for="rsc_condition">Strip Difficulty</label>
+                <select id="rsc_condition" name="rc_condition" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                   <option value="">- unknown -</option>
                   <option value="bare">Bare (no paint)</option>
                   <option value="primed_only">Primed Only</option>
@@ -3769,8 +3769,8 @@ if ($authed && isset($_GET['edit_force'])) {
                 </select>
               </div>
               <div>
-                <label for="rc_stage">Stage</label>
-                <select id="rc_stage" name="rc_stage" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+                <label for="rsc_stage">Stage</label>
+                <select id="rsc_stage" name="rc_stage" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                   <option value="bidding">Bidding</option>
                   <option value="in_transit">In Transit</option>
                   <option value="received" selected>Received</option>
@@ -3779,12 +3779,12 @@ if ($authed && isset($_GET['edit_force'])) {
                 </select>
               </div>
               <div>
-                <label for="rc_acquired">Date Acquired (YYYY-MM)</label>
-                <input type="text" id="rc_acquired" name="rc_acquired" placeholder="e.g. 2026-05" maxlength="7">
+                <label for="rsc_acquired">Date Acquired (YYYY-MM)</label>
+                <input type="text" id="rsc_acquired" name="rc_acquired" placeholder="e.g. 2026-05" maxlength="7">
               </div>
               <div class="form-full">
-                <label for="rc_notes">Notes</label>
-                <textarea id="rc_notes" name="rc_notes" rows="3" placeholder="e.g. Badly drybrushed, base colours intact" style="width:100%;resize:vertical;font-size:13px;background:#130f08;color:#c4b49a;border:1px solid #2a2010;border-radius:4px;padding:6px 10px;font-family:inherit"></textarea>
+                <label for="rsc_notes">Notes</label>
+                <textarea id="rsc_notes" name="rc_notes" rows="3" placeholder="e.g. Badly drybrushed, base colours intact" style="width:100%;resize:vertical;font-size:13px;background:#130f08;color:#c4b49a;border:1px solid #2a2010;border-radius:4px;padding:6px 10px;font-family:inherit"></textarea>
               </div>
               <div class="form-full">
                 <label>Before Photos (up to 4 - condition on arrival)</label>
@@ -3881,6 +3881,7 @@ if ($authed && isset($_GET['edit_force'])) {
 
         <script>
         function openRescueAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-rescues');
           document.getElementById('rescueFormTitle').textContent = 'Add Rescue';
           document.getElementById('rescueAction').value = 'add_rescue';
           document.getElementById('rcId').value = '';
@@ -3893,18 +3894,19 @@ if ($authed && isset($_GET['edit_force'])) {
           document.getElementById('rescueFormWrap').style.display = '';
         }
         function openRescueEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-rescues');
           document.getElementById('rescueFormTitle').textContent = 'Edit Rescue';
           document.getElementById('rescueAction').value = 'edit_rescue';
           document.getElementById('rcId').value = btn.dataset.id;
-          document.getElementById('rc_name').value = btn.dataset.name;
-          document.getElementById('rc_system').value = btn.dataset.system || '';
-          document.getElementById('rc_faction').value = btn.dataset.faction;
-          document.getElementById('rc_count').value = btn.dataset.count > 0 ? btn.dataset.count : '';
-          document.getElementById('rc_source').value = btn.dataset.source || '';
-          document.getElementById('rc_condition').value = btn.dataset.condition || '';
-          document.getElementById('rc_stage').value = btn.dataset.stage;
-          document.getElementById('rc_acquired').value = btn.dataset.acquired;
-          document.getElementById('rc_notes').value = btn.dataset.notes;
+          document.getElementById('rsc_name').value = btn.dataset.name;
+          document.getElementById('rsc_system').value = btn.dataset.system || '';
+          document.getElementById('rsc_faction').value = btn.dataset.faction;
+          document.getElementById('rsc_count').value = btn.dataset.count > 0 ? btn.dataset.count : '';
+          document.getElementById('rsc_source').value = btn.dataset.source || '';
+          document.getElementById('rsc_condition').value = btn.dataset.condition || '';
+          document.getElementById('rsc_stage').value = btn.dataset.stage;
+          document.getElementById('rsc_acquired').value = btn.dataset.acquired;
+          document.getElementById('rsc_notes').value = btn.dataset.notes;
           try {
             const imgs = JSON.parse(btn.dataset.images || '[]');
             for (let s = 1; s <= <?= RESCUES_MAX_IMAGES ?>; s++) {
