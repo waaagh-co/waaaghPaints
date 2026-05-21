@@ -346,6 +346,19 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Promote buttons</strong> graduate a box to the pipeline without losing the shame record: <em>"→ Planned"</em> creates a new Planned entry; <em>"→ Bench"</em> creates a new On the Bench entry at the Built stage. The shame entry is kept with a gold "Promoted" badge for history</li>
     </ul>
 
+    <h3>Rescue Tracker tab</h3>
+    <p>A holding bay for eBay finds and second-hand minis going through the rescue process before they reach the bench. Only visible once started in Admin.</p>
+    <ul>
+      <li>Cards show the system badge, mini name, faction, source (eBay / Trade / LGS / Gift), strip difficulty badge, model count, acquisition date with a <strong>"sitting X months"</strong> age label, and before-photos showing the condition on arrival</li>
+      <li><strong>Stage badges</strong> track the linear workflow: <em>Bidding</em> &rarr; <em>In Transit</em> &rarr; <em>Received</em> &rarr; <em>Stripping</em> &rarr; <em>Prepped</em>. Each stage has its own colour so you can tell at a glance where everything is</li>
+      <li><strong>Filter pills</strong> - Active (not yet promoted) / Promoted / All; defaults to Active</li>
+      <li><strong>Search box</strong> filters across name, faction, system, source, notes, and stage</li>
+      <li><strong>Before photos</strong> - up to 4 photos per entry showing the minis as they arrived. Click any photo to open it in the lightbox</li>
+      <li><strong>Promote buttons</strong> graduate a rescue out of the tracker: <em>"&rarr; Bench"</em> creates a new On the Bench entry at the Built stage; <em>"&rarr; Shame"</em> creates a Pile of Shame entry if you're not ready to start yet. The rescue entry is kept with a gold "Promoted" badge for history</li>
+      <li>Model counts from active rescues feed into the Total Units Tracked stat in Admin - rescues that go straight to bench without ever touching the Pile of Shame are still counted</li>
+    </ul>
+    <div class="tip">The workflow: add when you win a bid &rarr; advance to In Transit when you pay &rarr; mark Received when it arrives &rarr; Stripping when you start prep &rarr; Prepped when it's clean and ready. Then promote to Bench and paint it.</div>
+
     <h3>Planned tab</h3>
     <p>Schemes you want to paint in the future - before you've built or bought the model.</p>
     <ul>
@@ -564,6 +577,19 @@ if (empty($_SESSION['admin'])) {
       <li>Promoted entries are kept in the shame list with a gold "Promoted" badge - the history stays intact</li>
       <li>Sorted oldest acquisition first so the longest-sitting boxes bubble to the top</li>
     </ul>
+
+    <h3>Rescue Tracker</h3>
+    <p>Click <strong>Start Rescue Tracker</strong> to activate it - creates the data file and makes the Rescue Tracker tab appear on the main site. Once active:</p>
+    <ul>
+      <li><strong>+ Add Rescue</strong> - name (required), faction, game system, model count, source (eBay / Trade / LGS / Gift / Other), strip difficulty (Bare Metal / Primed Only / Light Paint / Medium Paint / Heavy Paint), acquired date (YYYY-MM), current stage, notes, and up to 4 before-photos</li>
+      <li><strong>Stage cycle button</strong> on each entry - click to advance through the linear workflow: <em>Bidding &rarr; In Transit &rarr; Received &rarr; Stripping &rarr; Prepped</em>. Stops at Prepped - use the Promote buttons to move it forward from there</li>
+      <li><strong>Before photos</strong> - 4 positional slots. Upload to capture the condition on arrival; photos persist through the full lifecycle so you can compare before and after</li>
+      <li><strong>Promote to Bench</strong> - creates a new On the Bench entry at the Built stage with the name, faction, system, and count pre-filled. Sets a "Promoted &rarr; Bench" badge on the rescue card</li>
+      <li><strong>Promote to Shame</strong> - creates a Pile of Shame entry if you want to hold off before painting. Sets a "Promoted &rarr; Shame" badge on the rescue card</li>
+      <li>Active rescues (not yet promoted) are sorted by stage order first (so Prepped rescues bubble to the top), then by acquisition date oldest first</li>
+      <li><strong>Edit / &times;</strong> - update or remove any entry; deleting also removes the before-photo files</li>
+    </ul>
+    <div class="tip">Model counts from active rescues appear in the Total Units Tracked stat card so you always have an accurate picture of how many minis you're responsible for - even the ones still in a bath of Dettol.</div>
 
     <h3>Planned Schemes</h3>
     <p>Build a paint scheme for a model you haven't started yet.</p>

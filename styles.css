@@ -547,7 +547,7 @@
     .hidden { display: none; }
 
     /* Sticky controls bars (wishlist/shame added after per-ID pattern was established) */
-    #wishlist-controls, #shame-controls, #battles-controls {
+    #wishlist-controls, #shame-controls, #battles-controls, #rescues-controls {
       position: sticky;
       top: 0;
       z-index: 10;
@@ -568,7 +568,7 @@
       letter-spacing: .04em;
     }
 
-    #shame-summary {
+    #shame-summary, #rescues-summary {
       font-size: 11px;
       color: var(--text-brown);
       font-family: var(--font-heading);
@@ -2215,12 +2215,12 @@
     }
 
     /* ── Pile of Shame ── */
-    .shame-fp {
+    .shame-fp, .rsc-fp {
       font-size: 11px; padding: 4px 10px; border-radius: 3px;
       cursor: pointer; font-family: var(--font-heading); letter-spacing: .04em;
       background: var(--bg-base); color: #5a4a28; border: 1px solid var(--border);
     }
-    .shame-fp.active { background: #1e1408; color: var(--gold); border-color: var(--gold); }
+    .shame-fp.active, .rsc-fp.active { background: #1e1408; color: var(--gold); border-color: var(--gold); }
 
     .bh-fp {
       font-size: 11px; padding: 4px 10px; border-radius: 3px;
@@ -3121,18 +3121,20 @@
     .hero-goal-num { font-size: 11px; color: #6a5a38; flex-shrink: 0; }
     .hero-goal-pct { font-family: var(--font-heading); font-size: 10px; color: var(--gold); letter-spacing: .04em; flex-shrink: 0; }
     .hero-goal-pct.goal-complete { color: #5a9a5a; }
-    .pipeline-notes-row { display: flex; align-items: stretch; margin-bottom: 24px; }
-    .pipeline-notes-row .pipeline-band { flex: 1 1 50%; min-width: 0; margin-bottom: 0; }
+    .pipeline-notes-row { display: flex; align-items: stretch; overflow: visible; margin-bottom: 24px; }
+    .pipeline-notes-row .pipeline-band { flex: 1 1 auto; min-width: 0; margin-bottom: 0; }
     .hero-notes-panel {
-      flex: 1 1 50%;
-      min-width: 0;
+      flex: 0 0 55%;
+      margin-left: -16%;
+      margin-right: -48px;
       position: relative;
+      align-self: center;
       display: block;
       text-decoration: none;
       cursor: pointer;
-      overflow: hidden;
+      aspect-ratio: 3 / 2;
       background: url('img/notes.png') center/cover no-repeat;
-      min-height: 160px;
+      z-index: 3;
       transition: filter .2s;
     }
     .hero-notes-panel:hover { filter: brightness(1.08); }
@@ -3183,7 +3185,7 @@
     .wtn-card-prepped { border-left-color: #50a860; }
     .wtn-card-prepped .wtn-type { color: #50a860; }
     /* Rescue Tracker */
-    .rescues-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 960px; }
+    .rescues-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 960px; margin: 0 auto; padding: 16px; }
     .rescue-card { position: relative; background: var(--bg-base); border: 1px solid var(--border); border-left-width: 3px; padding: 14px 16px 14px 38px; border-radius: 4px; }
     .rescue-st-bidding    { border-left-color: #5a3a6a; }
     .rescue-st-in_transit { border-left-color: #3a4a7a; }

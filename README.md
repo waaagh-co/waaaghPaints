@@ -37,6 +37,7 @@ collapsible left-rail sidebar grouped into four sections.
 - **Forces & Rosters** - group painted schemes into named game rosters with readiness progress
 - **Battle Honours** - log every game played with result, opponent, army, mission, and notes; W/L/D record shown on force cards
 - **Pile of Shame** - track unbuilt boxes; promote to Planned or Bench when ready
+- **Rescue Tracker** - track eBay finds and second-hand minis through bidding, shipping, receiving, stripping, and prep before they hit the bench; before-photos capture condition on arrival; model counts feed into total ownership stats; promote to Bench or Shame when ready
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit
 - **Brush Inventory** - track brush condition (Prime / Workhorse / Retired)
 - **Supplies Inventory** - track hobby supplies (palettes, wet palettes, mats, lamps, etc.) with condition cycling
@@ -180,9 +181,9 @@ All data lives in flat JSON files under `data/`. These are **not** included in t
 | `data/forces.json` | Start Forces & Rosters button |
 | `data/battles.json` | Start Battle Honours button |
 | `data/supplies.json` | Start Supplies Inventory button |
+| `data/rescues.json` | Start Rescue Tracker button |
 
-Model photos go in `img/models/`; bench WIP photos go in `img/bench/`. Both are excluded from
-git and created automatically on first use.
+Model photos go in `img/models/`; bench WIP photos go in `img/bench/`; rescue before-photos go in `img/rescues/`. All are excluded from git and created automatically on first use.
 
 ---
 
