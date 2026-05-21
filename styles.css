@@ -2903,106 +2903,6 @@
       margin: 0 0 28px;
     }
 
-    .hero-bench {
-      display: flex;
-      flex-direction: column;
-      width: 300px;
-      flex-shrink: 0;
-      background:
-        radial-gradient(ellipse 70% 100% at 0% 0%, rgba(201, 162, 39, .08) 0%, transparent 60%),
-        linear-gradient(180deg, #14100a 0%, #0a0907 100%);
-      border: 1px solid #4a3a18;
-      border-left: 3px solid var(--gold);
-      border-radius: 4px;
-      padding: 12px 14px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: border-color .15s, box-shadow .15s, transform .15s;
-    }
-
-    .hero-bench:hover {
-      border-color: #8a6a18;
-      box-shadow: 0 2px 18px rgba(201, 162, 39, .18);
-      transform: translateY(-1px);
-    }
-
-    .hero-bench-label {
-      font-family: var(--font-heading);
-      font-size: 9px;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 10px;
-    }
-
-    .hero-bench-main {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex: 1;
-    }
-
-    .hero-bench-img {
-      width: 72px;
-      height: 72px;
-      border-radius: 3px;
-      background-size: cover;
-      background-position: center;
-      background-color: #0a0806;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .hero-bench-img-empty {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-size: 8px;
-      letter-spacing: .12em;
-      color: var(--bg-mid);
-      text-align: center;
-      line-height: 1.4;
-    }
-
-    .hero-bench-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .hero-bench-name {
-      font-family: var(--font-heading);
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: var(--gold);
-      letter-spacing: .04em;
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .hero-bench-faction {
-      font-family: var(--font-body);
-      font-style: italic;
-      font-size: 12px;
-      color: #7a6a4a;
-      margin-bottom: 6px;
-    }
-
-    .hero-bench-meta {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .hero-bench-touched {
-      font-family: var(--font-body);
-      font-size: 11px;
-      color: #8a7a5a;
-      font-style: italic;
-    }
 
     .hero-wrap {
       position: relative;
@@ -3014,17 +2914,18 @@
       min-width: 0;
       background: linear-gradient(180deg, var(--bg-base) 0%, #0a0907 100%);
       border: 1px solid var(--border);
+      border-top: 2px solid var(--gold);
       border-radius: 4px;
-      padding: 14px 16px 12px;
+      padding: 18px 20px 16px;
     }
 
     .hm-header {
       font-family: var(--font-heading);
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: .2em;
       text-transform: uppercase;
       color: var(--gold);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .hm-count {
@@ -3032,26 +2933,20 @@
       letter-spacing: .1em;
     }
 
-    .hm-scroll {
-      overflow-x: auto;
-    }
+    .hm-scroll { overflow-x: hidden; }
 
-    .hm-inner {
-      width: fit-content;
-      margin: 0 auto;
-    }
+    .hm-inner { width: 100%; }
 
     .hm-months {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(52, 1fr);
       gap: 2px;
       margin-bottom: 3px;
     }
 
     .hm-months span {
-      width: 11px;
-      flex-shrink: 0;
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: .04em;
       color: #6a5a3a;
       white-space: nowrap;
@@ -3059,7 +2954,8 @@
     }
 
     .hm-grid {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(52, 1fr);
       gap: 2px;
     }
 
@@ -3067,19 +2963,18 @@
       display: flex;
       flex-direction: column;
       gap: 2px;
-      flex-shrink: 0;
     }
 
     .hm-day {
-      width: 11px;
-      height: 11px;
+      aspect-ratio: 1;
+      width: 100%;
       border-radius: 2px;
     }
 
     .hm-lv0 { background: #1a1508; }
     .hm-lv1 { background: #4a3310; }
     .hm-lv2 { background: #8a6018; }
-    .hm-lv3 { background: var(--gold); box-shadow: 0 0 5px rgba(201,162,39,.35); }
+    .hm-lv3 { background: var(--gold); box-shadow: 0 0 8px rgba(201,162,39,.6), 0 0 3px rgba(201,162,39,.9); }
     .hm-future { background: #0e0c08; }
     .hm-today  { outline: 1px solid #8a6a28; outline-offset: -1px; }
 
@@ -3087,9 +2982,9 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      margin-top: 8px;
+      margin-top: 10px;
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 11px;
       letter-spacing: .1em;
       color: #5a4a2a;
     }
@@ -3098,8 +2993,8 @@
     .hm-legend .hm-lv1,
     .hm-legend .hm-lv2,
     .hm-legend .hm-lv3 {
-      width: 9px;
-      height: 9px;
+      width: 11px;
+      height: 11px;
       border-radius: 2px;
       flex-shrink: 0;
       box-shadow: none;
@@ -3262,10 +3157,7 @@
       .hero-bar {
         flex-direction: column;
       }
-      .hero-bench {
-        width: auto;
-      }
-      .pipeline-notes-row {
+.pipeline-notes-row {
         flex-direction: column;
       }
       .hero-notes-panel {
@@ -3639,6 +3531,14 @@
       line-height: 1.4;
     }
 
+    .pipeline-bench-node { border-left: 3px solid var(--gold); min-width: 0; overflow: hidden; }
+    .pipeline-bench-main { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; }
+    .pipeline-bench-thumb { width: 56px; height: 56px; flex-shrink: 0; border-radius: 3px; background-size: cover; background-position: center; background-color: #0a0806; border: 1px solid var(--border); }
+    .pipeline-bench-info { flex: 1; min-width: 0; }
+    .pipeline-bench-pname { font-family: var(--font-heading); font-size: 12px; color: #c4b49a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pipeline-bench-faction { font-size: 11px; color: var(--text-brown); margin-bottom: 4px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pipeline-bench-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .hero-bench-touched { font-size: 11px; color: #8a7a5a; font-style: italic; }
 
     /* ── Landing: Armies + Workbench row ── */
     .armies-workbench-row {
@@ -3727,6 +3627,8 @@
       .pipeline-nodes {
         grid-template-columns: 1fr 1fr;
       }
+
+      .pipeline-bench-thumb { display: none; }
 
       .armies-workbench-row {
         grid-template-columns: 1fr;

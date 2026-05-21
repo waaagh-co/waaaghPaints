@@ -371,7 +371,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=66">
+  <link rel="stylesheet" href="styles.css?v=69">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -610,6 +610,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         }
       }
 
+      $bnImg   = '';
+      $bnStage = 'built';
+      if ($latestBench) {
+        $bnImgs  = $latestBench['wip_images'] ?? [];
+        $bnImg   = !empty($bnImgs) ? $bnImgs[count($bnImgs) - 1] : '';
+        $bnStage = $latestBench['stage'] ?? 'built';
+      }
+
       $benchStageLabels = [
         'built' => 'Built',
         'primed' => 'Primed',
@@ -633,33 +641,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
       <div class="hero-wrap">
         <div class="hero-bar">
-          <?php if ($latestBench): ?>
-            <a class="hero-bench" data-jump="bench" title="Jump to On the Bench">
-              <div class="hero-bench-label">Under da Brush</div>
-              <?php
-              $bnImgs = $latestBench['wip_images'] ?? [];
-              $bnImg = !empty($bnImgs) ? $bnImgs[count($bnImgs) - 1] : '';
-              $bnStage = $latestBench['stage'] ?? 'built';
-              ?>
-              <div class="hero-bench-main">
-                <?php if ($bnImg): ?>
-                  <div class="hero-bench-img" style="background-image:url('<?= htmlspecialchars($bnImg, ENT_QUOTES) ?>')"></div>
-                <?php else: ?>
-                  <div class="hero-bench-img hero-bench-img-empty">NO<br>PHOTO</div>
-                <?php endif; ?>
-                <div class="hero-bench-info">
-                  <div class="hero-bench-name"><?= htmlspecialchars($latestBench['name'], ENT_QUOTES) ?></div>
-                  <?php if (!empty($latestBench['faction'])): ?>
-                    <div class="hero-bench-faction"><?= htmlspecialchars($latestBench['faction'], ENT_QUOTES) ?></div>
-                  <?php endif; ?>
-                  <div class="hero-bench-meta">
-                    <span class="bench-stage-label stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>"><?= htmlspecialchars($benchStageLabels[$bnStage] ?? $bnStage, ENT_QUOTES) ?></span>
-                    <?php if ($touchedAgo): ?><span class="hero-bench-touched"><?= htmlspecialchars($touchedAgo, ENT_QUOTES) ?></span><?php endif; ?>
-                  </div>
-                </div>
-              </div>
-            </a>
-          <?php endif; ?>
           <div id="hero-heatmap" class="hero-heatmap"></div>
         </div>
       </div>
@@ -713,6 +694,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 <div class="pipeline-node-name">Rescue</div>
                 <div class="pipeline-node-num"><?= $cnt_rescue_units ?></div>
                 <div class="pipeline-node-blurb">unit<?= $cnt_rescue_units !== 1 ? 's' : '' ?> in prep</div>
+              </a>
+            <?php endif; ?>
+            <?php if ($latestBench): ?>
+              <a class="pipeline-node pipeline-bench-node" data-jump="bench" title="Jump to On the Bench">
+                <div class="pipeline-node-name">Under da Brush</div>
+                <div class="pipeline-bench-main">
+                  <?php if ($bnImg): ?><div class="pipeline-bench-thumb" style="background-image:url('<?= htmlspecialchars($bnImg, ENT_QUOTES) ?>')"></div><?php endif; ?>
+                  <div class="pipeline-bench-info">
+                    <div class="pipeline-bench-pname"><?= htmlspecialchars($latestBench['name'], ENT_QUOTES) ?></div>
+                    <?php if (!empty($latestBench['faction'])): ?><div class="pipeline-bench-faction"><?= htmlspecialchars($latestBench['faction'], ENT_QUOTES) ?></div><?php endif; ?>
+                    <div class="pipeline-bench-meta"><span class="bench-stage-label stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>"><?= htmlspecialchars($benchStageLabels[$bnStage] ?? $bnStage, ENT_QUOTES) ?></span><?php if ($touchedAgo): ?><span class="hero-bench-touched"><?= htmlspecialchars($touchedAgo, ENT_QUOTES) ?></span><?php endif; ?></div>
+                  </div>
+                </div>
               </a>
             <?php endif; ?>
           </div>
