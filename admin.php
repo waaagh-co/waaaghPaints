@@ -711,7 +711,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_rescue', 'edit_rescue'], t
   $stage     = trim($_POST['rc_stage']     ?? 'received');
   $notes     = trim($_POST['rc_notes']     ?? '');
   if (!$name) { header('Location: ' . ADMIN_FILENAME . '#section-rescues'); exit; }
-  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = '';
+  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Old World', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = '';
   if (!in_array($stage, RESCUE_STAGES, true)) $stage = 'received';
   if (!in_array($condition, ['bare', 'primed_only', 'light', 'medium', 'heavy'], true)) $condition = '';
   if (!in_array($source, ['eBay', 'Trade', 'LGS', 'Gift', 'Other'], true)) $source = '';
@@ -908,7 +908,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_shame', 'edit_shame'], tru
     header('Location: ' . ADMIN_FILENAME . '#section-shame');
     exit;
   }
-  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = 'Other';
+  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Old World', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = 'Other';
   if (!in_array($status, ['sealed', 'opened', 'partial'], true)) $status = 'sealed';
   if ($acq && !preg_match('/^\d{4}-\d{2}$/', $acq)) $acq = '';
   $all = file_exists(SHAME_FILE) ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
@@ -2768,7 +2768,7 @@ if ($authed && isset($_GET['edit_force'])) {
             <label for="sys_game">Game System</label>
             <select id="sys_game" name="system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
               <option value="">- none -</option>
-              <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
+              <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Old World' => 'The Old World', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'Epic' => 'Epic Scale', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
                 <option value="<?= e($sv) ?>" <?= ($editModel['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
               <?php endforeach; ?>
             </select>
@@ -3714,6 +3714,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   <option value="40k">Warhammer 40,000</option>
                   <option value="30k / HH">Horus Heresy / 30k</option>
                   <option value="AoS">Age of Sigmar</option>
+                  <option value="Old World">The Old World</option>
                   <option value="Kill Team">Kill Team</option>
                   <option value="Blood Bowl">Blood Bowl</option>
                   <option value="Necromunda">Necromunda</option>
@@ -3795,7 +3796,7 @@ if ($authed && isset($_GET['edit_force'])) {
 
         <?php if ($rescuesData): ?>
           <?php
-          $rescueSysBg = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Other' => ['#2a2a2a', '#909090']];
+          $rescueSysBg = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Old World' => ['#3a2a0a', '#d4a040'], 'Other' => ['#2a2a2a', '#909090']];
           $rescueStageLabel = ['bidding' => 'Bidding', 'in_transit' => 'In Transit', 'received' => 'Received', 'stripping' => 'Stripping', 'prepped' => 'Prepped'];
           $rescueStageBg    = ['bidding' => ['#2a1a3a', '#c090e8'], 'in_transit' => ['#1a1a4a', '#8090e8'], 'received' => ['#0a3030', '#70c8c8'], 'stripping' => ['#3a1a08', '#e07030'], 'prepped' => ['#0a2a0a', '#70c870']];
           $rescueCondLabel  = ['bare' => 'Bare', 'primed_only' => 'Primed Only', 'light' => 'Light', 'medium' => 'Medium', 'heavy' => 'Heavy'];
@@ -3973,6 +3974,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   <option value="40k">Warhammer 40,000</option>
                   <option value="30k / HH">Horus Heresy / 30k</option>
                   <option value="AoS">Age of Sigmar</option>
+                  <option value="Old World">The Old World</option>
                   <option value="Kill Team">Kill Team</option>
                   <option value="Blood Bowl">Blood Bowl</option>
                   <option value="Necromunda">Necromunda</option>
@@ -4016,7 +4018,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php if ($shameData): ?>
           <div class="model-list">
             <?php
-            $shameSystems = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Other' => ['#2a2a2a', '#909090']];
+            $shameSystems = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Old World' => ['#3a2a0a', '#d4a040'], 'Other' => ['#2a2a2a', '#909090']];
             foreach ($shameData as $sh):
               $shAcq     = $sh['acquired'] ?? '';
               $shPromote = $sh['promoted_to'] ?? '';
@@ -4103,9 +4105,11 @@ if ($authed && isset($_GET['edit_force'])) {
                 <option value="40k">Warhammer 40,000</option>
                 <option value="30k / HH">Horus Heresy / 30k</option>
                 <option value="AoS">Age of Sigmar</option>
+                <option value="Old World">The Old World</option>
                 <option value="Kill Team">Kill Team</option>
                 <option value="Blood Bowl">Blood Bowl</option>
                 <option value="Necromunda">Necromunda</option>
+                <option value="Epic">Epic Scale</option>
                 <option value="OPR">One Page Rules</option>
                 <option value="Other">Other</option>
               </select>
@@ -4232,9 +4236,11 @@ if ($authed && isset($_GET['edit_force'])) {
                   <option value="40k">Warhammer 40,000</option>
                   <option value="30k / HH">Horus Heresy / 30k</option>
                   <option value="AoS">Age of Sigmar</option>
+                  <option value="Old World">The Old World</option>
                   <option value="Kill Team">Kill Team</option>
                   <option value="Blood Bowl">Blood Bowl</option>
                   <option value="Necromunda">Necromunda</option>
+                  <option value="Epic">Epic Scale</option>
                   <option value="OPR">One Page Rules</option>
                   <option value="Other">Other</option>
                 </select>
@@ -4436,7 +4442,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   <label for="fo_system">Game System</label>
                   <select id="fo_system" name="fo_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                     <option value="">- none -</option>
-                    <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
+                    <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Old World' => 'The Old World', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'Epic' => 'Epic Scale', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
                       <option value="<?= e($sv) ?>" <?= ($editForce['system'] ?? '') === $sv ? ' selected' : '' ?>><?= e($sl) ?></option>
                     <?php endforeach; ?>
                   </select>
@@ -4719,7 +4725,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   <label for="bh_system">Game System</label>
                   <select id="bh_system" name="bh_system" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
                     <option value="">- none -</option>
-                    <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
+                    <?php foreach (['40k' => 'Warhammer 40,000', '30k / HH' => 'Horus Heresy / 30k', 'AoS' => 'Age of Sigmar', 'Old World' => 'The Old World', 'Kill Team' => 'Kill Team', 'Blood Bowl' => 'Blood Bowl', 'Necromunda' => 'Necromunda', 'Epic' => 'Epic Scale', 'OPR' => 'One Page Rules', 'Other' => 'Other'] as $sv => $sl): ?>
                       <option value="<?= e($sv) ?>"><?= e($sl) ?></option>
                     <?php endforeach; ?>
                   </select>
@@ -4886,9 +4892,11 @@ if ($authed && isset($_GET['edit_force'])) {
                   <option value="40k">Warhammer 40,000</option>
                   <option value="30k / HH">Horus Heresy</option>
                   <option value="AoS">Age of Sigmar</option>
+                  <option value="Old World">The Old World</option>
                   <option value="Kill Team">Kill Team</option>
                   <option value="Blood Bowl">Blood Bowl</option>
                   <option value="Necromunda">Necromunda</option>
+                  <option value="Epic">Epic Scale</option>
                   <option value="OPR">One Page Rules</option>
                   <option value="Other">Other</option>
                 </select>

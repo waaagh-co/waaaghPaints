@@ -236,6 +236,7 @@
       'Blood Bowl': '#0a3a1a',
       'Necromunda': '#3a0a5a',
       'OPR': '#1a2a3a',
+      'Old World': '#3a2a0a',
       'Other': '#2a2a2a'
     };
     const sysSlug = s => ({
@@ -246,7 +247,8 @@
       'Blood Bowl': 'bb',
       'Necromunda': 'necro',
       'Epic': 'epic',
-      'OPR': 'opr'
+      'OPR': 'opr',
+      'Old World': 'ow'
     } [s] || 'other');
 
     function modelReadiness(m) {
@@ -1760,6 +1762,7 @@
               '40k': '40k',
               '30k / HH': '30k',
               'AoS': 'AoS',
+              'Old World': 'OldWorld',
               'Epic': 'Epic',
               'Blood Bowl': 'BB',
               'Necromunda': 'Necromunda',
@@ -1771,6 +1774,7 @@
               '40k': '40k',
               '30k / HH': '30k',
               'AoS': 'AoS',
+              'Old World': 'OW',
               'Epic': 'Epic',
               'Blood Bowl': 'BB',
               'Necromunda': 'Necro',
@@ -1829,8 +1833,8 @@
           const RESCUE_STAGES = ['bidding', 'in_transit', 'received', 'stripping', 'prepped'];
           const STAGE_LABEL = { bidding: 'Bidding', in_transit: 'In Transit', received: 'Received', stripping: 'Stripping', prepped: 'Prepped' };
           const COND_LABEL = { bare: 'Bare', primed_only: 'Primed Only', light: 'Light Strip', medium: 'Medium Strip', heavy: 'Heavy Strip' };
-          const SHAME_SYS_SLUG = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necromunda', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
-          const SHAME_SYS_SHORT = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necro', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
+          const SHAME_SYS_SLUG = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Old World': 'OldWorld', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necromunda', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
+          const SHAME_SYS_SHORT = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Old World': 'OW', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necro', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
 
           let filterState = 'active';
 

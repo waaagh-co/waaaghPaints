@@ -371,7 +371,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=64">
+  <link rel="stylesheet" href="styles.css?v=65">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -515,9 +515,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <option value="40k">40k</option>
         <option value="30k / HH">30k / HH</option>
         <option value="AoS">AoS</option>
+        <option value="Old World">Old World</option>
         <option value="Kill Team">Kill Team</option>
         <option value="Blood Bowl">Blood Bowl</option>
         <option value="Necromunda">Necromunda</option>
+        <option value="Epic">Epic</option>
         <option value="OPR">OPR</option>
         <option value="Other">Other</option>
       </select>
@@ -1092,9 +1094,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <option value="40k">40k</option>
         <option value="30k / HH">30k / HH</option>
         <option value="AoS">AoS</option>
+        <option value="Old World">Old World</option>
         <option value="Kill Team">Kill Team</option>
         <option value="Blood Bowl">Blood Bowl</option>
         <option value="Necromunda">Necromunda</option>
+        <option value="Epic">Epic</option>
         <option value="OPR">OPR</option>
         <option value="Other">Other</option>
       </select>
@@ -1123,9 +1127,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <option value="40k">40k</option>
           <option value="30k / HH">30k / HH</option>
           <option value="AoS">AoS</option>
+          <option value="Old World">Old World</option>
           <option value="Kill Team">Kill Team</option>
           <option value="Blood Bowl">Blood Bowl</option>
           <option value="Necromunda">Necromunda</option>
+          <option value="Epic">Epic</option>
           <option value="OPR">OPR</option>
           <option value="Other">Other</option>
         </select>
