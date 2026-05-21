@@ -246,14 +246,14 @@ $_wtnForce = null;
 if ($hasForces) {
   $_mById = [];
   foreach ($models as $_m2) $_mById[$_m2['id']] = $_m2;
-  $_bestPct = 0;
+  $_bestPct = -1;
   foreach ($forcesData as $_f) {
-    if (empty($_f['target_models'])) continue;
+    if (empty($_f['target_count'])) continue;
     $_painted = 0;
     foreach (($_f['models'] ?? []) as $_mid) {
       if (isset($_mById[$_mid])) $_painted += max(1, (int)($_mById[$_mid]['count'] ?? 1));
     }
-    $_target = max(1, (int)$_f['target_models']);
+    $_target = max(1, (int)$_f['target_count']);
     $_pct = min(100, (int)round($_painted / $_target * 100));
     if ($_pct < 100 && $_pct > $_bestPct) {
       $_bestPct = $_pct;
