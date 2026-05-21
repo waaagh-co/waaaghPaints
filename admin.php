@@ -21,6 +21,11 @@ define('RECIPE_IMG_DIR', __DIR__ . '/img/recipes/');
 define('RECIPE_IMG_WEB', 'img/recipes/');
 define('JOURNAL_FILE',   __DIR__ . '/data/journal.json');
 define('SHAME_FILE',    __DIR__ . '/data/shame.json');
+define('RESCUES_FILE',    __DIR__ . '/data/rescues.json');
+define('RESCUES_IMG_DIR', __DIR__ . '/img/rescues/');
+define('RESCUES_IMG_WEB', 'img/rescues/');
+define('RESCUES_MAX_IMAGES', 4);
+define('RESCUE_STAGES', ['bidding', 'in_transit', 'received', 'stripping', 'prepped']);
 define('FORCES_FILE',    __DIR__ . '/data/forces.json');
 define('WISHLIST_FILE',  __DIR__ . '/data/wishlist.json');
 define('BATTLES_FILE',   __DIR__ . '/data/battles.json');
@@ -224,6 +229,9 @@ $hasJournal  = file_exists(JOURNAL_FILE);
 $journalData = $hasJournal ? (json_decode(file_get_contents(JOURNAL_FILE), true) ?? []) : [];
 $hasShame    = file_exists(SHAME_FILE);
 $shameData   = $hasShame ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
+$hasRescues   = file_exists(RESCUES_FILE);
+$rescuesData  = $hasRescues ? (json_decode(file_get_contents(RESCUES_FILE), true) ?? []) : [];
+if (!is_dir(RESCUES_IMG_DIR)) @mkdir(RESCUES_IMG_DIR, 0775, true);
 $hasBrushes   = file_exists(BRUSHES_FILE);
 $brushesData  = $hasBrushes ? (json_decode(file_get_contents(BRUSHES_FILE), true) ?? []) : [];
 $hasSupplies  = file_exists(SUPPLIES_FILE);
@@ -663,6 +671,209 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_journal') {
     $_SESSION['flash'] = 'Journal entry deleted.';
   }
   header('Location: ' . ADMIN_FILENAME . '#section-journal');
+  exit;
+}
+
+function rescueSort(array &$arr): void
+{
+  $stageOrder = array_flip(RESCUE_STAGES);
+  usort($arr, function ($a, $b) use ($stageOrder) {
+    $aP = !empty($a['promoted_to']);
+    $bP = !empty($b['promoted_to']);
+    if ($aP !== $bP) return $aP ? 1 : -1;
+    $as = $stageOrder[$a['stage'] ?? 'received'] ?? 99;
+    $bs = $stageOrder[$b['stage'] ?? 'received'] ?? 99;
+    if ($as !== $bs) return $as - $bs;
+    $aq = $a['acquired'] ?? '';
+    $bq = $b['acquired'] ?? '';
+    if ($aq === '' && $bq !== '') return 1;
+    if ($aq !== '' && $bq === '') return -1;
+    $cmp = strcmp($aq, $bq);
+    return $cmp !== 0 ? $cmp : strcmp($a['id'] ?? '', $b['id'] ?? '');
+  });
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'create_rescues_file') {
+  file_put_contents(RESCUES_FILE, '[]', LOCK_EX);
+  header('Location: ' . ADMIN_FILENAME . '#section-rescues');
+  exit;
+}
+
+if ($authed && in_array($_POST['action'] ?? '', ['add_rescue', 'edit_rescue'], true)) {
+  $rid       = trim($_POST['rc_id']        ?? '');
+  $name      = trim($_POST['rc_name']      ?? '');
+  $system    = trim($_POST['rc_system']    ?? '');
+  $faction   = trim($_POST['rc_faction']   ?? '');
+  $count     = (int)($_POST['rc_count']    ?? 0);
+  $source    = trim($_POST['rc_source']    ?? '');
+  $condition = trim($_POST['rc_condition'] ?? '');
+  $acquired  = trim($_POST['rc_acquired']  ?? '');
+  $stage     = trim($_POST['rc_stage']     ?? 'received');
+  $notes     = trim($_POST['rc_notes']     ?? '');
+  if (!$name) { header('Location: ' . ADMIN_FILENAME . '#section-rescues'); exit; }
+  if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) $system = '';
+  if (!in_array($stage, RESCUE_STAGES, true)) $stage = 'received';
+  if (!in_array($condition, ['bare', 'primed_only', 'light', 'medium', 'heavy'], true)) $condition = '';
+  if (!in_array($source, ['eBay', 'Trade', 'LGS', 'Gift', 'Other'], true)) $source = '';
+  if ($acquired && !preg_match('/^\d{4}-\d{2}$/', $acquired)) $acquired = '';
+
+  $all = file_exists(RESCUES_FILE) ? (json_decode(file_get_contents(RESCUES_FILE), true) ?? []) : [];
+  $existing = null;
+  $isEdit = $rid !== '';
+  $id = $rid;
+  if ($isEdit) {
+    foreach ($all as $e2) { if ($e2['id'] === $rid) { $existing = $e2; break; } }
+  } else {
+    $ts = (string)time();
+    $id = $ts;
+    $n  = 1;
+    $ids = array_column($all, 'id');
+    while (in_array($id, $ids, true)) { $id = $ts . $n++; }
+  }
+
+  $slotImages = array_pad(array_values($existing['before_images'] ?? []), RESCUES_MAX_IMAGES, null);
+  for ($slot = 1; $slot <= RESCUES_MAX_IMAGES; $slot++) {
+    if (($_POST['delete_rc_img_' . $slot] ?? '0') === '1' && $slotImages[$slot - 1] !== null) {
+      $fp = __DIR__ . '/' . $slotImages[$slot - 1];
+      if (file_exists($fp)) @unlink($fp);
+      $slotImages[$slot - 1] = null;
+    }
+    $key = 'rc_image' . $slot;
+    if (empty($_FILES[$key]['name'])) continue;
+    $file = $_FILES[$key];
+    if ($file['error'] !== UPLOAD_ERR_OK || $file['size'] > MAX_FILE_BYTES) continue;
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+    if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) continue;
+    $filename = $id . '_' . $slot . '_' . substr(uniqid(), -6) . '.' . imageExt($mime);
+    if (saveModelImage($file['tmp_name'], RESCUES_IMG_DIR . $filename, $mime)) {
+      $slotImages[$slot - 1] = RESCUES_IMG_WEB . $filename;
+    }
+  }
+  $images = array_values(array_filter($slotImages, fn($i) => $i !== null));
+
+  $entry = ['id' => $id, 'name' => $name, 'stage' => $stage];
+  if ($system)    $entry['system']    = $system;
+  if ($faction)   $entry['faction']   = $faction;
+  if ($count > 0) $entry['count']     = $count;
+  if ($source)    $entry['source']    = $source;
+  if ($condition) $entry['condition'] = $condition;
+  if ($acquired)  $entry['acquired']  = $acquired;
+  if ($notes)     $entry['notes']     = $notes;
+  if ($images)    $entry['before_images'] = $images;
+  if ($isEdit && !empty($existing['promoted_to'])) {
+    $entry['promoted_to'] = $existing['promoted_to'];
+    if (!empty($existing['promoted_id'])) $entry['promoted_id'] = $existing['promoted_id'];
+  }
+
+  if ($isEdit) {
+    foreach ($all as &$e3) { if ($e3['id'] === $rid) { $e3 = $entry; break; } }
+    unset($e3);
+  } else {
+    $all[] = $entry;
+  }
+  rescueSort($all);
+  file_put_contents(RESCUES_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  header('Location: ' . ADMIN_FILENAME . '#section-rescues');
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'delete_rescue') {
+  $rid = trim($_POST['rc_id'] ?? '');
+  if ($rid !== '') {
+    $all = file_exists(RESCUES_FILE) ? (json_decode(file_get_contents(RESCUES_FILE), true) ?? []) : [];
+    foreach ($all as $e4) {
+      if ($e4['id'] === $rid) {
+        foreach ($e4['before_images'] ?? [] as $img) {
+          if ($img) { $fp = __DIR__ . '/' . $img; if (file_exists($fp)) @unlink($fp); }
+        }
+        break;
+      }
+    }
+    $all = array_values(array_filter($all, fn($e) => $e['id'] !== $rid));
+    file_put_contents(RESCUES_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  }
+  header('Location: ' . ADMIN_FILENAME . '#section-rescues');
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'set_rescue_stage') {
+  header('Content-Type: application/json');
+  $rid = trim($_POST['rc_id'] ?? '');
+  if (!$rid) { echo json_encode(['ok' => false]); exit; }
+  $all = file_exists(RESCUES_FILE) ? (json_decode(file_get_contents(RESCUES_FILE), true) ?? []) : [];
+  $newStage = null;
+  foreach ($all as &$e5) {
+    if ($e5['id'] === $rid) {
+      $stages = RESCUE_STAGES;
+      $cur = array_search($e5['stage'] ?? 'received', $stages, true);
+      $next = ($cur !== false && $cur < count($stages) - 1) ? $stages[$cur + 1] : ($cur !== false ? $stages[$cur] : 'received');
+      $e5['stage'] = $next;
+      $newStage = $next;
+      break;
+    }
+  }
+  unset($e5);
+  if ($newStage === null) { echo json_encode(['ok' => false]); exit; }
+  rescueSort($all);
+  file_put_contents(RESCUES_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  echo json_encode(['ok' => true, 'stage' => $newStage]);
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'promote_rescue') {
+  header('Content-Type: application/json');
+  $rid  = trim($_POST['rc_id']      ?? '');
+  $dest = trim($_POST['promote_to'] ?? '');
+  if (!$rid || !in_array($dest, ['bench', 'shame'], true)) { echo json_encode(['ok' => false]); exit; }
+  $all = file_exists(RESCUES_FILE) ? (json_decode(file_get_contents(RESCUES_FILE), true) ?? []) : [];
+  $found = false; $eName = ''; $eFaction = ''; $eSystem = ''; $eCount = 1; $eAcq = '';
+  foreach ($all as &$e6) {
+    if ($e6['id'] === $rid) {
+      $eName    = $e6['name']    ?? '';
+      $eFaction = $e6['faction'] ?? '';
+      $eSystem  = $e6['system']  ?? '';
+      $eCount   = max(1, (int)($e6['count'] ?? 1));
+      $eAcq     = $e6['acquired'] ?? '';
+      $newId    = (string)(time() + rand(0, 9));
+      $e6['promoted_to'] = $dest;
+      $e6['promoted_id'] = $newId;
+      $found = true;
+      break;
+    }
+  }
+  unset($e6);
+  if (!$found) { echo json_encode(['ok' => false]); exit; }
+  rescueSort($all);
+  file_put_contents(RESCUES_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  if ($dest === 'bench') {
+    $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+    $entry = ['id' => $newId, 'name' => $eName, 'stage' => 'built', 'last_touched' => date('Y-m-d')];
+    if ($eFaction) $entry['faction'] = $eFaction;
+    if ($eSystem)  $entry['system']  = $eSystem;
+    if ($eCount > 1) $entry['count'] = $eCount;
+    $bench[] = $entry;
+    usort($bench, function ($a, $b) {
+      $ad = ($a['stage'] ?? 'built') === 'done';
+      $bd = ($b['stage'] ?? 'built') === 'done';
+      if ($ad !== $bd) return $ad ? 1 : -1;
+      $la = $a['last_touched'] ?? '';
+      $lb = $b['last_touched'] ?? '';
+      if ($la !== $lb) return strcmp($lb, $la);
+      return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
+    });
+    file_put_contents(BENCH_FILE, json_encode(array_values($bench), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  } else {
+    $shame = file_exists(SHAME_FILE) ? (json_decode(file_get_contents(SHAME_FILE), true) ?? []) : [];
+    $entry = ['id' => $newId, 'name' => $eName, 'status' => 'opened'];
+    if ($eFaction) $entry['faction']  = $eFaction;
+    if ($eSystem)  $entry['system']   = $eSystem;
+    if ($eCount > 1) $entry['count']  = $eCount;
+    if ($eAcq)     $entry['acquired'] = $eAcq;
+    $shame[] = $entry;
+    shameSort($shame);
+    file_put_contents(SHAME_FILE, json_encode(array_values($shame), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  }
+  echo json_encode(['ok' => true, 'promoted_to' => $dest]);
   exit;
 }
 
@@ -2214,6 +2425,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <?php if ($hasBrushes): ?><a href="#section-brushes">Brush Inventory</a><?php endif; ?>
         <?php if ($hasSupplies): ?><a href="#section-supplies">Supplies</a><?php endif; ?>
         <?php if ($hasShame): ?><a href="#section-shame">Pile of Shame</a><?php endif; ?>
+        <?php if ($hasRescues): ?><a href="#section-rescues">Rescue Tracker</a><?php endif; ?>
         <?php if ($hasWishlist): ?><a href="#section-wishlist">Wishlist</a><?php endif; ?>
         <a href="#section-conversions">Equivalency</a>
         <?php if ($hasBooks): ?><a href="#section-books">Codices</a><?php endif; ?>
@@ -2371,6 +2583,34 @@ if ($authed && isset($_GET['edit_force'])) {
             <div class="stat-num"><?= count($battlesData) ?></div>
             <div class="stat-label">Battles (<?= $bw ?>W <?= $bl ?>L <?= $bd ?>D)</div>
           </div>
+        <?php endif; ?>
+        <?php if ($hasRescues):
+          $cntRescuesActive = count(array_filter($rescuesData, fn($r) => empty($r['promoted_to'])));
+          $cntRescueUnits   = array_sum(array_map(fn($r) => max(1, (int)($r['count'] ?? 1)), array_filter($rescuesData, fn($r) => empty($r['promoted_to']))));
+        ?>
+        <?php if ($cntRescuesActive > 0): ?>
+          <div class="stat-card">
+            <div class="stat-num"><?= $cntRescuesActive ?></div>
+            <div class="stat-label">Active Rescues</div>
+          </div>
+          <?php if ($cntRescueUnits > $cntRescuesActive): ?>
+          <div class="stat-card">
+            <div class="stat-num"><?= $cntRescueUnits ?></div>
+            <div class="stat-label">Rescue Units</div>
+          </div>
+          <?php endif; ?>
+        <?php endif; ?>
+        <?php
+          $cntShameActive = array_sum(array_map(fn($s) => max(1, (int)($s['count'] ?? 1)), array_filter($shameData, fn($s) => empty($s['promoted_to']))));
+          $cntBenchActive = array_sum(array_map(fn($b) => max(1, (int)($b['count'] ?? 1)), array_filter($benchData, fn($b) => empty($b['promoted_to']))));
+          $_totalUnits = $totalPainted + $cntBenchActive + $cntShameActive + $cntRescueUnits;
+          if ($_totalUnits > $totalPainted):
+        ?>
+          <div class="stat-card">
+            <div class="stat-num"><?= $_totalUnits ?></div>
+            <div class="stat-label">Total Units Tracked</div>
+          </div>
+        <?php endif; ?>
         <?php endif; ?>
       </div>
 

@@ -107,6 +107,13 @@ $latestBattle    = ($hasBattles && $cnt_battles > 0) ? $battlesData[0] : null;
 $battleRecord    = ['w' => 0, 'l' => 0, 'd' => 0];
 foreach ($battlesData as $_bh) { $battleRecord[$_bh['result'] === 'win' ? 'w' : ($_bh['result'] === 'loss' ? 'l' : 'd')]++; }
 
+$rescuesFile  = __DIR__ . '/data/rescues.json';
+$hasRescues   = file_exists($rescuesFile);
+$rescuesData  = $hasRescues ? (json_decode(file_get_contents($rescuesFile), true) ?? []) : [];
+$rescuesActive     = array_values(array_filter($rescuesData, fn($r) => empty($r['promoted_to'])));
+$cnt_rescues       = count($rescuesActive);
+$cnt_rescue_units  = array_sum(array_map(fn($r) => max(1, (int)($r['count'] ?? 1)), $rescuesActive));
+
 $goalsData    = file_exists(__DIR__ . '/data/goals.json') ? (json_decode(file_get_contents(__DIR__ . '/data/goals.json'), true) ?? []) : [];
 $curYear      = date('Y');
 $rawGoal      = $goalsData[$curYear] ?? null;
@@ -202,6 +209,110 @@ if ($_mNotes   > 0) $sidebarWkParts[] = $_mNotes   . ' note'          . ($_mNote
 $sidebarWkActive = !empty($sidebarWkParts);
 unset($_mWkAgo, $_mScore, $_mModels, $_mBench, $_mm, $_ms, $_mb, $_bs, $_mj, $_mActive, $_mTs, $_mDays, $_mNotes, $_mBattles, $_mj2, $_mbh);
 
+// === Wots Next? recommendations ===
+$_wtnOwned = [];
+foreach ($paints as $_wp) {
+  if (($_wp['stock'] ?? '') !== 'out' && ($_wp['stock'] ?? '') !== 'wanted') {
+    $_wtnOwned[strtolower($_wp['brand'] . '|' . $_wp['name'] . '|' . ($_wp['layer'] ?? ''))] = true;
+    $_wtnOwned[strtolower($_wp['brand'] . '|' . $_wp['name'])] = true;
+  }
+}
+// Card 1: RESCUE THIS - most neglected active bench project
+$_wtnRescue = null;
+if ($hasBench) {
+  $_bActive = array_values(array_filter($benchData, fn($b) => ($b['stage'] ?? '') !== 'done' && empty($b['promoted_to'])));
+  if (!empty($_bActive)) {
+    usort($_bActive, fn($a, $b) => strcmp($a['last_touched'] ?? '', $b['last_touched'] ?? ''));
+    $_b = $_bActive[0];
+    $_days = max(0, (int)floor((strtotime('today') - strtotime($_b['last_touched'] ?? date('Y-m-d'))) / 86400));
+    $_wtnRescue = ['type' => 'rescue', 'name' => $_b['name'], 'faction' => $_b['faction'] ?? '', 'stage' => $_b['stage'] ?? 'built', 'days' => $_days, 'thumb' => $_b['wip_images'][0] ?? null];
+  }
+}
+// Card 2: READY TO START - planned scheme with all paints owned
+$_wtnReady = null;
+if (!empty($planned)) {
+  foreach ($planned as $_pl) {
+    if (!empty($_pl['promoted_to'])) continue;
+    $_miss = 0;
+    foreach (($_pl['colors'] ?? []) as $_c) { if (!isset($_wtnOwned[strtolower($_c)])) $_miss++; }
+    if ($_miss === 0 && !empty($_pl['colors'])) {
+      $_wtnReady = ['type' => 'ready', 'name' => $_pl['name'], 'faction' => $_pl['faction'] ?? '', 'count' => count($_pl['colors'])];
+      break;
+    }
+  }
+}
+// Card 3: ALMOST THERE - force closest to target model count
+$_wtnForce = null;
+if ($hasForces) {
+  $_mById = [];
+  foreach ($models as $_m2) $_mById[$_m2['id']] = $_m2;
+  $_bestPct = 0;
+  foreach ($forcesData as $_f) {
+    if (empty($_f['target_models'])) continue;
+    $_painted = 0;
+    foreach (($_f['models'] ?? []) as $_mid) {
+      if (isset($_mById[$_mid])) $_painted += max(1, (int)($_mById[$_mid]['count'] ?? 1));
+    }
+    $_target = max(1, (int)$_f['target_models']);
+    $_pct = min(100, (int)round($_painted / $_target * 100));
+    if ($_pct < 100 && $_pct > $_bestPct) {
+      $_bestPct = $_pct;
+      $_fThumb = null;
+      foreach (($_f['models'] ?? []) as $_fmid) {
+        if (isset($_mById[$_fmid]['images'][0])) { $_fThumb = $_mById[$_fmid]['images'][0]; break; }
+      }
+      $_wtnForce = ['type' => 'force', 'name' => $_f['name'], 'painted' => $_painted, 'target' => $_target, 'pct' => $_bestPct, 'thumb' => $_fThumb];
+    }
+  }
+}
+// Card 4a: ONE SHOP AWAY - planned scheme with 1-2 missing paints (only when no ready scheme)
+$_wtnAlmost = null;
+if (!empty($planned) && $_wtnReady === null) {
+  foreach ($planned as $_pl2) {
+    if (!empty($_pl2['promoted_to'])) continue;
+    $_missNames = [];
+    foreach (($_pl2['colors'] ?? []) as $_c2) {
+      if (!isset($_wtnOwned[strtolower($_c2)])) {
+        $_parts2 = explode('|', $_c2);
+        $_missNames[] = count($_parts2) >= 2 ? $_parts2[1] : $_c2;
+      }
+    }
+    if (count($_missNames) >= 1 && count($_missNames) <= 2) {
+      $_wtnAlmost = ['type' => 'almost', 'name' => $_pl2['name'], 'faction' => $_pl2['faction'] ?? '', 'missing' => $_missNames];
+      break;
+    }
+  }
+}
+// Card 4b: BUILD IT - oldest pile of shame entry (fallback when no almost-ready scheme)
+$_wtnShame = null;
+if ($hasShame && $_wtnAlmost === null) {
+  $_sActive = array_values(array_filter($shameData, fn($s) => empty($s['promoted_to'])));
+  if (!empty($_sActive)) {
+    usort($_sActive, fn($a, $b) => strcmp($a['acquired'] ?? '9999', $b['acquired'] ?? '9999'));
+    $_s = $_sActive[0];
+    $_acq = $_s['acquired'] ?? '';
+    $_sLabel = '';
+    if ($_acq) {
+      $_sdiff = (date('Y') - (int)substr($_acq, 0, 4)) * 12 + (date('n') - (int)substr($_acq, 5, 2));
+      $_sLabel = $_sdiff >= 12 ? floor($_sdiff / 12) . ' yr' . (floor($_sdiff / 12) > 1 ? 's' : '') : $_sdiff . ' mo';
+    }
+    $_wtnShame = ['type' => 'shame', 'name' => $_s['name'], 'faction' => $_s['faction'] ?? '', 'system' => $_s['system'] ?? '', 'sitting' => $_sLabel];
+  }
+}
+// Card 4c: PRIME IT - oldest prepped rescue not yet promoted (replaces almost/shame when present)
+$_wtnPrepped = null;
+if ($hasRescues) {
+  $_rPrepped = array_values(array_filter($rescuesActive, fn($r) => ($r['stage'] ?? '') === 'prepped'));
+  if (!empty($_rPrepped)) {
+    usort($_rPrepped, fn($a, $b) => strcmp($a['acquired'] ?? '9999', $b['acquired'] ?? '9999'));
+    $_rp = $_rPrepped[0];
+    $_wtnPrepped = ['type' => 'prepped', 'name' => $_rp['name'], 'faction' => $_rp['faction'] ?? '', 'count' => max(1, (int)($_rp['count'] ?? 1)), 'thumb' => $_rp['before_images'][0] ?? null];
+  }
+}
+$wtnCards = array_values(array_filter([$_wtnRescue, $_wtnReady, $_wtnForce, $_wtnPrepped ?? ($_wtnAlmost ?? $_wtnShame)]));
+$hasWtn = !empty($wtnCards);
+unset($_wtnOwned, $_wp, $_bActive, $_b, $_days, $_pl, $_miss, $_c, $_mById, $_m2, $_bestPct, $_f, $_painted, $_target, $_pct, $_fThumb, $_fmid, $_mid, $_pl2, $_missNames, $_c2, $_parts2, $_sActive, $_s, $_acq, $_sLabel, $_sdiff, $_rPrepped, $_rp, $_wtnRescue, $_wtnReady, $_wtnForce, $_wtnAlmost, $_wtnShame, $_wtnPrepped);
+
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
@@ -260,7 +371,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=56">
+  <link rel="stylesheet" href="styles.css?v=58">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -295,6 +406,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <li class="sg-item"><a href="#" data-tab="gallery">Paint Schemes</a></li>
           <li class="sg-item"><a href="#" data-tab="planned">Planned</a></li>
           <?php if ($hasBench): ?><li class="sg-item"><a href="#" data-tab="bench">On the Bench</a></li><?php endif; ?>
+          <?php if ($hasRescues): ?><li class="sg-item"><a href="#" data-tab="rescues">Rescue Tracker</a></li><?php endif; ?>
         </ul>
       </div>
 
@@ -593,6 +705,14 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                 <div class="pipeline-node-blurb"><?= ($hasShame && $cnt_shame_units > 0) ? $cnt_shame_units . ' in the pile' : 'Under da brush' ?></div>
               </a>
             <?php endif; ?>
+            <?php if ($hasRescues && $cnt_rescue_units > 0): ?>
+              <div class="pipeline-arrow">&#8594;</div>
+              <a class="pipeline-node" data-jump="rescues">
+                <div class="pipeline-node-name">Rescue</div>
+                <div class="pipeline-node-num"><?= $cnt_rescue_units ?></div>
+                <div class="pipeline-node-blurb">unit<?= $cnt_rescue_units !== 1 ? 's' : '' ?> in prep</div>
+              </a>
+            <?php endif; ?>
           </div>
           <?php if ($latestBattle): ?>
             <?php $bhRes = $latestBattle['result'] ?? 'draw'; ?>
@@ -613,6 +733,77 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           </a>
         <?php endif; ?>
       </div>
+
+      <?php if ($hasWtn): ?>
+      <div class="wtn-panel">
+        <div class="wtn-header">
+          <span class="wtn-title">Wots Next?</span>
+          <span class="wtn-sub">based on everything you've got on</span>
+        </div>
+        <div class="wtn-cards">
+          <?php foreach ($wtnCards as $_wc): ?>
+          <?php if ($_wc['type'] === 'rescue'): ?>
+          <a class="wtn-card wtn-card-rescue" data-jump="bench">
+            <?php if (!empty($_wc['thumb'])): ?><div class="wtn-thumb" style="background-image:url('<?= htmlspecialchars($_wc['thumb']) ?>')"></div><?php endif; ?>
+            <div class="wtn-body">
+              <div class="wtn-type">Rescue This</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <?php if (!empty($_wc['faction'])): ?><div class="wtn-faction"><?= htmlspecialchars($_wc['faction']) ?></div><?php endif; ?>
+              <div class="wtn-reason"><?= htmlspecialchars(ucfirst($_wc['stage'])) ?> &middot; untouched <?= (int)$_wc['days'] ?> day<?= (int)$_wc['days'] !== 1 ? 's' : '' ?></div>
+            </div>
+          </a>
+          <?php elseif ($_wc['type'] === 'ready'): ?>
+          <a class="wtn-card wtn-card-ready" data-jump="planned">
+            <div class="wtn-body">
+              <div class="wtn-type">Ready to Start</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <?php if (!empty($_wc['faction'])): ?><div class="wtn-faction"><?= htmlspecialchars($_wc['faction']) ?></div><?php endif; ?>
+              <div class="wtn-reason"><?= (int)$_wc['count'] ?> paint<?= (int)$_wc['count'] !== 1 ? 's' : '' ?> &middot; all in stock</div>
+            </div>
+          </a>
+          <?php elseif ($_wc['type'] === 'force'): ?>
+          <a class="wtn-card wtn-card-force" data-jump="forces">
+            <?php if (!empty($_wc['thumb'])): ?><div class="wtn-thumb" style="background-image:url('<?= htmlspecialchars($_wc['thumb']) ?>')"></div><?php endif; ?>
+            <div class="wtn-body">
+              <div class="wtn-type">Almost There</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <div class="wtn-reason"><?= (int)$_wc['painted'] ?> / <?= (int)$_wc['target'] ?> models painted</div>
+              <div class="wtn-progress"><div class="wtn-progress-fill" style="width:<?= (int)$_wc['pct'] ?>%"></div></div>
+            </div>
+          </a>
+          <?php elseif ($_wc['type'] === 'almost'): ?>
+          <a class="wtn-card wtn-card-almost" data-jump="planned">
+            <div class="wtn-body">
+              <div class="wtn-type">One Shop Away</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <?php if (!empty($_wc['faction'])): ?><div class="wtn-faction"><?= htmlspecialchars($_wc['faction']) ?></div><?php endif; ?>
+              <div class="wtn-reason">Buy: <?= htmlspecialchars(implode(', ', $_wc['missing'])) ?></div>
+            </div>
+          </a>
+          <?php elseif ($_wc['type'] === 'shame'): ?>
+          <a class="wtn-card wtn-card-shame" data-jump="shame">
+            <div class="wtn-body">
+              <div class="wtn-type">Build It</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <?php if (!empty($_wc['faction'])): ?><div class="wtn-faction"><?= htmlspecialchars($_wc['faction']) ?></div><?php endif; ?>
+              <div class="wtn-reason">Sitting<?= !empty($_wc['sitting']) ? ' ' . htmlspecialchars($_wc['sitting']) : '' ?> unbuilt</div>
+            </div>
+          </a>
+          <?php elseif ($_wc['type'] === 'prepped'): ?>
+          <a class="wtn-card wtn-card-prepped" data-jump="rescues">
+            <?php if (!empty($_wc['thumb'])): ?><div class="wtn-thumb" style="background-image:url('<?= htmlspecialchars($_wc['thumb']) ?>')"></div><?php endif; ?>
+            <div class="wtn-body">
+              <div class="wtn-type">Prime It</div>
+              <div class="wtn-name"><?= htmlspecialchars($_wc['name']) ?></div>
+              <?php if (!empty($_wc['faction'])): ?><div class="wtn-faction"><?= htmlspecialchars($_wc['faction']) ?></div><?php endif; ?>
+              <div class="wtn-reason"><?= (int)$_wc['count'] ?> unit<?= (int)$_wc['count'] !== 1 ? 's' : '' ?> ready to prime</div>
+            </div>
+          </a>
+          <?php endif; ?>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
 
       <div class="contents-grid">
         <div class="armies-workbench-row">
@@ -866,6 +1057,24 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div id="shame-more"></div>
       <div id="shame-empty" class="tab-empty hidden">No boxes match.</div>
     </div>
+  <?php endif; ?>
+
+  <?php if ($hasRescues): ?>
+  <div id="tab-rescues" class="tab-panel">
+    <div id="rescues-controls">
+      <a class="tab-label" href="#" onclick="copyTabLink(event,'rescues')" title="Copy link to this tab">Rescue Tracker</a>
+      <input id="rescues-search" type="search" class="tab-search" placeholder="Search rescues...">
+      <div id="rescues-filter-pills" class="pill-row">
+        <button class="rsc-fp active" data-filter="active">Active</button>
+        <button class="rsc-fp" data-filter="promoted">Promoted</button>
+        <button class="rsc-fp" data-filter="all">All</button>
+      </div>
+      <span id="rescues-summary"></span>
+    </div>
+    <p class="tab-blurb">eBay finds, traded minis, job lots - stripped and reborn.</p>
+    <div class="rescues-grid" id="rescues-grid"></div>
+    <div id="rescues-empty" class="tab-empty hidden">No rescues match.</div>
+  </div>
   <?php endif; ?>
 
   <div id="tab-planned" class="tab-panel">
@@ -1191,6 +1400,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const SHAME_DATA = <?= $hasShame ? json_encode($shameData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const JOURNAL_DATA = <?= $hasJournal ? json_encode($journalData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const BATTLES_DATA = <?= $hasBattles ? $battlesDataJson : 'null' ?>;
+    const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
   <script src="js/index.js?v=9"></script>

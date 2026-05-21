@@ -506,6 +506,7 @@
       if (tabName === 'forces'   && window._renderForces)   window._renderForces();
       if (tabName === 'battles'  && window._renderBattles)  window._renderBattles();
       if (tabName === 'shame'    && window._renderShame)    window._renderShame();
+      if (tabName === 'rescues'  && window._renderRescues)  window._renderRescues();
       if (tabName === 'wishlist' && window._renderWishlist) window._renderWishlist();
       if (tabName === 'recipes'  && window._renderRecipes)  window._renderRecipes();
       if (tabName === 'factions' && window._renderFactions) window._renderFactions();
@@ -1818,6 +1819,88 @@
         })();
 
         (function() {
+          if (typeof RESCUE_DATA === 'undefined' || RESCUE_DATA === null) return;
+          const gridEl = document.getElementById('rescues-grid');
+          const emptyEl = document.getElementById('rescues-empty');
+          const summaryEl = document.getElementById('rescues-summary');
+          const searchEl = document.getElementById('rescues-search');
+          if (!gridEl) return;
+
+          const RESCUE_STAGES = ['bidding', 'in_transit', 'received', 'stripping', 'prepped'];
+          const STAGE_LABEL = { bidding: 'Bidding', in_transit: 'In Transit', received: 'Received', stripping: 'Stripping', prepped: 'Prepped' };
+          const COND_LABEL = { bare: 'Bare', primed_only: 'Primed Only', light: 'Light Strip', medium: 'Medium Strip', heavy: 'Heavy Strip' };
+          const SHAME_SYS_SLUG = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necromunda', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
+          const SHAME_SYS_SHORT = { '40k': '40k', '30k / HH': '30k', 'AoS': 'AoS', 'Epic': 'Epic', 'Blood Bowl': 'BB', 'Necromunda': 'Necro', 'Kill Team': 'KT', 'OPR': 'OPR', 'Other': 'Other' };
+
+          let filterState = 'active';
+
+          function esc(s) { const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+
+          function sittingSince(acq) {
+            if (!acq) return '';
+            const [y, m] = acq.split('-').map(Number);
+            const now = new Date();
+            const months = (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m);
+            if (months < 1) return 'just acquired';
+            if (months < 12) return months + ' month' + (months !== 1 ? 's' : '');
+            const yrs = Math.floor(months / 12), rem = months % 12;
+            return yrs + ' yr' + (yrs !== 1 ? 's' : '') + (rem ? ' ' + rem + ' mo' : '');
+          }
+
+          function cardHtml(r) {
+            const sysSlug = SHAME_SYS_SLUG[r.system] || (r.system || 'Other').replace(/[\s\/]+/g, '');
+            const stageCls = 'rescue-st-' + (r.stage || 'received');
+            const sysLabel = r.system ? `<div class="shame-sys-label shame-sys-${sysSlug}">${esc(SHAME_SYS_SHORT[r.system] || r.system)}</div>` : '';
+            const stageBadge = `<span class="rescue-stage-badge rescue-stage-${r.stage || 'received'}">${esc(STAGE_LABEL[r.stage] || r.stage || 'Received')}</span>`;
+            const condBadge = r.condition ? `<span class="rescue-cond-badge">${esc(COND_LABEL[r.condition] || r.condition)}</span>` : '';
+            const srcBadge = r.source ? `<span class="rescue-source-badge">${esc(r.source)}</span>` : '';
+            const sitting = sittingSince(r.acquired);
+            const sittingHtml = sitting ? `<div class="rescue-card-sitting">${sitting === 'just acquired' ? 'just acquired' : 'sitting ' + sitting}</div>` : '';
+            const countHtml = r.count > 1 ? `<span>${esc(r.count)} models</span>` : '';
+            const factionHtml = r.faction ? `<span>${esc(r.faction)}</span>` : '';
+            const acqHtml = r.acquired ? `<span>${esc(r.acquired)}</span>` : '';
+            const promoted = r.promoted_to ? `<div style="text-align:right"><span class="rescue-promoted-badge">Promoted &rarr; ${esc(r.promoted_to === 'bench' ? 'Bench' : 'Shame')}</span></div>` : '';
+            const notesHtml = r.notes ? `<div class="rescue-card-notes">${esc(r.notes)}</div>` : '';
+            const photos = (r.before_images || []).filter(Boolean);
+            const photosHtml = photos.length ? `<div class="rescue-photos">${photos.map((p, i) => `<div class="rescue-photo" style="background-image:url('${esc(p)}')" data-lightbox-src="${esc(p)}" data-lightbox-all='${JSON.stringify(photos)}' data-lightbox-idx="${i}"></div>`).join('')}</div>` : '';
+            return `<div class="rescue-card ${stageCls}" data-id="${esc(r.id)}">${sysLabel}${promoted}<div class="rescue-card-name">${esc(r.name)}</div>${sittingHtml}<div class="rescue-card-meta">${stageBadge}${condBadge}${srcBadge}${countHtml}${factionHtml}${acqHtml}</div>${photosHtml}${notesHtml}</div>`;
+          }
+
+          function renderRescues() {
+            const q = (searchEl ? searchEl.value || '' : '').trim().toLowerCase();
+            let list = RESCUE_DATA.slice();
+            if (filterState === 'active') list = list.filter(r => !r.promoted_to);
+            if (filterState === 'promoted') list = list.filter(r => r.promoted_to);
+            if (q) list = list.filter(r => [r.name, r.faction, r.system, r.notes, r.acquired, r.source, r.condition, r.stage].filter(Boolean).join(' ').toLowerCase().includes(q));
+
+            const active = RESCUE_DATA.filter(r => !r.promoted_to);
+            const totalUnits = active.reduce((n, r) => n + (parseInt(r.count) || 1), 0);
+            if (summaryEl) summaryEl.textContent = active.length + ' rescue' + (active.length !== 1 ? 's' : '') + ' · ~' + totalUnits + ' unit' + (totalUnits !== 1 ? 's' : '');
+
+            emptyEl.style.display = 'none';
+            if (!list.length) { gridEl.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+            gridEl.innerHTML = list.map(r => cardHtml(r)).join('');
+
+            gridEl.querySelectorAll('.rescue-photo[data-lightbox-src]').forEach(el => {
+              el.addEventListener('click', () => {
+                try { const all = JSON.parse(el.dataset.lightboxAll || '[]'); const idx = parseInt(el.dataset.lightboxIdx) || 0; if (all.length) openLightbox(all, idx); } catch(e) {}
+              });
+            });
+          }
+
+          document.getElementById('rescues-filter-pills').addEventListener('click', ev => {
+            const fp = ev.target.closest('.rsc-fp');
+            if (!fp) return;
+            filterState = fp.dataset.filter;
+            document.querySelectorAll('.rsc-fp').forEach(b => b.classList.toggle('active', b.dataset.filter === filterState));
+            renderRescues();
+          });
+          if (searchEl) searchEl.addEventListener('input', renderRescues);
+          window._renderRescues = renderRescues;
+          renderRescues();
+        })();
+
+        (function() {
           const STAGES = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
           const STAGE_LABEL = {
             built: 'Built',
@@ -3003,6 +3086,7 @@
       const hasBooks = BOOKS_DATA !== null;
       const hasShame = SHAME_DATA !== null;
       const hasForces = FORCES_DATA !== null;
+      const hasRescues = typeof RESCUE_DATA !== 'undefined' && RESCUE_DATA !== null;
 
       const WTYPE_LABEL_GS = {
         paint: 'Paint',
@@ -3020,11 +3104,12 @@
         supply: 'Supply',
         book: 'Codex',
         shame: 'Shame Pile',
+        rescue: 'Rescue',
         force: 'Force',
         battle: 'Battle',
         wish: 'Wishlist'
       };
-      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'bench', 'force', 'battle', 'brush', 'supply', 'book', 'wish'];
+      const TYPE_ORDER = ['scheme', 'recipe', 'paint', 'planned', 'shame', 'rescue', 'bench', 'force', 'battle', 'brush', 'supply', 'book', 'wish'];
       const PER_TYPE_CAP = 8;
 
       let selectedIdx = 0;
@@ -3128,6 +3213,11 @@
             name: s.name,
             meta: [s.system, s.faction, s.status].filter(Boolean).join(' · ')
           });
+        });
+
+        if (hasRescues) RESCUE_DATA.forEach(r => {
+          const hay = [r.name, r.faction, r.system, r.notes, r.source, r.condition, r.stage].filter(Boolean).join(' ');
+          if (match(hay)) out.push({ type: 'rescue', key: r.id, name: r.name, meta: [r.system, r.faction, r.stage].filter(Boolean).join(' · ') });
         });
 
         if (hasForces) FORCES_DATA.forEach(f => {
@@ -3333,6 +3423,15 @@
                 el.classList.remove('highlight');
                 void el.offsetWidth;
                 el.classList.add('highlight');
+              }
+            }, 150);
+          } else if (r.type === 'rescue') {
+            switchToTab('rescues');
+            setTimeout(() => {
+              const el = document.querySelector('.rescue-card[data-id="' + r.key + '"]');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.classList.remove('highlight'); void el.offsetWidth; el.classList.add('highlight');
               }
             }, 150);
           } else if (r.type === 'wish') {
