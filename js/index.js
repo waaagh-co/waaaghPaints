@@ -534,7 +534,7 @@
     document.querySelectorAll('.sidebar-nav [data-tab]').forEach(link => {
       link.addEventListener('click', e => {
         e.preventDefault();
-        activateTab(link.dataset.tab);
+        switchToTab(link.dataset.tab);
         if (window.innerWidth <= 768) closeSidebar();
       });
     });
@@ -1409,7 +1409,7 @@
                 const starsN = b.stars || 0;
                 const starsHtml = starsN ? `<span class="brush-stars">${Array.from({length:5},(_,i)=>`<span class="br-star${i<starsN?' on':''}">★</span>`).join('')}</span>` : '';
                 const seriesHtml = seriesSize ? esc(seriesSize) : '<span style="color:#3a2a10">-</span>';
-                const dateHtml = date ? `<span style="font-family:'Cinzel',serif;letter-spacing:.03em">${esc(date)}</span>` : '';
+                const dateHtml = date ? `<span class="brush-cinzel-date">${esc(date)}</span>` : '';
                 const notesHtml = b.notes ? `<div class="brush-entry-notes">${esc(b.notes)}</div>` : '';
                 return `<div class="brush-entry" data-id="${esc(b.id || '')}"><div class="brush-entry-top"><span class="brush-entry-series">${seriesHtml}</span><span class="brush-entry-right">${starsHtml}<span class="brush-cond-badge cond-${esc(cond)}">${esc(condLabel)}</span></span></div><div class="brush-entry-bottom"><span>${esc(matUse)}</span>${dateHtml}</div>${notesHtml}</div>`;
               }).join('');
@@ -1595,12 +1595,12 @@
             const t = w.type || 'paint';
             const pri = w.priority || 'medium';
             const meta = [w.brand, w.faction, w.system].filter(Boolean).join(' · ');
-            const urlHtml = w.url ? `<div style="margin-top:3px"><a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-size:11px;color:#6a8a6a;text-decoration:none">&#128279; Link</a></div>` : '';
-            const noteHtml = w.notes ? `<div style="font-size:12px;color:#5a4a28;margin-top:3px">${esc(w.notes)}</div>` : '';
-            const metaHtml = meta ? `<div style="font-size:11px;color:#4a3a1a;margin-top:2px">${esc(meta)}</div>` : '';
-            const addHtml = w.added ? `<div style="font-size:10px;color:#3a2a10;margin-top:6px;text-align:right">${esc(w.added)}</div>` : '';
+            const urlHtml = w.url ? `<div><a href="${esc(w.url)}" target="_blank" rel="noopener" class="wl-card-url">&#128279; Link</a></div>` : '';
+            const noteHtml = w.notes ? `<div class="wl-card-notes">${esc(w.notes)}</div>` : '';
+            const metaHtml = meta ? `<div class="wl-card-meta">${esc(meta)}</div>` : '';
+            const addHtml = w.added ? `<div class="wl-card-timestamp">${esc(w.added)}</div>` : '';
             const orderedHtml = w.ordered_date ? `<div><span class="wish-ordered-badge">In Transit &middot; ${esc(w.ordered_date)}</span></div>` : '';
-            return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}</div>${orderedHtml}<div style="font-family:'Cinzel',serif;font-size:13px;color:#c4b49a;font-weight:600">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
+            return `<div class="wishlist-card wtype-${esc(t)}" data-id="${esc(w.id||'')}"><div class="wish-spine">${esc(WTYPE_LABEL[t]||t)}</div><div class="wish-body"><div class="wl-badge-row"><span class="wpri-badge wpri-${esc(pri)}">${esc(pri.charAt(0).toUpperCase()+pri.slice(1))}</span>${stockDot(w)}</div>${orderedHtml}<div class="wl-card-name">${esc(w.name||'')}</div>${metaHtml}${noteHtml}${urlHtml}${addHtml}</div></div>`;
           }
 
           function copyWishlist() {
@@ -1795,7 +1795,7 @@
               const acqHtml = s.acquired ? `<span class="shame-acquired">${esc(s.acquired)}</span>` : '';
               const notesHtml = s.notes ? `<div class="shame-notes">${esc(s.notes)}</div>` : '';
               const newestLabel = isNewest ? `<div class="shame-card-newest-label">&#9650; Just added</div>` : '';
-              const headerRow = promoted ? `<div style="display:flex;justify-content:flex-end">${promoted}</div>` : '';
+              const headerRow = promoted ? `<div class="promoted-badge-row">${promoted}</div>` : '';
               return `<div class="shame-card shame-st-${stClass}${isNewest ? ' shame-card-newest' : ''}" data-id="${esc(s.id)}">${sysLabel}${newestLabel}${headerRow}<div class="shame-card-name">${esc(s.name)}</div>${sittingHtml}<div class="shame-card-meta">${stBadge}${metaParts ? '<span>' + metaParts + '</span>' : ''}${acqHtml}</div>${notesHtml}</div>`;
             }
 
@@ -1863,7 +1863,7 @@
             const countHtml = r.count > 1 ? `<span>${esc(r.count)} models</span>` : '';
             const factionHtml = r.faction ? `<span>${esc(r.faction)}</span>` : '';
             const acqHtml = r.acquired ? `<span>${esc(r.acquired)}</span>` : '';
-            const promoted = r.promoted_to ? `<div style="text-align:right"><span class="rescue-promoted-badge">Promoted &rarr; ${esc(r.promoted_to === 'bench' ? 'Bench' : 'Shame')}</span></div>` : '';
+            const promoted = r.promoted_to ? `<div class="promoted-badge-row"><span class="rescue-promoted-badge">Promoted &rarr; ${esc(r.promoted_to === 'bench' ? 'Bench' : 'Shame')}</span></div>` : '';
             const notesHtml = r.notes ? `<div class="rescue-card-notes">${esc(r.notes)}</div>` : '';
             const photos = (r.before_images || []).filter(Boolean);
             const photosHtml = photos.length ? `<div class="rescue-photos">${photos.map((p, i) => `<div class="rescue-photo" style="background-image:url('${esc(p)}')" data-lightbox-src="${esc(p)}" data-lightbox-all='${JSON.stringify(photos)}' data-lightbox-idx="${i}"></div>`).join('')}</div>` : '';
@@ -2032,7 +2032,7 @@
             ${b.notes ? `<div class="bench-card-notes">${esc(b.notes).replace(/\r?\n/g, '<br>')}</div>` : ''}
             ${colors.length ? `<div class="bench-colors">${pillsHtml}${overflow}</div>` : ''}
             ${brushHtml}
-            <div class="planned-card-footer">
+            <div class="card-footer">
               <span class="planned-card-summary">${colors.length} paint${colors.length !== 1 ? 's' : ''}${statusParts.length ? ' - ' + statusParts.join(', ') : ''}</span>
               ${colors.length ? `<button class="pull-btn planned-pull-btn" onclick="openBenchPull('${esc(b.id || '')}')">Pull list${missing > 0 ? ` <span class="pull-issue-badge">${missing} issue${missing !== 1 ? 's' : ''}</span>` : ''}</button>` : ''}
             </div>

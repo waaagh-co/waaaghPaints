@@ -10,8 +10,8 @@
       --bg-mid:       #3a2a10;
       --border:       #2a2010;
       --text-main:    #c4b49a;
-      --text-brown:   #4a3a1a;
-      --text-dim:     #6a5a30;
+      --text-brown:   #7a6a4a;
+      --text-dim:     #7a6a4a;
       --font-heading: 'Cinzel', serif;
       --font-body:    Georgia, serif;
     }
@@ -26,7 +26,7 @@
 
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       background: #0d0d1a;
       color: var(--text-main);
     }
@@ -517,16 +517,6 @@
     .badge-Tool {
       background: #141416;
       color: #444444;
-    }
-
-    .badge-Primer {
-      background: #141820;
-      color: #505460;
-    }
-
-    .badge-X-Opaque {
-      background: #0c0a20;
-      color: #403c70;
     }
 
     .badge-Primer {
@@ -1043,7 +1033,7 @@
     }
     .desc-lbl {
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: .06em;
       text-transform: uppercase;
       color: #7a6040;
@@ -1076,10 +1066,10 @@
     }
     .model-summary-lbl {
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color: #5a4a28;
+      color: #7a6a4a;
       white-space: nowrap;
       padding-top: 2px;
     }
@@ -1407,7 +1397,7 @@
     }
 
     #gs-input::placeholder {
-      color: #4a3a18;
+      color: #7a6a4a;
       font-style: italic;
       font-family: var(--font-body);
       letter-spacing: 0;
@@ -2137,7 +2127,7 @@
     .ready-badge {
       display: inline-block;
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: .07em;
       text-transform: uppercase;
       padding: 2px 7px;
@@ -2159,14 +2149,14 @@
     /* Readiness filter pills */
     .planned-rp {
       font-family: var(--font-heading);
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: .06em;
       text-transform: uppercase;
       padding: 3px 8px;
       border: 1px solid var(--border);
       border-radius: 3px;
       background: var(--bg-base);
-      color: #5a4a20;
+      color: #7a6a4a;
       cursor: pointer;
       transition: background .15s, color .15s, border-color .15s;
     }
@@ -2218,14 +2208,14 @@
     .shame-fp, .rsc-fp {
       font-size: 11px; padding: 4px 10px; border-radius: 3px;
       cursor: pointer; font-family: var(--font-heading); letter-spacing: .04em;
-      background: var(--bg-base); color: #5a4a28; border: 1px solid var(--border);
+      background: var(--bg-base); color: #7a6a4a; border: 1px solid var(--border);
     }
     .shame-fp.active, .rsc-fp.active { background: #1e1408; color: var(--gold); border-color: var(--gold); }
 
     .bh-fp {
       font-size: 11px; padding: 4px 10px; border-radius: 3px;
       cursor: pointer; font-family: var(--font-heading); letter-spacing: .04em;
-      background: var(--bg-base); color: #5a4a28; border: 1px solid var(--border);
+      background: var(--bg-base); color: #7a6a4a; border: 1px solid var(--border);
     }
     .bh-fp.active { background: #1e1408; color: var(--gold); border-color: var(--gold); }
     .bh-fp:hover:not(.active) { color: #9a7a30; border-color: var(--bg-mid); }
@@ -2240,11 +2230,12 @@
     .shame-sys-label { position:absolute; left:3px; top:0; bottom:0; width:22px; display:flex; align-items:center; justify-content:center; writing-mode:vertical-rl; transform:rotate(180deg); font-size:9px; font-family:var(--font-heading); letter-spacing:.12em; text-transform:uppercase; border-radius:2px 0 0 2px; }
     .shame-card-name { font-size:14px; color:var(--gold); font-family:var(--font-heading); letter-spacing:.04em; margin-top:4px; }
     .shame-card-sitting { font-size:12px; color:#c87a30; font-style:italic; margin-top:3px; }
-    .shame-card-meta { font-size:11px; color:#5a4a28; margin-top:5px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+    .shame-card-meta { font-size:11px; color:#7a6a4a; margin-top:5px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
     .shame-badge { font-size:10px; padding:2px 7px; border-radius:3px; font-family:var(--font-heading); letter-spacing:.04em; }
-    .shame-acquired { font-family:var(--font-heading); font-size:10px; color:#4a3a18; }
+    .shame-acquired { font-family:var(--font-heading); font-size:10px; color:#7a6a4a; }
     .shame-notes { font-size:12px; color:#7a6a50; margin-top:6px; font-style:italic; }
     .shame-promoted { font-size:10px; padding:2px 7px; border-radius:3px; background:#1a3a1a; color:#7ad678; font-family:var(--font-heading); }
+    .promoted-badge-row { display:flex; justify-content:flex-end; }
     #shame-more { max-width:960px; margin:0 auto; padding:0 16px 28px; position:relative; }
     #shame-more .gallery-more-fade { background:linear-gradient(to bottom, transparent 0%, rgba(14,13,9,.55) 50%, var(--bg-base) 100%); }
     .shame-sys-40k        { background:#8a2020; color:#f08080; }
@@ -2350,7 +2341,7 @@
       color: var(--red);
     }
 
-    .planned-card-footer {
+    .planned-card-footer, .card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -2412,9 +2403,9 @@
       flex-wrap: wrap;
     }
 
-    .bench-filter-pill {
+    .bench-filter-pill, .recipes-filter-pill, .brush-filter-pill, .equiv-bp, .supply-filter-pill {
       font-family: var(--font-heading);
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: .07em;
       text-transform: uppercase;
       padding: 3px 10px;
@@ -2426,12 +2417,12 @@
       transition: color .12s, border-color .12s;
     }
 
-    .bench-filter-pill:hover {
+    .bench-filter-pill:hover, .recipes-filter-pill:hover, .brush-filter-pill:hover, .equiv-bp:hover, .supply-filter-pill:hover {
       color: var(--gold);
       border-color: var(--gold-dim);
     }
 
-    .bench-filter-pill.active {
+    .bench-filter-pill.active, .recipes-filter-pill.active, .brush-filter-pill.active, .equiv-bp.active, .supply-filter-pill.active {
       color: var(--gold);
       border-color: var(--gold-dim);
       background: var(--gold-faint);
@@ -2644,7 +2635,7 @@
     .bench-hist-toggle:hover { color: var(--text-dim); }
     .bench-hist-list { display: none; margin-top: 6px; border-top: 1px solid var(--bg-dark); padding-top: 6px; }
     .bench-hist-list.bench-hist-open { display: block; }
-    .bench-hist-row { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #4a3a18; padding: 2px 0; }
+    .bench-hist-row { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #7a6a4a; padding: 2px 0; }
     .bench-hist-arrow { color: var(--border); }
     .bench-hist-when { margin-left: auto; color: var(--bg-mid); font-family: var(--font-heading); letter-spacing: .03em; }
 
@@ -2853,7 +2844,7 @@
     .contents-issue {
       display: inline-block;
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: .22em;
       text-transform: uppercase;
       color: #8a7030;
@@ -3156,12 +3147,12 @@
       transform: rotate(-8deg);
       transform-origin: center;
     }
-    .wm-week { font-size: 8px; color: #5a4a28; text-align: center; padding: 3px 6px 4px; font-style: italic; line-height: 1.4; }
+    .wm-week { font-size: 8px; color: #7a6a4a; text-align: center; padding: 3px 6px 4px; font-style: italic; line-height: 1.4; }
     /* Wots Next panel */
     .wtn-panel { background: #0b0a08; border: 1px solid #2a2010; border-radius: 3px; padding: 14px 20px 16px; margin: 0 0 22px; }
     .wtn-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
     .wtn-title { font-family: var(--font-heading); font-size: .85rem; color: var(--gold); letter-spacing: .06em; text-transform: uppercase; }
-    .wtn-sub { font-size: .7rem; color: #5a4a28; font-style: italic; }
+    .wtn-sub { font-size: .7rem; color: #7a6a4a; font-style: italic; }
     .wtn-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
     .wtn-card { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background: #100e0a; border-radius: 2px; border-left: 3px solid #3a3020; text-decoration: none; cursor: pointer; transition: filter .15s; }
     .wtn-card:hover { filter: brightness(1.12); }
@@ -3211,7 +3202,7 @@
     .rescue-stage-btn.stage-prepped    { background: #0a2a0a; color: #70c870; border-color: #1a5a1a; }
     .rescue-card-name { font-size: 14px; color: var(--gold); font-family: var(--font-heading); }
     .rescue-card-sitting { font-size: 12px; color: #c87a30; font-style: italic; }
-    .rescue-card-meta { font-size: 11px; color: #5a4a28; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+    .rescue-card-meta { font-size: 11px; color: #7a6a4a; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
     .rescue-card-notes { font-size: 12px; color: #7a6a50; font-style: italic; margin-top: 4px; }
     .rescue-promoted-badge { font-size: 10px; background: #1a3a1a; color: #7ad678; padding: 2px 7px; border-radius: 3px; }
     .gs-type-rescue { background: #3a2a0a; color: #d8902a; }
@@ -3785,30 +3776,6 @@
       flex-wrap: wrap;
     }
 
-    .recipes-filter-pill {
-      font-family: var(--font-heading);
-      font-size: 9px;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      background: none;
-      color: var(--text-brown);
-      cursor: pointer;
-      transition: color .12s, border-color .12s;
-    }
-
-    .recipes-filter-pill:hover {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-    }
-
-    .recipes-filter-pill.active {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-      background: var(--gold-faint);
-    }
 
     #recipes-grid {
       max-width: 1100px;
@@ -3902,7 +3869,7 @@
 
     .recipe-cat-badge {
       font-family: var(--font-heading);
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: .08em;
       text-transform: uppercase;
       padding: 2px 7px;
@@ -3977,7 +3944,7 @@
 
     .recipe-step-tech {
       font-family: var(--font-heading);
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: .07em;
       text-transform: uppercase;
       padding: 1px 6px;
@@ -4096,7 +4063,7 @@
     }
 
     .rc-mix-sep {
-      color: #4a3a1a;
+      color: #7a6a4a;
       font-size: 10px;
       padding: 0 2px;
       vertical-align: middle;
@@ -4200,10 +4167,10 @@
     .recipe-guide-overlay.open { display: flex; }
     .recipe-guide-card { background: #100e08; border: 1px solid #3a2a10; border-radius: 6px; width: 100%; max-width: 480px; max-height: 90dvh; overflow-y: auto; padding: 28px 24px 20px; position: relative; display: flex; flex-direction: column; gap: 14px; }
     @media (max-width: 520px) { .recipe-guide-card { max-width: 100%; max-height: 100dvh; border-radius: 0; } }
-    .recipe-guide-close { position: absolute; top: 10px; right: 14px; background: none; border: none; cursor: pointer; font-size: 22px; color: #5a4a28; line-height: 1; padding: 0; }
+    .recipe-guide-close { position: absolute; top: 10px; right: 14px; background: none; border: none; cursor: pointer; font-size: 22px; color: #7a6a4a; line-height: 1; padding: 0; }
     .recipe-guide-close:hover { color: var(--gold); }
     .recipe-guide-title { font-family: var(--font-heading); font-size: .85rem; color: var(--gold); letter-spacing: .04em; padding-right: 24px; }
-    .recipe-guide-counter { font-family: var(--font-heading); font-size: 10px; color: #4a3a18; letter-spacing: .06em; text-transform: uppercase; margin-top: -8px; }
+    .recipe-guide-counter { font-family: var(--font-heading); font-size: 10px; color: #7a6a4a; letter-spacing: .06em; text-transform: uppercase; margin-top: -8px; }
     .recipe-guide-step-content { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; min-height: 120px; }
     .recipe-guide-tech { display: inline-block; font-size: 12px; padding: 6px 14px; border-radius: 3px; text-transform: uppercase; letter-spacing: .08em; align-self: flex-start; }
     .recipe-guide-paint-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
@@ -4212,13 +4179,13 @@
     .recipe-guide-paint-name.owned { color: #8aba8a; }
     .recipe-guide-paint-name.low { color: #c8a040; }
     .recipe-guide-paint-name.missing { color: #c05050; }
-    .recipe-guide-brand { font-size: 11px; color: #4a3a18; letter-spacing: .04em; font-family: var(--font-heading); }
+    .recipe-guide-brand { font-size: 11px; color: #7a6a4a; letter-spacing: .04em; font-family: var(--font-heading); }
     .recipe-guide-meta { font-size: 13px; color: #7a6840; font-style: italic; }
     .recipe-guide-brush { font-size: 10px; color: #5a6a8a; font-family: var(--font-heading); letter-spacing: .04em; text-transform: uppercase; }
     .recipe-guide-dots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 4px 0; }
     .recipe-guide-dot { width: 8px; height: 8px; border-radius: 50%; background: #2a2010; border: 1px solid #4a3a18; }
     .recipe-guide-dot.active { background: var(--gold); border-color: var(--gold); }
-    .recipe-guide-dot.done { background: #4a3a18; border-color: #4a3a18; }
+    .recipe-guide-dot.done { background: #4a3a18; border-color: #7a6a4a; }
     .recipe-guide-nav { display: flex; gap: 10px; }
     .recipe-guide-prev, .recipe-guide-next { flex: 1; padding: 16px 8px; font-size: 2rem; background: #1a1508; border: 1px solid #3a2a10; color: #c4b49a; cursor: pointer; border-radius: 4px; transition: background .15s; line-height: 1; }
     .recipe-guide-prev:hover, .recipe-guide-next:hover { background: #2a1e08; }
@@ -4574,7 +4541,7 @@
 
     .force-card-meta {
       font-size: 11px;
-      color: #5a4a28;
+      color: #7a6a4a;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -4599,7 +4566,7 @@
 
     .force-card-notes {
       font-size: 11px;
-      color: #4a3a18;
+      color: #7a6a4a;
       font-style: italic;
       margin-top: 4px;
     }
@@ -4643,18 +4610,18 @@
     .bh-result-draw { background: #3a2a10; color: #d8a840; }
 
     .bh-sys-chip { font-family: var(--font-heading); font-size: 9px; letter-spacing: .06em; color: #c4b49a; padding: 2px 6px; border-radius: 2px; opacity: .85; }
-    .bh-pts-chip { font-size: 10px; color: #5a4a28; }
+    .bh-pts-chip { font-size: 10px; color: #7a6a4a; }
 
     .bh-matchup { font-size: 12px; color: #c4b49a; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 4px; }
     .bh-my-army { color: #c9a227; font-family: var(--font-heading); font-size: 11px; letter-spacing: .03em; }
-    .bh-force-chip { font-size: 10px; color: #5a4a28; background: #1a1408; border: 1px solid #2a2010; border-radius: 3px; padding: 1px 5px; }
+    .bh-force-chip { font-size: 10px; color: #7a6a4a; background: #1a1408; border: 1px solid #2a2010; border-radius: 3px; padding: 1px 5px; }
     .bh-force-chip-link { cursor: pointer; color: #7a6030; border-color: #3a2a10; }
-    .bh-force-chip-link:hover { color: var(--gold); border-color: #5a4a20; background: #1e1608; }
+    .bh-force-chip-link:hover { color: var(--gold); border-color: #7a6a4a; background: #1e1608; }
     .bh-vs { color: #3a2a10; font-size: 10px; }
     .bh-opp { color: #9a8a6a; }
 
-    .bh-mission { font-size: 11px; color: #5a4a28; font-style: italic; margin-top: 4px; }
-    .bh-notes   { font-size: 11px; color: #4a3a18; margin-top: 4px; }
+    .bh-mission { font-size: 11px; color: #7a6a4a; font-style: italic; margin-top: 4px; }
+    .bh-notes   { font-size: 11px; color: #7a6a4a; margin-top: 4px; }
 
     @media (max-width: 600px) {
       .battles-grid { grid-template-columns: 1fr; }
@@ -4672,12 +4639,20 @@
     .wishlist-card.wtype-codex .wish-spine { background:#2a1a4a; color:#b898e8; }
     .wishlist-card.wtype-wd    .wish-spine { background:#3a2a08; color:#d4a840; }
     .wish-body { flex:1; min-width:0; padding:12px 14px 10px; }
+    .wl-badge-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+    .wl-card-name { font-family:'Cinzel',serif; font-size:13px; color:#c4b49a; font-weight:600; }
+    .wl-card-meta { font-size:11px; color:var(--text-brown); margin-top:2px; }
+    .wl-card-notes { font-size:12px; color:var(--text-brown); margin-top:3px; }
+    .wl-card-url { font-size:11px; color:#6a8a6a; text-decoration:none; display:block; margin-top:2px; }
+    .wl-card-url:hover { color:var(--gold); }
+    .wl-card-timestamp { font-size:10px; color:var(--text-brown); margin-top:6px; text-align:right; }
+    .brush-cinzel-date { font-family:'Cinzel',serif; letter-spacing:.03em; }
     .wpri-badge { font-size:10px; padding:2px 7px; border-radius:3px; font-family:var(--font-heading); letter-spacing:.04em; }
     .wpri-high   { background:rgba(239,68,68,.18);  color:#ef4444; }
     .wpri-medium { background:rgba(249,115,22,.14); color:#f97316; }
     .wpri-low    { background:rgba(80,80,80,.2);    color:#7a7a7a; }
     .wish-ordered-badge { display:inline-block; padding:2px 7px; border-radius:3px; font-size:10px; background:#3a2800; color:#f0a030; letter-spacing:.04em; font-family:var(--font-heading); margin-bottom:4px; }
-    .wish-fp, .wish-pp { font-size:10px; font-family:var(--font-heading); letter-spacing:.06em; background:none; border:1px solid var(--border); color:#5a4a28; border-radius:3px; padding:3px 10px; cursor:pointer; transition:all .15s; }
+    .wish-fp, .wish-pp { font-size:10px; font-family:var(--font-heading); letter-spacing:.06em; background:none; border:1px solid var(--border); color:#7a6a4a; border-radius:3px; padding:3px 10px; cursor:pointer; transition:all .15s; }
     .wish-fp.active, .wish-pp.active { background:#c9a22722; border-color:var(--gold); color:var(--gold); }
     @media (max-width:600px) { .wishlist-grid { grid-template-columns:1fr; padding:12px; } }
     body.print-wishlist > *:not(#tab-wishlist) { display:none !important; }
@@ -5172,30 +5147,6 @@
       display: none;
     }
 
-    .equiv-bp {
-      font-family: var(--font-heading);
-      font-size: 9px;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      background: none;
-      color: var(--text-brown);
-      cursor: pointer;
-      transition: color .12s, border-color .12s;
-    }
-
-    .equiv-bp:hover {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-    }
-
-    .equiv-bp.active {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-      background: var(--gold-faint);
-    }
 
     @media (max-width: 600px) {
       .equiv-brand-pills {
@@ -5281,30 +5232,6 @@
       flex-wrap: wrap;
     }
 
-    .brush-filter-pill {
-      font-family: var(--font-heading);
-      font-size: 9px;
-      letter-spacing: .07em;
-      text-transform: uppercase;
-      padding: 3px 10px;
-      border: 1px solid var(--border);
-      border-radius: 2px;
-      background: none;
-      color: var(--text-brown);
-      cursor: pointer;
-      transition: color .12s, border-color .12s;
-    }
-
-    .brush-filter-pill:hover {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-    }
-
-    .brush-filter-pill.active {
-      color: var(--gold);
-      border-color: var(--gold-dim);
-      background: var(--gold-faint);
-    }
 
     #brush-list {
       max-width: 960px;
@@ -5570,7 +5497,7 @@
     .supply-card-date {
       font-family: var(--font-heading);
       font-size: 10px;
-      color: #4a3a1a;
+      color: #7a6a4a;
       letter-spacing: .03em;
     }
 
@@ -5582,7 +5509,7 @@
 
     .supply-card-notes {
       font-size: 11px;
-      color: #5a4a28;
+      color: #7a6a4a;
       font-style: italic;
       line-height: 1.4;
     }
@@ -6077,7 +6004,7 @@
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: #4a3a1a;
+    color: #7a6a4a;
     transition: color .15s;
   }
 
