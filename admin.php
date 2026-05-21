@@ -1211,7 +1211,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
       if ($file['size'] > MAX_FILE_BYTES) continue;
       $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
       if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'])) continue;
-      $filename = $id . '_' . $slot . '.' . imageExt($mime);
+      $filename = $id . '_' . $slot . '_' . substr(uniqid(), -6) . '.' . imageExt($mime);
       if (saveModelImage($file['tmp_name'], BENCH_IMG_DIR . $filename, $mime)) {
         $slotImages[$slot - 1] = BENCH_IMG_WEB . $filename;
       }
@@ -1753,7 +1753,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
           $formError = "Image $slot is not a supported image type.";
           break;
         }
-        $filename = $editId . '_' . $slot . '.' . imageExt($mime);
+        $filename = $editId . '_' . $slot . '_' . substr(uniqid(), -6) . '.' . imageExt($mime);
         if (saveModelImage($file['tmp_name'], IMAGES_DIR . $filename, $mime)) {
           $slotImages[$slot - 1] = IMAGES_WEB . $filename;
         } else {
