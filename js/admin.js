@@ -58,6 +58,7 @@
       updateHidden(); // sync pre-selected colors to hidden inputs immediately (edit mode)
 
       function openPaintAdd() {
+        if (window._adminShowSection) window._adminShowSection('section-inventory');
         document.getElementById('paintFormTitle').textContent = 'Add Paint';
         document.getElementById('paintAction').value = 'add_paint';
         document.getElementById('paintId').value = '';
@@ -81,6 +82,7 @@
       }
 
       function openPaintEdit(btn) {
+        if (window._adminShowSection) window._adminShowSection('section-inventory');
         document.getElementById('paintFormTitle').textContent = 'Edit Paint';
         document.getElementById('paintAction').value = 'edit_paint';
         document.getElementById('paintId').value = btn.dataset.pid;
@@ -211,6 +213,7 @@
       });
 
       function openPlannedAdd() {
+        if (window._adminShowSection) window._adminShowSection('section-planned');
         selectedPl = new Set();
         document.getElementById('plannedFormTitle').textContent = 'Add Planned Scheme';
         document.getElementById('plannedAction').value = 'add_planned';
@@ -235,6 +238,7 @@
       }
 
       function openPlannedEdit(btn) {
+        if (window._adminShowSection) window._adminShowSection('section-planned');
         const colors = JSON.parse(btn.dataset.colors || '[]');
         selectedPl = new Set(colors);
         document.getElementById('plannedFormTitle').textContent = 'Edit Planned Scheme';
@@ -414,6 +418,7 @@
       }
 
         function openBookAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-books');
           document.getElementById('bookFormTitle').textContent = 'Add Codex';
           document.getElementById('bookAction').value = 'add_book';
           document.getElementById('bkId').value = '';
@@ -434,6 +439,7 @@
         }
 
         function openBookEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-books');
           document.getElementById('bookFormTitle').textContent = 'Edit Codex';
           document.getElementById('bookAction').value = 'edit_book';
           document.getElementById('bkId').value = btn.dataset.id;
@@ -457,6 +463,7 @@
         });
 
         function openJournalAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-journal');
           document.getElementById('journalFormTitle').textContent = 'Add Journal Entry';
           document.getElementById('journalAction').value = 'add_journal';
           document.getElementById('jnId').value = '';
@@ -475,6 +482,7 @@
         }
 
         function openJournalEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-journal');
           document.getElementById('journalFormTitle').textContent = 'Edit Journal Entry';
           document.getElementById('journalAction').value = 'edit_journal';
           document.getElementById('jnId').value = btn.dataset.id;
@@ -509,6 +517,7 @@
         }
 
           function openShameAdd() {
+            if (window._adminShowSection) window._adminShowSection('section-shame');
             document.getElementById('shameFormTitle').textContent = 'Add Box';
             document.getElementById('shameAction').value = 'add_shame';
             document.getElementById('shId').value = '';
@@ -530,6 +539,7 @@
           }
 
           function openShameEdit(btn) {
+            if (window._adminShowSection) window._adminShowSection('section-shame');
             document.getElementById('shameFormTitle').textContent = 'Edit Box';
             document.getElementById('shameAction').value = 'edit_shame';
             document.getElementById('shId').value = btn.dataset.id;
@@ -786,6 +796,7 @@
         })();
 
         function openBrushAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-brushes');
           document.getElementById('brushFormTitle').textContent = 'Add Brush';
           document.getElementById('brushAction').value = 'add_brush';
           document.getElementById('brushId').value = '';
@@ -809,6 +820,7 @@
         }
 
         function openBrushEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-brushes');
           document.getElementById('brushFormTitle').textContent = 'Edit Brush';
           document.getElementById('brushAction').value = 'edit_brush';
           document.getElementById('brushId').value = btn.dataset.id;
@@ -839,6 +851,7 @@
         });
 
         function openSupplyAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-supplies');
           document.getElementById('supplyFormTitle').textContent = 'Add Supply';
           document.getElementById('supplyAction').value = 'add_supply';
           document.getElementById('supplyId').value = '';
@@ -856,6 +869,7 @@
         }
 
         function openSupplyEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-supplies');
           document.getElementById('supplyFormTitle').textContent = 'Edit Supply';
           document.getElementById('supplyAction').value = 'edit_supply';
           document.getElementById('supplyId').value = btn.dataset.id;
@@ -1047,6 +1061,7 @@
         }
 
         function openBenchAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-bench');
           selectedBn = new Set();
           selectedBnBrushes = new Set();
           document.getElementById('benchFormTitle').textContent = 'Add Bench Entry';
@@ -1075,6 +1090,7 @@
         }
 
         function openBenchEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-bench');
           const colors = JSON.parse(btn.dataset.colors || '[]');
           const brushes = JSON.parse(btn.dataset.brushes || '[]');
           const images = JSON.parse(btn.dataset.images || '[]');
@@ -1200,6 +1216,7 @@
         }
 
         function openRecipeAdd() {
+          if (window._adminShowSection) window._adminShowSection('section-recipes');
           document.getElementById('recipeFormTitle').textContent = 'Add Recipe';
           document.getElementById('recipeAction').value = 'add_recipe';
           document.getElementById('recipeId').value = '';
@@ -1224,6 +1241,7 @@
         }
 
         function openRecipeEdit(btn) {
+          if (window._adminShowSection) window._adminShowSection('section-recipes');
           const steps = JSON.parse(btn.dataset.steps || '[]');
           document.getElementById('recipeFormTitle').textContent = 'Edit Recipe';
           document.getElementById('recipeAction').value = 'edit_recipe';
@@ -1318,6 +1336,7 @@
         })();
 
       function convEdit(btn) {
+        if (window._adminShowSection) window._adminShowSection('section-conversions');
         const r = btn.closest('tr');
         const valRaw = r.dataset.val;
         const paRaw = r.dataset.pa;
@@ -1384,6 +1403,8 @@
           history.replaceState(null, '', '#' + id);
           window.scrollTo(0, 0);
         }
+
+        window._adminShowSection = showSection;
 
         document.querySelectorAll('.as-link[href^="#section-"]').forEach(function(link) {
           link.addEventListener('click', function(e) {
@@ -1573,6 +1594,7 @@
       wishlistTypeChange();
 
       function openWishlistAdd() {
+        if (window._adminShowSection) window._adminShowSection('section-wishlist');
         const fw = document.getElementById('wishlistFormWrap');
         if (!fw) return;
         fw.style.display = '';
@@ -1594,6 +1616,7 @@
       }
 
       function openWishlistEdit(btn) {
+        if (window._adminShowSection) window._adminShowSection('section-wishlist');
         const fw = document.getElementById('wishlistFormWrap');
         if (!fw) return;
         fw.style.display = '';
