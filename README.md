@@ -6,7 +6,7 @@ A personal Warhammer hobby paint collection manager. Flat-file PHP - no database
 no dependencies beyond a PHP host. Drop it on any shared host and go. Navigation lives in a
 collapsible left-rail sidebar grouped into four sections.
 
-**[Live Site](https://waaagh.co)**
+**[Live Site](https://waaagh.co)** &nbsp;&nbsp; [![Chuck a Teef in da Pot](https://img.shields.io/badge/Chuck_a_Teef_in_da_Pot-PayPal-003087?logo=paypal&style=flat-square)](https://www.paypal.com/donate/?business=FQZFP5JNEGGFY&no_recurring=1&item_name=Tip+jar&currency_code=USD)
 
 > **Work in progress.** This is a personal tool shared as-is with the Warhammer hobby community.
 > Features are added when they're needed - totally out of the blue as I think them up. 

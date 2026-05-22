@@ -1744,6 +1744,10 @@
       color: var(--gold-dim);
     }
 
+    .footer-tip { margin-top: 10px; }
+    .footer-tip a { font-family: var(--font-heading); font-size: 10px; letter-spacing: .08em; color: #5a4a28; text-decoration: none; text-transform: uppercase; transition: color .15s; }
+    .footer-tip a:hover { color: var(--gold); }
+
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .tab-full  { display: none; }

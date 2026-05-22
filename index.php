@@ -402,7 +402,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=82">
+  <link rel="stylesheet" href="styles.css?v=83">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1332,6 +1332,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <div class="footer-copy">&copy; MMXXVI &nbsp;&middot;&nbsp; <?= htmlspecialchars(SITE_AUTHOR) ?> &nbsp;&middot;&nbsp; All Rights Reserved</div>
     <div class="footer-contact"><a href="mailto:<?= htmlspecialchars(SITE_EMAIL) ?>"><?= htmlspecialchars(SITE_EMAIL) ?></a></div>
     <div class="footer-oss"><a href="https://github.com/waaagh-co/waaaghPaints" target="_blank" rel="noopener">Open source on GitHub</a> &nbsp;&middot;&nbsp; Polyform Noncommercial License</div>
+    <?php if (defined('TIP_JAR_URL') && TIP_JAR_URL !== ''): ?>
+    <div class="footer-tip"><a href="<?= htmlspecialchars(TIP_JAR_URL) ?>" target="_blank" rel="noopener noreferrer">&#9733; Chuck a Teef in da Pot</a></div>
+    <?php endif; ?>
   </footer>
 
   <div class="notes-overlay" id="notes-overlay">
