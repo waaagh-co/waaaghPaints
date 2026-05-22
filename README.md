@@ -12,6 +12,10 @@ collapsible left-rail sidebar grouped into four sections.
 > Features are added when they're needed. Bugs may exist. No support is guaranteed.
 > Use at your own risk.
 
+# Warpaint Mode Screenshot
+
+![Warpaint Mode](img/paint_mode.jpg)
+
 ## Admin panel
 
 ![Admin panel](img/admin.jpg)
@@ -25,9 +29,12 @@ collapsible left-rail sidebar grouped into four sections.
 ## What it does
 
 - **Paint Inventory** - track every paint you own with stock level (normal/low/out/wanted), hex
-  color swatch, quality rating, and freeform notes
-- **Paint Schemes** - gallery of finished models with photos, color tagging, and a pull-sheet
-  checklist for repainting
+  color swatch, quality rating, and freeform notes; **Flagged filter** instantly shows only
+  low/out/wanted paints so you know what to restock before sitting down to paint
+- **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
+  checklist for repainting, and **Warpaint Mode** - a full-screen focused reference overlay
+  with large imagery, readable recipe steps, and stock-aware paint palette designed to be
+  used at arm's length while you actually paint
 - **Planned Schemes** - wishlist of future projects with readiness tracking (Ready / Almost /
   Needs Work) and a shopping list for missing paints
 - **On the Bench** - active WIP projects with stage tracking, session logging, and WIP photos

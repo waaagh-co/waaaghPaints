@@ -452,7 +452,7 @@
             return !paintOwned.has(uk) || paintStock.get(uk);
           }).length;
           const badge = issues > 0 ? `<span class="pull-issue-badge">${issues} issue${issues > 1 ? 's' : ''}</span>` : '';
-          return `<div class="model-colors">${colors}</div><button class="pull-btn" onclick="openPull('${esc(m.id)}')">Pull list${badge}</button>`;
+          return `<div class="model-colors">${colors}</div><div class="model-card-btns"><button class="warpaint-btn" onclick="openWarpaint('${esc(m.id)}')">&#9876; Warpaint</button><button class="pull-btn" onclick="openPull('${esc(m.id)}')">Pull list${badge}</button></div>`;
         })() : '';
         const bodyHtml = hasBodyExt || codexBadge || summaryHtml ? `<div class="model-info">${summaryHtml}${descHtml}${codexBadge}${recipeRefs}${colorsHtml}</div>` : '';
         const stripeHtml = m.theme_hex ? `<div class="model-theme-stripe" style="background:linear-gradient(to right,${esc(m.theme_hex)} 0%,transparent 100%)"></div>` : '';
@@ -731,6 +731,11 @@
         closeShoppingList();
         return;
       }
+      if (document.getElementById('warpaint-overlay').classList.contains('open')) {
+        if (e.key === 'Escape') { closeWarpaint(); return; }
+        if (e.key === 'ArrowLeft')  { _wpShiftImg(-1); return; }
+        if (e.key === 'ArrowRight') { _wpShiftImg(1);  return; }
+      }
       if (!lbOverlay.classList.contains('open')) return;
       if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowLeft' && lbIdx > 0) {
@@ -740,6 +745,22 @@
       if (e.key === 'ArrowRight' && lbIdx < lbImages.length - 1) {
         lbIdx++;
         showLbSlide();
+      }
+    });
+
+    document.getElementById('warpaint-overlay').addEventListener('click', function(e) {
+      const thumb = e.target.closest('.wp-thumb');
+      if (thumb) {
+        document.querySelectorAll('.wp-thumb').forEach(function(t) { t.classList.remove('active'); });
+        thumb.classList.add('active');
+        document.getElementById('wp-main-img').src = thumb.dataset.src;
+        _wpImgIdx = parseInt(thumb.dataset.idx) || 0;
+        return;
+      }
+      if (e.target.id === 'wp-main-img') {
+        const m = MODELS.find(function(x) { return x.id === _wpId; });
+        if (m && m.images && m.images.length) openLightbox(m.images.map(function(s) { return new URL(s, location.href).href; }), _wpImgIdx);
+        return;
       }
     });
 
@@ -897,6 +918,149 @@
         m.colors,
         m.recipes
       );
+    }
+
+    let _wpId = null;
+    let _wpImgIdx = 0;
+
+    function _wpHex(key) {
+      const uk = upgradeKey(key);
+      for (const p of PAINTS) {
+        if ((p.brand + '|' + p.name + '|' + (p.layer || '')).toLowerCase() === uk) return p.hex || null;
+      }
+      return null;
+    }
+
+    function _wpShiftImg(dir) {
+      const m = MODELS.find(function(x) { return x.id === _wpId; });
+      if (!m || !m.images || m.images.length < 2) return;
+      _wpImgIdx = (_wpImgIdx + dir + m.images.length) % m.images.length;
+      document.querySelectorAll('.wp-thumb').forEach(function(t, i) { t.classList.toggle('active', i === _wpImgIdx); });
+      document.getElementById('wp-main-img').src = m.images[_wpImgIdx];
+    }
+
+    function formatWPDesc(text) {
+      const blocks = text.split(/\r?\n\s*\r?\n/);
+      return blocks.map(function(block) {
+        const lines = block.split(/\r?\n/).map(function(l) { return l.trim(); }).filter(Boolean);
+        if (!lines.length) return '';
+        const first = lines[0];
+        const isHdr = first.length < 40 && first === first.toUpperCase() && /[A-Z]/.test(first);
+        const hdr = isHdr ? `<div class="wp-desc-hdr">${esc(first)}</div>` : '';
+        const body = isHdr ? lines.slice(1) : lines;
+        const bullets = body.filter(function(l) { return l.startsWith('-'); });
+        const prose = body.filter(function(l) { return !l.startsWith('-'); });
+        let inner = '';
+        if (prose.length) inner += `<p class="wp-desc-p">${esc(prose.join(' '))}</p>`;
+        if (bullets.length) inner += `<ul class="wp-desc-list">${bullets.map(function(l) { return `<li>${esc(l.replace(/^-\s*/, ''))}</li>`; }).join('')}</ul>`;
+        return `<div class="wp-desc-block">${hdr}${inner}</div>`;
+      }).join('');
+    }
+
+    function openWarpaint(mId) {
+      const m = MODELS.find(function(x) { return x.id === mId; });
+      if (!m) return;
+      _wpId = mId;
+      _wpImgIdx = 0;
+
+      const imgs = m.images || [];
+      const mainImg = document.getElementById('wp-main-img');
+      const noImg = document.getElementById('wp-no-img');
+      const thumbsEl = document.getElementById('wp-thumbs');
+
+      if (imgs.length) {
+        mainImg.src = imgs[0];
+        mainImg.style.display = '';
+        noImg.style.display = 'none';
+        thumbsEl.innerHTML = imgs.length > 1 ? imgs.map(function(src, i) { return `<img class="wp-thumb${i === 0 ? ' active' : ''}" src="${esc(src)}" data-src="${esc(src)}" data-idx="${i}" alt="">`; }).join('') : '';
+        thumbsEl.style.display = imgs.length > 1 ? '' : 'none';
+      } else {
+        mainImg.src = '';
+        mainImg.style.display = 'none';
+        noImg.style.display = 'flex';
+        thumbsEl.innerHTML = '';
+        thumbsEl.style.display = 'none';
+      }
+
+      document.getElementById('wp-scheme-name').textContent = m.name;
+      let badges = '';
+      if (m.system && typeof SYS_COLORS !== 'undefined') badges += `<span class="sys-game-badge" style="background:${SYS_COLORS[m.system] || '#2a2a2a'}">${esc(m.system)}</span>`;
+      if (m.faction) badges += ` <span class="faction-tag">${esc(m.faction)}</span>`;
+      document.getElementById('wp-badges').innerHTML = badges;
+
+      const TECH = {basecoat:'Basecoat',wash:'Wash',shade:'Shade',layer:'Layer',edge:'Edge',highlight:'Highlight',glaze:'Glaze',drybrush:'Drybrush',stipple:'Stipple',blend:'Blend',special:'Special'};
+      let html = '';
+
+      if (m.summary) {
+        const rows = [['Finish', m.summary.finish], ['Primary', m.summary.primary], ['Contrast', m.summary.contrast], ['Technique', m.summary.technique]].filter(function(r) { return r[1]; });
+        if (rows.length) html += `<div class="wp-summary">${rows.map(function(r) { return `<span class="wp-sum-lbl">${esc(r[0])}</span><span class="wp-sum-val">${esc(r[1])}</span>`; }).join('')}</div>`;
+      }
+
+      if (m.description) html += `<div class="wp-desc">${formatWPDesc(m.description)}</div>`;
+
+      const recipes = m.recipes && window._RECIPE_BY_ID ? m.recipes.map(function(id) { return window._RECIPE_BY_ID.get(id); }).filter(Boolean) : [];
+      const recipePaintKeys = new Set();
+      recipes.forEach(function(r) {
+        html += `<div class="wp-recipe">`;
+        html += `<div class="wp-recipe-hd"><span class="wp-recipe-name">${esc(r.name)}${r.category ? ` <span class="wp-recipe-cat">(${esc(r.category)})</span>` : ''}</span>`;
+        if (r.steps && r.steps.length) html += `<button class="wp-guide-btn" onclick="openRecipeGuide('${esc(r.id)}')">&#9654; Guide</button>`;
+        html += `</div>`;
+        if (r.description) html += `<div class="wp-recipe-desc">${esc(r.description)}</div>`;
+        if (r.steps && r.steps.length) {
+          html += `<ol class="wp-steps">`;
+          r.steps.forEach(function(s, i) {
+            const parts = (s.paint || '').split('|');
+            const name = parts[1] || s.paint || '';
+            const brand = parts[0] || '';
+            const layer = parts[2] || '';
+            const key = upgradeKey(s.paint || '');
+            recipePaintKeys.add((s.paint || '').toLowerCase());
+            const stock = paintStock.get(key) || '';
+            const owned = paintOwned.has(key);
+            const dotCls = !owned ? 'missing' : (stock === 'out' ? 'out' : (stock === 'low' ? 'low' : 'owned'));
+            const hex = _wpHex(s.paint || '');
+            const swatch = hex ? `<span class="wp-swatch" style="background:${hex}"></span>` : '';
+            const tech = s.technique || 'special';
+            const techLabel = TECH[tech] || tech;
+            const note = s.note ? `<div class="wp-step-note">${esc(s.note)}</div>` : '';
+            const ratio = s.ratio ? ` <span class="wp-step-meta">${esc(s.ratio)}</span>` : '';
+            const mixHtml = s.mix_paint ? ` <span class="wp-step-meta">+ ${esc((s.mix_paint.split('|')[1]) || s.mix_paint)}</span>` : '';
+            html += `<li class="wp-step-row"><span class="wp-step-num">${i + 1}</span><span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(techLabel)}</span><div class="wp-step-body"><div class="wp-step-paint"><span class="wp-stock-dot wp-dot-${dotCls}"></span>${swatch}<strong>${esc(name)}</strong><span class="wp-step-brand">${esc(brand)}${layer ? ' \xb7 ' + esc(layer) : ''}</span>${ratio}${mixHtml}</div>${note}</div></li>`;
+          });
+          html += `</ol>`;
+        }
+        html += `</div>`;
+      });
+
+      const palette = (m.colors || []).filter(function(c) { return !recipePaintKeys.has(c.toLowerCase()); });
+      if (palette.length) {
+        html += `<div class="wp-palette-hd">Paint Palette</div><div class="wp-palette">`;
+        palette.forEach(function(c) {
+          const parts = c.split('|');
+          const name = parts[1] || c;
+          const brand = parts[0] || '';
+          const key = upgradeKey(c);
+          const stock = paintStock.get(key) || '';
+          const owned = paintOwned.has(key);
+          const dotCls = !owned ? 'missing' : (stock === 'out' ? 'out' : (stock === 'low' ? 'low' : 'owned'));
+          const hex = _wpHex(c);
+          const swatch = `<span class="wp-palette-swatch" style="background:${hex || '#2a1e08'}"></span>`;
+          html += `<span class="wp-palette-pill">${swatch}<span class="wp-stock-dot wp-dot-${dotCls}"></span>${esc(name)}<span class="wp-palette-brand">${esc(brand)}</span></span>`;
+        });
+        html += `</div>`;
+      }
+
+      document.getElementById('wp-content-body').innerHTML = html;
+      document.getElementById('wp-pull-btn').onclick = function() { openPull(mId); };
+
+      document.getElementById('warpaint-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWarpaint() {
+      document.getElementById('warpaint-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      _wpId = null;
     }
 
     function openFactionPull(faction) {

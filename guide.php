@@ -288,6 +288,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Click a row</strong> - opens a panel listing every paint scheme that uses that paint, with a "View →" button to jump straight to it</li>
       <li><strong>Stock badges</strong> - shown inline in the paint name cell</li>
       <li><strong>Notes / Stars button</strong> - a pencil icon appears on any paint with notes; a gold ★ appears on any paint with a quality rating. Click either to open a drawer showing the paint's notes and star rating. Both are read-only here - set them in Admin</li>
+      <li><strong>Flagged filter</strong> - click the <em>Flagged</em> button in the controls bar to show only paints marked low, out, or wanted. The button turns gold when active - useful for a quick restock check before sitting down to paint. Click again or hit Reset to clear it</li>
     </ul>
     <div class="badge-row">
       <span class="sbadge low">low</span>
@@ -325,6 +326,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Faction tags</strong> - click a tag on any card to filter the whole gallery to that faction; an active pill appears at the top to clear it</li>
       <li><strong>Colour pills</strong> - click any paint name on a card to jump straight to that paint in the Inventory tab</li>
       <li><strong>Pull list button</strong> - opens a checklist of every paint needed for that scheme; missing paints are flagged red, low-stock orange; Print or Copy to take shopping. When a scheme has linked recipes, the pull sheet becomes a sequenced step-by-step guide instead of a flat list</li>
+      <li><strong>&#9876; Warpaint button</strong> - opens <strong>Warpaint Mode</strong>, a full-screen overlay designed to be used at arm's length while you actually paint. The left panel shows your scheme photo large with the scheme name overlaid in gold at the bottom; the right panel shows the summary block, your description formatted as readable sections and bullets, then every linked recipe rendered inline with all steps at 17px - technique badge, stock dot, paint name, brand, and any notes. Each recipe has a <em>&#9654; Guide</em> button to launch step-by-step mode on top. A paint palette at the bottom covers any colours not already in a recipe. Arrow keys cycle through photos; ESC closes. The Pull list is accessible from inside Warpaint Mode too</li>
     </ul>
 
     <h3>Factions tab</h3>

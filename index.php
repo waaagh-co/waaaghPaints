@@ -371,7 +371,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=75">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1369,6 +1369,27 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <button class="recipe-guide-prev" id="recipe-guide-prev" onclick="stepGuide(-1)">&#8249;</button>
         <button class="recipe-guide-next" id="recipe-guide-next" onclick="stepGuide(1)">&#8250;</button>
       </div>
+    </div>
+  </div>
+
+  <div class="warpaint-overlay" id="warpaint-overlay">
+    <div class="wp-image-panel" id="wp-image-panel">
+      <div class="wp-main-img-wrap" id="wp-main-img-wrap">
+        <img class="wp-main-img" id="wp-main-img" src="" alt="">
+        <div class="wp-no-img" id="wp-no-img">&#9876;</div>
+      </div>
+      <div class="wp-thumbs" id="wp-thumbs"></div>
+      <div class="wp-img-overlay">
+        <div class="wp-scheme-name" id="wp-scheme-name"></div>
+        <div class="wp-badges" id="wp-badges"></div>
+      </div>
+    </div>
+    <div class="wp-content-panel" id="wp-content-panel">
+      <div class="wp-actions">
+        <button class="wp-pull-btn" id="wp-pull-btn">Pull list</button>
+        <button class="wp-close-btn" onclick="closeWarpaint()">&times;</button>
+      </div>
+      <div class="wp-content-body" id="wp-content-body"></div>
     </div>
   </div>
 
