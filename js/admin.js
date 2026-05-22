@@ -1518,16 +1518,46 @@
       });
 
       let _galSessMid = '';
+      let _galSessIdx = -1;
+      let _galSessMode = 'add';
       function openGallerySessionModal(btn) {
+        _galSessMode = 'add';
+        _galSessIdx = -1;
         _galSessMid = btn.dataset.mid;
+        document.getElementById('gallery-sess-title').textContent = 'Log Painted Models';
         document.getElementById('gallery-sess-project').textContent = btn.dataset.mname || '';
         const today = new Date().toISOString().slice(0, 10);
         document.getElementById('gallery-sess-date').value = today;
         document.getElementById('gallery-sess-count').value = '';
         document.getElementById('gallery-sess-note').value = '';
+        document.getElementById('gallery-sess-idx').value = '-1';
         document.getElementById('gallery-sess-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
         document.getElementById('gallery-sess-count').focus();
+      }
+      function openGallerySessionEdit(btn) {
+        _galSessMode = 'edit';
+        _galSessIdx = parseInt(btn.dataset.idx, 10);
+        _galSessMid = btn.dataset.mid;
+        document.getElementById('gallery-sess-title').textContent = 'Edit Session';
+        document.getElementById('gallery-sess-project').textContent = btn.dataset.mname || '';
+        document.getElementById('gallery-sess-date').value = btn.dataset.date || '';
+        document.getElementById('gallery-sess-count').value = btn.dataset.count || '';
+        document.getElementById('gallery-sess-note').value = btn.dataset.note || '';
+        document.getElementById('gallery-sess-idx').value = _galSessIdx;
+        document.getElementById('gallery-sess-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('gallery-sess-count').focus();
+      }
+      async function deleteGallerySession(btn) {
+        if (!confirm('Delete this session?')) return;
+        const fd = new FormData();
+        fd.append('action', 'delete_gallery_session');
+        fd.append('model_id', btn.dataset.mid);
+        fd.append('sess_idx', btn.dataset.idx);
+        const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) location.reload();
       }
       function closeGallerySessionModal() {
         document.getElementById('gallery-sess-overlay').classList.remove('open');
@@ -1539,15 +1569,16 @@
         if (!date) { document.getElementById('gallery-sess-date').focus(); return; }
         if (!count || count < 1) { document.getElementById('gallery-sess-count').focus(); return; }
         const fd = new FormData();
-        fd.append('action', 'log_gallery_session');
+        fd.append('action', _galSessMode === 'edit' ? 'edit_gallery_session' : 'log_gallery_session');
         fd.append('model_id', _galSessMid);
         fd.append('sess_date', date);
         fd.append('sess_count', count);
+        if (_galSessMode === 'edit') fd.append('sess_idx', _galSessIdx);
         const note = document.getElementById('gallery-sess-note').value.trim();
         if (note) fd.append('sess_note', note);
         const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
         const data = await res.json();
-        if (data.ok) closeGallerySessionModal();
+        if (data.ok) { closeGallerySessionModal(); location.reload(); }
       }
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && document.getElementById('gallery-sess-overlay').classList.contains('open')) closeGallerySessionModal();

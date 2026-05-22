@@ -1629,6 +1629,66 @@ if ($authed && ($_POST['action'] ?? '') === 'log_gallery_session') {
   exit;
 }
 
+if ($authed && ($_POST['action'] ?? '') === 'delete_gallery_session') {
+  header('Content-Type: application/json');
+  $mid = trim($_POST['model_id'] ?? '');
+  $idx = (int)($_POST['sess_idx'] ?? -1);
+  if ($mid !== '' && $idx >= 0) {
+    $all = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
+    foreach ($all as &$m) {
+      if (($m['id'] ?? '') === $mid) {
+        if (isset($m['sessions'][$idx])) {
+          $oldCount = (int)($m['sessions'][$idx]['count'] ?? 0);
+          array_splice($m['sessions'], $idx, 1);
+          if (empty($m['sessions'])) unset($m['sessions']);
+          $newModelCount = max(0, (int)($m['count'] ?? 1) - $oldCount);
+          if ($newModelCount > 1) $m['count'] = $newModelCount;
+          else unset($m['count']);
+        }
+        break;
+      }
+    }
+    unset($m);
+    file_put_contents(MODELS_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'edit_gallery_session') {
+  header('Content-Type: application/json');
+  $mid      = trim($_POST['model_id']  ?? '');
+  $idx      = (int)($_POST['sess_idx'] ?? -1);
+  $sessDate = trim($_POST['sess_date'] ?? '');
+  $sessCount = (int)($_POST['sess_count'] ?? 0);
+  $sessNote = trim($_POST['sess_note'] ?? '');
+  if ($mid !== '' && $idx >= 0 && $sessDate !== '' && $sessCount > 0) {
+    $all = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
+    foreach ($all as &$m) {
+      if (($m['id'] ?? '') === $mid) {
+        if (isset($m['sessions'][$idx])) {
+          $oldCount = (int)($m['sessions'][$idx]['count'] ?? 0);
+          $sess = ['date' => $sessDate, 'count' => $sessCount];
+          if ($sessNote !== '') $sess['note'] = $sessNote;
+          $m['sessions'][$idx] = $sess;
+          $newModelCount = max(0, (int)($m['count'] ?? 1) + ($sessCount - $oldCount));
+          if ($newModelCount > 1) $m['count'] = $newModelCount;
+          else unset($m['count']);
+        }
+        break;
+      }
+    }
+    unset($m);
+    file_put_contents(MODELS_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
 const RECIPE_TECHNIQUES = ['basecoat', 'wash', 'shade', 'layer', 'edge', 'highlight', 'glaze', 'drybrush', 'stipple', 'blend', 'special'];
 
 function recipeSort(array &$arr): void
@@ -2375,7 +2435,7 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=9">
+  <link rel="stylesheet" href="admin.css?v=10">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
@@ -2956,6 +3016,13 @@ if ($authed && isset($_GET['edit_force'])) {
                   &nbsp;&nbsp;<?= count($m['colors'] ?? []) ?> colour<?= count($m['colors'] ?? []) !== 1 ? 's' : '' ?>
                   &nbsp;&nbsp;<?= count($m['images'] ?? []) ?> image<?= count($m['images'] ?? []) !== 1 ? 's' : '' ?>
                 </div>
+                <?php if (!empty($m['sessions'])): ?>
+                  <div class="model-sessions">
+                    <?php foreach ($m['sessions'] as $si => $s): ?>
+                      <span class="ms-row"><span class="ms-date"><?= e($s['date']) ?></span><span class="ms-count">&times;<?= (int)$s['count'] ?></span><?php if (!empty($s['note'])): ?><span class="ms-note"><?= e($s['note']) ?></span><?php endif; ?><button type="button" class="ms-btn" data-mid="<?= e($m['id']) ?>" data-mname="<?= e($m['name']) ?>" data-idx="<?= $si ?>" data-date="<?= e($s['date']) ?>" data-count="<?= (int)$s['count'] ?>" data-note="<?= e($s['note'] ?? '') ?>" onclick="openGallerySessionEdit(this)">edit</button><button type="button" class="ms-btn ms-del" data-mid="<?= e($m['id']) ?>" data-idx="<?= $si ?>" onclick="deleteGallerySession(this)">del</button></span>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
               </div>
               <button type="button" class="btn btn-sm"
                 data-mid="<?= e($m['id'] ?? '') ?>"
@@ -5261,7 +5328,7 @@ if ($authed && isset($_GET['edit_force'])) {
       const PRE_SELECTED = <?= json_encode($editModel ? ($editModel['colors'] ?? []) : []) ?>;
       const JN_MENTIONABLES_DATA = <?= json_encode($jnMentionables) ?>;
     </script>
-    <script src="js/admin.js?v=4"></script>
+    <script src="js/admin.js?v=5"></script>
   <?php endif; ?>
 
   <button id="back-to-top" title="Back to top">↑</button>
@@ -5296,8 +5363,9 @@ if ($authed && isset($_GET['edit_force'])) {
   <?php if ($authed): ?>
     <div class="adm-shop-overlay" id="gallery-sess-overlay" onclick="if(event.target===this)closeGallerySessionModal()">
       <div class="adm-shop-sheet">
-        <div class="adm-shop-title">Log Painted Models</div>
+        <div class="adm-shop-title" id="gallery-sess-title">Log Painted Models</div>
         <div class="adm-shop-subtitle" id="gallery-sess-project"></div>
+        <input type="hidden" id="gallery-sess-idx" value="-1">
         <div style="display:flex;flex-direction:column;gap:10px;margin:14px 0 4px">
           <label style="font-family:'Cinzel',serif;font-size:11px;color:#8a7a5a;letter-spacing:.05em">
             Date *

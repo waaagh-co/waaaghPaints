@@ -426,6 +426,15 @@
       margin-top: 2px;
     }
 
+    .model-sessions { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+    .ms-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ms-date { font-size: 10px; color: #5a4a28; font-family: 'Cinzel', serif; letter-spacing: .04em; }
+    .ms-count { font-size: 10px; color: #8a7a50; font-weight: bold; }
+    .ms-note { font-size: 10px; color: #4a3a1a; font-style: italic; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+    .ms-btn { background: none; border: 1px solid #2a2010; color: #4a3a1a; font-size: 9px; padding: 1px 5px; border-radius: 2px; cursor: pointer; font-family: 'Cinzel', serif; letter-spacing: .04em; line-height: 1.4; }
+    .ms-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .ms-del:hover { border-color: var(--red); color: var(--red); }
+
     .model-count-badge {
       display: inline-block;
       margin-left: 6px;
