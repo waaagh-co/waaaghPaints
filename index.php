@@ -172,6 +172,16 @@ if ($hasBench) {
   }
 }
 if ($_mBench > 0) { $_mScore += 2; if ($_mBench >= 3) $_mScore += 1; }
+$hobbyMinutes = 0;
+if ($hasBench) {
+  foreach ($benchData as $_mb2) {
+    foreach ($_mb2['sessions'] ?? [] as $_bs2) {
+      if (($_bs2['date'] ?? '') >= $_mWkAgo && isset($_bs2['duration'])) {
+        $hobbyMinutes += (int)$_bs2['duration'];
+      }
+    }
+  }
+}
 if ($hasJournal) {
   foreach ($journalData as $_mj) {
     if (($_mj['date'] ?? '') >= $_mWkAgo) { $_mScore += 1; break; }
@@ -371,7 +381,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=75">
+  <link rel="stylesheet" href="styles.css?v=82">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -828,6 +838,17 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                   <div class="contents-entry-blurb">Every game logged - result, opponent, army, mission. The record of war, win or lose.</div>
                   <div class="contents-entry-count"><?= $cnt_battles ?> battle<?= $cnt_battles !== 1 ? 's' : '' ?> recorded</div>
                 </a>
+              <?php endif; ?>
+              <?php if ($hasBench): ?>
+                <div class="nixie-display">
+                  <div class="nixie-frame">
+                    <div class="nixie-tubes"><?php
+                      $nixieStr = str_pad(min((int)$hobbyMinutes, 99999), 5, '0', STR_PAD_LEFT);
+                      foreach (str_split($nixieStr) as $nd): ?><img class="nixie-digit" src="img/nixie_digits/digit_<?= $nd ?>.png" alt="<?= $nd ?>"><?php endforeach; ?>
+                    </div>
+                    <img src="img/nixie_hollow.png" class="nixie-frame-img" alt="Minutes painted this week">
+                  </div>
+                </div>
               <?php endif; ?>
             </div>
           <?php endif; ?>

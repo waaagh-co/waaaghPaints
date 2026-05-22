@@ -2173,6 +2173,14 @@
       .wp-content-body { padding: 0 16px 40px; }
     }
 
+    /* ── Nixie Counter ── */
+    .nixie-display { margin-top: 14px; padding: 0 4px 8px; }
+    .nixie-frame { position: relative; width: 100%; max-width: 360px; margin: 0 auto; }
+    .nixie-frame::before { content: ''; display: block; padding-bottom: 66.67%; }
+    .nixie-frame-img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+    .nixie-tubes { position: absolute; top: 31%; bottom: 30%; left: 18%; right: 18%; display: flex; align-items: stretch; z-index: 1; }
+    .nixie-digit { flex: 1; min-width: 0; display: block; object-fit: cover; object-position: center center; }
+
     /* ── Workhorse count ── */
     .scheme-count {
       font-family: var(--font-heading);
