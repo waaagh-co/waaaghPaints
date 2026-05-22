@@ -23,12 +23,14 @@
 
     let sortCol = 'name';
     let sortDir = 1; // 1=asc, -1=desc
+    let stockFilter = false;
 
     const searchEl = document.getElementById('search');
     const filterBrand = document.getElementById('filter-brand');
     const filterColor = document.getElementById('filter-color');
     const filterLayer = document.getElementById('filter-layer');
     const resetBtn = document.getElementById('reset');
+    const flaggedBtn = document.getElementById('filter-flagged');
     const countEl = document.getElementById('count');
     const tbody = document.getElementById('tbody');
     const emptyEl = document.getElementById('empty');
@@ -45,6 +47,7 @@
         if (brand && p.brand !== brand) return false;
         if (color && p.color !== color) return false;
         if (layer && p.layer !== layer) return false;
+        if (stockFilter && !p.stock) return false;
         if (q && !p.name.toLowerCase().includes(q) &&
           !p.hue.toLowerCase().includes(q) &&
           !p.brand.toLowerCase().includes(q)) return false;
@@ -179,6 +182,14 @@
     filterColor.addEventListener('change', render);
     filterLayer.addEventListener('change', render);
 
+    if (flaggedBtn) {
+      flaggedBtn.addEventListener('click', () => {
+        stockFilter = !stockFilter;
+        flaggedBtn.classList.toggle('active', stockFilter);
+        render();
+      });
+    }
+
     resetBtn.addEventListener('click', () => {
       searchEl.value = '';
       filterBrand.value = '';
@@ -186,6 +197,8 @@
       filterLayer.value = '';
       sortCol = 'name';
       sortDir = 1;
+      stockFilter = false;
+      if (flaggedBtn) flaggedBtn.classList.remove('active');
       render();
     });
 
