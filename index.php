@@ -345,17 +345,38 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
 <head>
   <?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<?= htmlspecialchars(GA4_ID) ?>"></script>
-    <script>
+  <script>
+  (function() {
+    var GA_ID = '<?= htmlspecialchars(GA4_ID) ?>';
+    function loadGA4() {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      document.head.appendChild(s);
       window.dataLayer = window.dataLayer || [];
-
-      function gtag() {
-        dataLayer.push(arguments);
-      }
+      window.gtag = function(){ dataLayer.push(arguments); };
       gtag('js', new Date());
-      gtag('config', '<?= htmlspecialchars(GA4_ID) ?>');
-    </script>
+      gtag('config', GA_ID);
+    }
+    var consent = localStorage.getItem('ga_consent');
+    if (consent === 'yes') { loadGA4(); }
+    else if (consent !== 'no') {
+      document.addEventListener('DOMContentLoaded', function() {
+        var b = document.getElementById('cookie-banner');
+        if (b) b.style.display = 'flex';
+      });
+    }
+    window._cookieAccept = function() {
+      localStorage.setItem('ga_consent', 'yes');
+      document.getElementById('cookie-banner').style.display = 'none';
+      loadGA4();
+    };
+    window._cookieDecline = function() {
+      localStorage.setItem('ga_consent', 'no');
+      document.getElementById('cookie-banner').style.display = 'none';
+    };
+  })();
+  </script>
   <?php endif; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1459,6 +1480,18 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </div>
 
   <button id="back-to-top" title="Back to top">↑</button>
+
+  <?php if (defined('GA4_ID') && GA4_ID !== ''): ?>
+  <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#0a0804;border-top:2px solid #3a2a08;padding:12px 20px;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:220px;">
+      <span style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:.08em;color:#c9a227;text-transform:uppercase;margin-right:8px;">OI, HUMIE.</span><span style="font-size:12px;color:#7a6a4a;">Google Analytics is watchin' who comes 'ere - I just wanna know if any gits from da Tau Empire is snoopin' around. No funny bizness, just head-countin'.</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="_cookieAccept()" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.06em;padding:6px 14px;background:#0e0a04;border:1px solid #c9a227;color:#c9a227;cursor:pointer;border-radius:2px;">WAAAGH, FINE</button>
+      <button onclick="_cookieDecline()" style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:.06em;padding:6px 14px;background:#0e0a04;border:1px solid #3a2a08;color:#5a4a28;cursor:pointer;border-radius:2px;">ZOG OFF</button>
+    </div>
+  </div>
+  <?php endif; ?>
 </body>
 
 </html>

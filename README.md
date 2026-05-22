@@ -9,8 +9,9 @@ collapsible left-rail sidebar grouped into four sections.
 **[Live Site](https://waaagh.co)**
 
 > **Work in progress.** This is a personal tool shared as-is with the Warhammer hobby community.
-> Features are added when they're needed. Bugs may exist. No support is guaranteed.
-> Use at your own risk.
+> Features are added when they're needed - totally out of the blue as I think them up. 
+> Bugs may exist. Most probably. No support is guaranteed.
+> Use at your own risk. 
 
 # Warpaint Mode Screenshot
 
