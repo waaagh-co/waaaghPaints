@@ -2375,7 +2375,7 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=6">
+  <link rel="stylesheet" href="admin.css?v=9">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
@@ -2392,6 +2392,7 @@ if ($authed && isset($_GET['edit_force'])) {
     <div class="as-header">
       <a href="index.php"><img src="img/logo_sm.png" alt="Waaagh! Paint" class="as-logo"></a>
       <div class="as-badge">Admin Panel</div>
+      <button class="as-collapse-btn" id="as-collapse-btn" aria-label="Collapse sidebar">&#8249;</button>
     </div>
     <nav class="as-nav">
       <div class="as-group">
@@ -2422,6 +2423,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <a href="#section-conversions" class="as-link">Equivalency</a>
         <a href="guide.php" target="_blank" class="as-link">User Guide &#8599;</a>
       </div>
+      <div class="asnav-fade" id="asnav-fade"></div>
     </nav>
     <div class="as-footer">
       <a href="index.php" class="as-back-link">&#8592; Back to site</a>

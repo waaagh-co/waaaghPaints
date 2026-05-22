@@ -371,7 +371,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="stylesheet" href="styles.css?v=72">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -392,7 +392,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <!-- Sidebar -->
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <img src="img/logo_sm.png" alt="Waaagh! Paint" class="sidebar-logo">
+      <a href="#" id="sidebar-logo-link" aria-label="Go to home"><img src="img/logo_sm.png" alt="Waaagh! Paint" class="sidebar-logo"></a>
+      <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" aria-label="Collapse sidebar">&#8249;</button>
     </div>
     <nav class="sidebar-nav">
       <div class="sidebar-home">
@@ -438,6 +439,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <?php if ($hasJournal): ?><li class="sg-item"><a href="#" data-tab="journals">Scrap Notes</a></li><?php endif; ?>
         </ul>
       </div>
+      <div class="nav-fade" id="nav-fade"></div>
     </nav>
     <div class="waaagh-meter <?= $meterClass ?>">
       <img src="img/waaagh.png" class="wm-title-img" alt="Waaagh! Index">

@@ -3526,11 +3526,46 @@
         if (!sidebar || !toggle || !backdrop) return;
 
         toggle.addEventListener('click', () => {
-          sidebar.classList.add('open');
-          backdrop.classList.add('visible');
+          if (window.innerWidth > 768) {
+            document.body.classList.remove('sidebar-collapsed');
+            try { localStorage.setItem('sidebar-collapsed', '0'); } catch(e) {}
+          } else {
+            sidebar.classList.add('open');
+            backdrop.classList.add('visible');
+          }
         });
 
         backdrop.addEventListener('click', closeSidebar);
+
+        (function() {
+          var collapseBtn = document.getElementById('sidebar-collapse-btn');
+          if (!collapseBtn) return;
+          try { if (localStorage.getItem('sidebar-collapsed') === '1') document.body.classList.add('sidebar-collapsed'); } catch(e) {}
+          collapseBtn.addEventListener('click', function() {
+            document.body.classList.add('sidebar-collapsed');
+            try { localStorage.setItem('sidebar-collapsed', '1'); } catch(e) {}
+          });
+        })();
+
+        (function() {
+          var nav  = document.querySelector('.sidebar-nav');
+          var fade = document.getElementById('nav-fade');
+          if (!nav || !fade) return;
+          function checkFade() { fade.classList.toggle('hidden', nav.scrollTop + nav.clientHeight >= nav.scrollHeight - 20); }
+          nav.addEventListener('scroll', checkFade, { passive: true });
+          window.addEventListener('resize', checkFade);
+          window.addEventListener('load', checkFade);
+          checkFade();
+        })();
+
+        var logoLink = document.getElementById('sidebar-logo-link');
+        if (logoLink) {
+          logoLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToTab('contents');
+            if (window.innerWidth <= 768) closeSidebar();
+          });
+        }
 
         const GROUPS_KEY = 'sidebar-groups';
         const saved = JSON.parse(localStorage.getItem(GROUPS_KEY) || '{}');
