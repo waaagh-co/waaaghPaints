@@ -6,6 +6,7 @@ data/
 img/models/
 img/bench/
 img/recipes/
+img/rescues/
 
 # Inventory CSVs - only the sample files are committed
 inventory/*.csv
