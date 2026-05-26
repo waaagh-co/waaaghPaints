@@ -2185,6 +2185,10 @@
     .nixie-tubes { position: absolute; top: 31%; bottom: 30%; left: 18%; right: 18%; display: flex; align-items: stretch; z-index: 1; }
     .nixie-digit { flex: 1; min-width: 0; display: block; object-fit: cover; object-position: center center; }
     .nixie-pb { text-align: center; font-family: 'Cinzel', serif; font-size: .72rem; color: #7a6a3a; letter-spacing: .06em; margin: 4px 0 0; }
+    .nixie-streak { margin-top: 3px; }
+    .nixie-streak strong { color: #e07820; text-shadow: 0 0 8px #a04010; font-weight: 700; }
+    .streak-flame { animation: streak-flicker 2.4s ease-in-out infinite; display: inline-block; }
+    @keyframes streak-flicker { 0%,100% { transform: scale(1) rotate(-2deg); opacity: 1; } 30% { transform: scale(1.08) rotate(1deg); opacity: .88; } 60% { transform: scale(.96) rotate(-1deg); opacity: .96; } 80% { transform: scale(1.04) rotate(2deg); opacity: .92; } }
 
     /* ── Workhorse count ── */
     .scheme-count {

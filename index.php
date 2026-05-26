@@ -174,6 +174,7 @@ if ($hasBench) {
 if ($_mBench > 0) { $_mScore += 2; if ($_mBench >= 3) $_mScore += 1; }
 $hobbyMinutes = 0;
 $pbMins = 0; $pbWeekLabel = '';
+$hobbyStreak = 0;
 if ($hasBench) {
   $_dailyMins = [];
   foreach ($benchData as $_mb2) {
@@ -200,6 +201,12 @@ if ($hasBench) {
     }
   }
   unset($_dailyMins, $_end, $_endMins, $_wStart, $_wTot, $_d, $_dm, $_ts, $_m);
+  $_sDates = [];
+  foreach ($benchData as $_sb) { foreach ($_sb['sessions'] ?? [] as $_ss) { if (!empty($_ss['date'])) $_sDates[$_ss['date']] = true; } }
+  $hobbyStreak = 0;
+  $_sCheck = isset($_sDates[date('Y-m-d')]) ? date('Y-m-d') : date('Y-m-d', strtotime('-1 day'));
+  while (isset($_sDates[$_sCheck])) { $hobbyStreak++; $_sCheck = date('Y-m-d', strtotime($_sCheck . ' -1 day')); }
+  unset($_sDates, $_sCheck, $_sb, $_ss);
 }
 if ($hasJournal) {
   foreach ($journalData as $_mj) {
@@ -421,7 +428,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=84">
+  <link rel="stylesheet" href="styles.css?v=86">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -889,6 +896,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                     <img src="img/nixie_hollow.png" class="nixie-frame-img" alt="Minutes painted this week">
                   </div>
                   <?php if ($pbMins > 0): ?><p class="nixie-pb">PB &nbsp;<?= $pbMins ?> mins &middot; w/c <?= $pbWeekLabel ?></p><?php endif; ?>
+                  <?php if ($hobbyStreak > 0): ?><p class="nixie-pb nixie-streak"><span class="streak-flame">🔥</span> <strong><?= $hobbyStreak ?></strong> day streak</p><?php endif; ?>
                 </div>
               <?php endif; ?>
             </div>
