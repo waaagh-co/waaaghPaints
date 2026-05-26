@@ -173,14 +173,33 @@ if ($hasBench) {
 }
 if ($_mBench > 0) { $_mScore += 2; if ($_mBench >= 3) $_mScore += 1; }
 $hobbyMinutes = 0;
+$pbMins = 0; $pbWeekLabel = '';
 if ($hasBench) {
+  $_dailyMins = [];
   foreach ($benchData as $_mb2) {
     foreach ($_mb2['sessions'] ?? [] as $_bs2) {
-      if (($_bs2['date'] ?? '') >= $_mWkAgo && isset($_bs2['duration'])) {
+      if (empty($_bs2['date'])) continue;
+      $_ts = strtotime($_bs2['date']);
+      if (($_bs2['date']) >= $_mWkAgo && isset($_bs2['duration'])) {
         $hobbyMinutes += (int)$_bs2['duration'];
       }
+      $_m = isset($_bs2['duration']) ? (int)$_bs2['duration']
+        : (in_array((int)date('w', $_ts), [0,6]) ? 180 : 90);
+      $_dailyMins[$_bs2['date']] = ($_dailyMins[$_bs2['date']] ?? 0) + $_m;
     }
   }
+  foreach ($_dailyMins as $_end => $_endMins) {
+    $_wStart = date('Y-m-d', strtotime($_end . ' -6 days'));
+    $_wTot = 0;
+    foreach ($_dailyMins as $_d => $_dm) {
+      if ($_d >= $_wStart && $_d <= $_end) $_wTot += $_dm;
+    }
+    if ($_wTot > $pbMins) {
+      $pbMins = $_wTot;
+      $pbWeekLabel = date('j M Y', strtotime($_wStart));
+    }
+  }
+  unset($_dailyMins, $_end, $_endMins, $_wStart, $_wTot, $_d, $_dm, $_ts, $_m);
 }
 if ($hasJournal) {
   foreach ($journalData as $_mj) {
@@ -402,7 +421,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=83">
+  <link rel="stylesheet" href="styles.css?v=84">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -869,6 +888,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
                     </div>
                     <img src="img/nixie_hollow.png" class="nixie-frame-img" alt="Minutes painted this week">
                   </div>
+                  <?php if ($pbMins > 0): ?><p class="nixie-pb">PB &nbsp;<?= $pbMins ?> mins &middot; w/c <?= $pbWeekLabel ?></p><?php endif; ?>
                 </div>
               <?php endif; ?>
             </div>
@@ -1472,7 +1492,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=9"></script>
+  <script src="js/index.js?v=10"></script>
 
   <div id="install-banner">
     <div class="install-banner-text">

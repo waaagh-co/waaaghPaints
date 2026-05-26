@@ -565,16 +565,16 @@
       if (!el) return;
       const act = new Map();
 
-      function bump(d) {
-        if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) act.set(d, (act.get(d) || 0) + 1);
-      }
-      MODELS.forEach(m => bump(m.date));
-      if (JOURNAL_DATA) JOURNAL_DATA.forEach(j => bump(j.date));
+      const addMins = (dateStr, mins) => {
+        if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) act.set(dateStr, (act.get(dateStr) || 0) + mins);
+      };
       if (BENCH_DATA) BENCH_DATA.forEach(b => {
-        bump(b.last_touched);
-        (b.history || []).forEach(h => bump(h.date));
+        (b.sessions || []).forEach(s => {
+          if (!s.date) return;
+          const m = s.duration != null ? s.duration : ([0,6].includes(new Date(s.date + 'T12:00').getDay()) ? 180 : 90);
+          addMins(s.date, m);
+        });
       });
-      if (BATTLES_DATA) BATTLES_DATA.forEach(b => bump(b.date));
       const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const today = new Date();
@@ -594,7 +594,7 @@
         for (let d = 0; d < 7; d++) {
           wk.push({
             iso: iso(cur),
-            count: act.get(iso(cur)) || 0,
+            mins: act.get(iso(cur)) || 0,
             future: cur > today,
             dt: new Date(cur)
           });
@@ -606,9 +606,9 @@
       const isoStart = iso(gridStart);
       const activeDays = [...act.keys()].filter(d => d >= isoStart && d <= isoToday).length;
 
-      function lvl(c, f) {
-        if (f || c === 0) return 0;
-        return c === 1 ? 1 : c === 2 ? 2 : 3;
+      function lvl(m, f) {
+        if (f || m <= 0) return 0;
+        return m <= 60 ? 1 : m <= 120 ? 2 : 3;
       }
       let lastMon = -1;
       const monthRow = weeks.map(wk => {
@@ -617,7 +617,7 @@
         lastMon = m;
         return `<span>${lbl}</span>`;
       }).join('');
-      const gridHtml = weeks.map(wk => `<div class="hm-week">${wk.map(day => { const l = lvl(day.count, day.future); const cls = 'hm-day ' + (day.future ? 'hm-future' : `hm-lv${l}`) + (day.iso === isoToday ? ' hm-today' : ''); const tip = day.future ? '' : day.count ? `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()} · ${day.count} activit${day.count === 1 ? 'y' : 'ies'}` : `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()}`; return `<div class="${cls.trim()}"${tip ? ` title="${tip}"` : ''}></div>`; }).join('')}</div>`).join('');
+      const gridHtml = weeks.map(wk => `<div class="hm-week">${wk.map(day => { const l = lvl(day.mins, day.future); const cls = 'hm-day ' + (day.future ? 'hm-future' : `hm-lv${l}`) + (day.iso === isoToday ? ' hm-today' : ''); const tip = day.future ? '' : day.mins ? `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()} · ${day.mins} min${day.mins === 1 ? '' : 's'}` : `${DAYS[day.dt.getDay()]} ${MON[day.dt.getMonth()]} ${day.dt.getDate()}, ${day.dt.getFullYear()}`; return `<div class="${cls.trim()}"${tip ? ` title="${tip}"` : ''}></div>`; }).join('')}</div>`).join('');
       el.innerHTML = `<div class="hm-header">Hobby Activity &middot; <span class="hm-count">${activeDays} active day${activeDays === 1 ? '' : 's'} this year</span></div><div class="hm-scroll"><div class="hm-inner"><div class="hm-months">${monthRow}</div><div class="hm-grid">${gridHtml}</div></div></div><div class="hm-legend"><span>Less</span><div class="hm-lv0"></div><div class="hm-lv1"></div><div class="hm-lv2"></div><div class="hm-lv3"></div><span>More</span></div>`;
       const hmScroll = el.querySelector('.hm-scroll');
       if (hmScroll) hmScroll.scrollLeft = hmScroll.scrollWidth;

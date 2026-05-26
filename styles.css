@@ -2184,6 +2184,7 @@
     .nixie-frame-img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
     .nixie-tubes { position: absolute; top: 31%; bottom: 30%; left: 18%; right: 18%; display: flex; align-items: stretch; z-index: 1; }
     .nixie-digit { flex: 1; min-width: 0; display: block; object-fit: cover; object-position: center center; }
+    .nixie-pb { text-align: center; font-family: 'Cinzel', serif; font-size: .72rem; color: #7a6a3a; letter-spacing: .06em; margin: 4px 0 0; }
 
     /* ── Workhorse count ── */
     .scheme-count {
