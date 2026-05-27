@@ -13,11 +13,15 @@ collapsible left-rail sidebar grouped into four sections.
 > Bugs may exist. Most probably. No support is guaranteed.
 > Use at your own risk. 
 
-# Warpaint Mode Screenshot
+## Warpaint Mode Screenshot
 
 ![Warpaint Mode](img/paint_mode.jpg)
 
-## Admin panel
+## The Commissar
+
+![The Commissar](img/commissar.jpg)
+
+# Admin panel
 
 ![Admin panel](img/admin.jpg)
 
