@@ -6338,3 +6338,7 @@
 .wc-news-card.wc-ork .wc-news-title { color: #b0d4a0; }
 .wc-news-card.wc-ork:hover .wc-news-title { color: #8adf30; }
 @media (max-width: 700px) { .wc-news-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Sidebar Tip Jar ──────────────────────────── */
+.sidebar-tipjar { display: block; padding: 10px 12px 6px; }
+.sidebar-tipjar img { display: block; width: 100%; height: auto; }
