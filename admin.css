@@ -1629,3 +1629,20 @@
       cursor: pointer;
       padding: 0 2px;
     }
+
+    /* ── Waaagh! Index meter (stats section) ── */
+    .admin-wm-widget { width: 220px; margin: 18px auto 10px; padding: 10px 12px 8px; background: #080706; border: 1px solid #2a1e08; border-radius: 2px; }
+    .wm-title-img { display: block; width: 75%; margin: 0 auto 4px; }
+    .wm-gauge { position: relative; width: 100%; aspect-ratio: 3/2; }
+    .wm-fill { position: absolute; inset: 0; clip-path: polygon(50% 80%, 14% 77%, 9% 58%, 8% 44%, 28% 14%, 50% 9%, 72% 14%, 92% 44%, 91% 58%, 86% 77%); background: conic-gradient(from 270deg at 50% 80%, #c02010 0deg, #c9a227 90deg, #3a8a3a 180deg, transparent 180deg, transparent 360deg); -webkit-mask-image: conic-gradient(from 270deg at 50% 80%, black 0deg, black var(--wm-end), transparent var(--wm-end), transparent 360deg); mask-image: conic-gradient(from 270deg at 50% 80%, black 0deg, black var(--wm-end), transparent var(--wm-end), transparent 360deg); }
+    .meter-s0 .wm-fill { --wm-end: 36deg; } .meter-s1 .wm-fill { --wm-end: 72deg; } .meter-s2 .wm-fill { --wm-end: 108deg; } .meter-s3 .wm-fill { --wm-end: 144deg; } .meter-s4 .wm-fill { --wm-end: 180deg; }
+    .wm-gauge-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .wm-needle { position: absolute; left: 50%; bottom: 20%; width: 2px; height: 70%; margin-left: -1px; background: linear-gradient(to top, #0a0806 0%, #6a0808 20%, #c01010 60%, #ec2020 85%, #ff3a3a 100%); transform-origin: 50% 100%; transform: rotate(var(--wm-angle, 0deg)); border-radius: 1px 1px 0 0; pointer-events: none; z-index: 3; }
+    .meter-s0 .wm-needle { --wm-angle: -72deg; } .meter-s1 .wm-needle { --wm-angle: -36deg; } .meter-s2 .wm-needle { --wm-angle: 0deg; } .meter-s3 .wm-needle { --wm-angle: 36deg; } .meter-s4 .wm-needle { --wm-angle: 72deg; }
+    .wm-pivot { position: absolute; left: 50%; bottom: 20%; width: 8px; height: 8px; background: radial-gradient(circle at 35% 35%, #4a4030, #1a1208); border: 1px solid #3a3020; border-radius: 50%; transform: translate(-50%, 50%); pointer-events: none; z-index: 4; }
+    .wm-state { font-family: var(--font-heading); font-size: 7px; letter-spacing: .08em; text-transform: uppercase; text-align: center; margin-top: 2px; }
+    .meter-s0 .wm-state { color: #3a3a3a; } .meter-s1 .wm-state { color: #7a5020; } .meter-s2 .wm-state { color: var(--gold); } .meter-s3 .wm-state { color: #c05010; } .meter-s4 .wm-state { color: #c02010; }
+    @keyframes wm-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+    .meter-s3 .wm-fill, .meter-s3 .wm-state { animation: wm-pulse 1.8s ease-in-out infinite; }
+    .meter-s4 .wm-fill, .meter-s4 .wm-state { animation: wm-pulse 1.1s ease-in-out infinite; }
+    .wm-week { font-size: 9px; color: #7a6a4a; text-align: center; padding: 4px 6px 2px; font-style: italic; line-height: 1.5; }

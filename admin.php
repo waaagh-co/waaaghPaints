@@ -2435,7 +2435,7 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=11">
+  <link rel="stylesheet" href="admin.css?v=12">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
@@ -2513,6 +2513,7 @@ if ($authed && isset($_GET['edit_force'])) {
       <?php if ($formError):   ?><div class="alert alert-error"><?= e($formError) ?></div><?php endif; ?>
 
       <h2 id="section-stats">Hobby Stats</h2>
+      <p style="font-size:.72rem;color:#5a4828;margin:0 0 12px;font-style:italic;">Full intelligence dossier &rarr; <a href="index.php?tab=commissar" target="_blank" style="color:#7a6a3a;">The Commissar tab</a></p>
       <?php
       $ownedPaints = array_values(array_filter($paints, fn($p) => ($p['stock'] ?? '') !== 'wanted'));
       $wantedCount = count($paints) - count($ownedPaints);
@@ -2578,6 +2579,60 @@ if ($authed && isset($_GET['edit_force'])) {
           $totalMinutes += (int)($s['duration'] ?? 0);
         }
       }
+
+      // Waaagh! Meter computation (same rolling 7-day logic as index.php)
+      $_mWkAgo = date('Y-m-d', strtotime('-6 days'));
+      $_mScore = 0;
+      $_mModels = 0;
+      foreach ($models as $_mm) {
+        foreach ($_mm['sessions'] ?? [] as $_ms) {
+          if (($_ms['date'] ?? '') >= $_mWkAgo) $_mModels += max(1, (int)($_ms['count'] ?? 1));
+        }
+      }
+      if ($_mModels > 0) { $_mScore += 3; if ($_mModels >= 3) $_mScore += 1; }
+      $_mBench = 0;
+      if ($hasBench) {
+        foreach ($benchData as $_mb) {
+          foreach ($_mb['sessions'] ?? [] as $_bs) {
+            if (($_bs['date'] ?? '') >= $_mWkAgo) $_mBench++;
+          }
+        }
+      }
+      if ($_mBench > 0) { $_mScore += 2; if ($_mBench >= 3) $_mScore += 1; }
+      if ($hasJournal) {
+        foreach ($journalData as $_mj) {
+          if (($_mj['date'] ?? '') >= $_mWkAgo) { $_mScore += 1; break; }
+        }
+      }
+      if ($hasBench && !empty($benchData)) {
+        $_mActive = array_values(array_filter($benchData, fn($b) => ($b['stage'] ?? '') !== 'done'));
+        if (!empty($_mActive)) {
+          usort($_mActive, fn($a, $b) => strcmp($b['last_touched'] ?? '', $a['last_touched'] ?? ''));
+          $_mTs = strtotime($_mActive[0]['last_touched'] ?? '');
+          if ($_mTs) {
+            $_mDays = floor((time() - $_mTs) / 86400);
+            if      ($_mDays <= 1) $_mScore += 2;
+            elseif  ($_mDays <= 3) $_mScore += 1;
+            elseif  ($_mDays > 7)  $_mScore -= 1;
+          }
+        }
+      }
+      $adMeterScore = max(0, min(10, $_mScore));
+      if      ($adMeterScore <= 1) { $adMeterState = "DOZIN'";         $adMeterClass = 'meter-s0'; }
+      elseif  ($adMeterScore <= 3) { $adMeterState = "STIRRIN'";       $adMeterClass = 'meter-s1'; }
+      elseif  ($adMeterScore <= 5) { $adMeterState = "ON DA WARPATH";  $adMeterClass = 'meter-s2'; }
+      elseif  ($adMeterScore <= 7) { $adMeterState = "WAAAGH!";        $adMeterClass = 'meter-s3'; }
+      else                          { $adMeterState = "FULL WAAAGH!!"; $adMeterClass = 'meter-s4'; }
+      $_mNotes = 0; $_mBattles = 0;
+      if ($hasJournal)  foreach ($journalData as $_mj2) { if (($_mj2['date']  ?? '') >= $_mWkAgo) $_mNotes++; }
+      if ($hasBattles)  foreach ($battlesData as $_mbh) { if (($_mbh['date']  ?? '') >= $_mWkAgo) $_mBattles++; }
+      $adWkParts = [];
+      if ($_mModels  > 0) $adWkParts[] = $_mModels  . ' model'         . ($_mModels  !== 1 ? 's' : '') . ' painted';
+      if ($_mBench   > 0) $adWkParts[] = $_mBench   . ' bench session' . ($_mBench   !== 1 ? 's' : '');
+      if ($_mBattles > 0) $adWkParts[] = $_mBattles . ' battle'        . ($_mBattles !== 1 ? 's' : '') . ' fought';
+      if ($_mNotes   > 0) $adWkParts[] = $_mNotes   . ' note'          . ($_mNotes   !== 1 ? 's' : '') . ' scribbled';
+      $adWkActive = !empty($adWkParts);
+      unset($_mWkAgo, $_mScore, $_mModels, $_mBench, $_mm, $_ms, $_mb, $_bs, $_mj, $_mActive, $_mTs, $_mDays, $_mNotes, $_mBattles, $_mj2, $_mbh);
       ?>
 
       <div class="stats-grid">
@@ -2770,6 +2825,18 @@ if ($authed && isset($_GET['edit_force'])) {
             <div style="font-size:12px;color:#3a2a10;font-family:'Cinzel',serif;letter-spacing:.05em">No recorded schemes yet.</div>
           <?php endif; ?>
         </div>
+      </div>
+
+      <div class="admin-wm-widget <?= $adMeterClass ?>">
+        <img src="img/waaagh.png" class="wm-title-img" alt="Waaagh! Index">
+        <div class="wm-gauge">
+          <div class="wm-fill"></div>
+          <img src="img/gauge.png" class="wm-gauge-img" alt="">
+          <div class="wm-needle"></div>
+          <div class="wm-pivot"></div>
+        </div>
+        <div class="wm-state"><?= htmlspecialchars($adMeterState) ?></div>
+        <div class="wm-week"><?php if ($adWkActive): ?><?= implode(' &middot; ', $adWkParts) ?><?php else: ?>Nowt done yet&hellip;<?php endif; ?></div>
       </div>
 
       <?php if ($topPaints): ?>

@@ -242,7 +242,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Annual Goal bar</strong> - progress toward your painted-model target for the current year. Only shown when a goal has been set in Admin Stats.</li>
     </ul>
     <p><strong>Right half</strong> is the <strong>Scrap Notes panel</strong> - your most recent journal entry displayed in handwritten style over an Ork clipboard background. Click anywhere on it to jump to the Scrap Notes tab. Only shown when Scrap Notes has been started and has at least one entry.</p>
-    <p>The sidebar <strong>Waaagh! Index</strong> gauge also shows a rolling 7-day <strong>Dis Week</strong> summary just below the state label: models painted, bench sessions, battles fought, notes scribbled.</p>
+    <p>The <strong>Waaagh! Index</strong> gauge lives in the <strong>Admin Stats</strong> section (below Collection by Brand). It shows your current momentum and a rolling 7-day <strong>Dis Week</strong> summary: models painted, bench sessions, battles fought, notes scribbled.</p>
     <p>Below the hero, <strong>The Pipeline</strong> shows Recipes → Paint Schemes → Planned → On the Bench as large stat cards with a green <strong>ready now</strong> count whenever you own every paint for a planned scheme. The last battle result also appears here if you have Battle Honours.</p>
     <p>Below the pipeline, the page is laid out in sections:</p>
     <ul>
@@ -254,12 +254,27 @@ if (empty($_SESSION['admin'])) {
     </ul>
     <p>Each entry shows a one-line description plus a live count. Opt-in sections (Recipes, Brushes, Pile of Shame, Bench, Forces &amp; Rosters, Battle Honours, Codices, Scrap Notes) only appear once their data file has been started in Admin. Click any entry to jump straight to that tab.</p>
 
+    <h3>The Commissar tab</h3>
+    <p>A personalised tactical intelligence briefing drawn from all your data at once. Always visible in the sidebar under <strong>Your Armies</strong>.</p>
+    <ul>
+      <li><strong>Next Orders</strong> - your top 5 highest-priority painting tasks, scored automatically by how close to done each bench project or planned scheme is, whether all paints are in stock, and how long since you last touched it. Reason pills explain each score: "final stage," "fully stocked," "neglected 42d," etc.</li>
+      <li><strong>Shame Debt</strong> - the pile-of-shame acquisition rate vs completion rate, net velocity (growing or shrinking), and estimated months to clear (when the pile is shrinking). Status breakdown across sealed / opened / partial boxes.</li>
+      <li><strong>Session Patterns</strong> - which day of the week you paint longest on average, shown as a 7-bar mini chart with the best day highlighted gold. Trend line compares last 30 days to the previous 30-day period.</li>
+      <li><strong>Stage Bottleneck</strong> - which bench stage your projects linger in longest (computed from actual stage transition history), and the current distribution of projects across all stages.</li>
+      <li><strong>Force Forecasts</strong> - for any force with a model target set, a progress bar plus an estimated completion date based on your recent painting velocity (models painted over the last 30 days).</li>
+      <li><strong>Battle Dossier</strong> - overall W/L/D record in large coloured numerals, plus win rate ranked per army so you can see which faction performs best.</li>
+      <li><strong>Supply Risk</strong> - flags any of your 30 most-used paints that are currently marked low or out of stock, so you know what to order before it blocks a project.</li>
+      <li><strong>Historical Record</strong> - the same stats from the Admin Stats panel (paint counts by brand, top 8 most-used paints) presented in the Commissar's aesthetic for quick reference.</li>
+    </ul>
+    <div class="tip">Cards only appear for the data features you have active. The Commissar tab is always visible and degrades gracefully - if you haven't started Battle Honours, the Battle Dossier card is simply omitted.</div>
+
     <h3>Waaagh! Index</h3>
-    <p>A momentum gauge permanently visible at the bottom of the sidebar, between the nav groups and the Search button. It reads your current painting momentum at a glance - no clicking required.</p>
+    <p>A momentum gauge in the <strong>Admin Stats</strong> section (below Collection by Brand). It reads your current painting momentum from the past 7 days at a glance.</p>
     <ul>
       <li>Scores your activity over the rolling 7 days: models painted, bench sessions logged, journal entries, and how recently you last touched the bench</li>
       <li>Five states from dormant to frenzied: <strong>DOZIN'</strong> &rarr; <strong>STIRRIN'</strong> &rarr; <strong>ON DA WARPATH</strong> &rarr; <strong>WAAAGH!</strong> &rarr; <strong>FULL WAAAGH!!</strong></li>
       <li>The needle on the gauge face points to your current level; the top two states pulse to signal a hot streak</li>
+      <li>A <strong>Dis Week</strong> summary below the state label shows what drove the score: models painted, bench sessions, battles fought, notes scribbled</li>
       <li>Entirely passive - updates automatically each page load, nothing to set up or configure</li>
     </ul>
 
@@ -487,6 +502,7 @@ if (empty($_SESSION['admin'])) {
     <ul>
       <li><strong>Key numbers</strong> - paints owned, recorded schemes, models painted (shown when total across all schemes exceeds the scheme count), planned schemes, books read, active brushes, recipes, journal entries (cards only appear for active features). Also: <strong>Low / Out</strong> (paints needing a restock) and <strong>Missing (Planned)</strong> (unique paints referenced in planned schemes you don't own yet - click the card to see a full list grouped by brand)</li>
       <li><strong>Collection by Brand</strong> - horizontal bars showing how many paints you own per brand</li>
+      <li><strong>Waaagh! Index gauge</strong> - the momentum gauge sits between Collection by Brand and Most Used Paints; see the <em>Waaagh! Index</em> section above for details</li>
       <li><strong>Gallery by Faction</strong> - scheme counts per faction with model counts; year breakdown appears once you have schemes across multiple years</li>
       <li><strong>Most Used Paints</strong> - top 8 paints ranked by how many gallery schemes reference them</li>
       <li><strong>Tab Visits</strong> - horizontal bars showing how many times each tab has been clicked; appears automatically once you've used the site (no setup needed)</li>

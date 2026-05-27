@@ -349,6 +349,153 @@ $wtnCards = array_values(array_filter([$_wtnRescue, $_wtnReady, $_wtnForce, $_wt
 $hasWtn = !empty($wtnCards);
 unset($_wtnOwned, $_wp, $_bActive, $_b, $_days, $_pl, $_miss, $_c, $_mById, $_m2, $_bestPct, $_f, $_painted, $_target, $_pct, $_fThumb, $_fmid, $_mid, $_pl2, $_missNames, $_c2, $_parts2, $_sActive, $_s, $_acq, $_sLabel, $_sdiff, $_rPrepped, $_rp, $_wtnRescue, $_wtnReady, $_wtnForce, $_wtnAlmost, $_wtnShame, $_wtnPrepped);
 
+// === COMMISSAR INTELLIGENCE ===
+$ciShame = null; $ciSessions = null; $ciBottleneck = null;
+$ciBattles = null; $ciForces = null; $ciSupply = []; $ciNextOrders = [];
+
+$_ciOwned = [];
+foreach ($paints as $_p) {
+  if (($_p['stock'] ?? '') !== 'wanted') {
+    $_ciOwned[$_p['brand'].'|'.$_p['name'].'|'.($_p['layer'] ?? '')] = true;
+    $_ciOwned[$_p['brand'].'|'.$_p['name']] = true;
+  }
+}
+unset($_p);
+
+$ci_paints_owned = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') !== 'wanted'));
+$ci_wanted       = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') === 'wanted'));
+$ci_low_out      = count(array_filter($paints, fn($p) => in_array($p['stock'] ?? '', ['low','out'])));
+$ci_by_brand = [];
+foreach ($paints as $_p2) {
+  if (($_p2['stock'] ?? '') !== 'wanted') $ci_by_brand[$_p2['brand']] = ($ci_by_brand[$_p2['brand']] ?? 0) + 1;
+}
+arsort($ci_by_brand);
+unset($_p2);
+$_ciUsage = [];
+foreach ($models as $_m3) foreach ($_m3['colors'] ?? [] as $_ck) $_ciUsage[$_ck] = ($_ciUsage[$_ck] ?? 0) + 1;
+arsort($_ciUsage);
+$ci_top_paints = array_slice($_ciUsage, 0, 8, true);
+foreach (array_slice($_ciUsage, 0, 30, true) as $_sk => $_scnt) {
+  $_sparts = explode('|', $_sk); $_sbrand = $_sparts[0] ?? ''; $_sname = $_sparts[1] ?? '';
+  foreach ($paints as $_sp) {
+    if ($_sp['brand'] === $_sbrand && $_sp['name'] === $_sname) {
+      if (in_array($_sp['stock'] ?? '', ['low','out'])) $ciSupply[] = ['key'=>$_sk,'name'=>$_sname,'brand'=>$_sbrand,'uses'=>$_scnt,'stock'=>$_sp['stock']];
+      break;
+    }
+  }
+}
+unset($_ciUsage, $_m3, $_ck, $_sk, $_scnt, $_sparts, $_sbrand, $_sname, $_sp);
+
+if ($hasShame) {
+  $_asArr = array_values(array_filter($shameData, fn($s) => empty($s['promoted_to'])));
+  $_abBoxes = count($_asArr);
+  $_abUnits = array_sum(array_map(fn($s) => max(1,(int)($s['count'] ?? 1)), $_asArr));
+  $_allAcq = [];
+  foreach ($shameData as $_ss2) { if (!empty($_ss2['acquired'])) $_allAcq[] = substr($_ss2['acquired'],0,7); }
+  if (!empty($_allAcq)) {
+    sort($_allAcq);
+    $_span = max(1,(int)round(date_diff(date_create($_allAcq[0].'-01'),date_create(date('Y-m').'-01'))->days / 30.44));
+    $_acqR = round(count($shameData) / $_span, 1);
+  } else { $_span = 1; $_acqR = 0; }
+  $_cmpR = round(count($models) / $_span, 1);
+  $_netV = round($_acqR - $_cmpR, 1);
+  $_mtc  = ($_netV <= 0 && $_cmpR > 0) ? (int)ceil($_abBoxes / $_cmpR) : null;
+  $_stC  = ['sealed'=>0,'opened'=>0,'partial'=>0];
+  foreach ($_asArr as $_sas) $_stC[$_sas['status'] ?? 'sealed']++;
+  $ciShame = ['active_boxes'=>$_abBoxes,'active_units'=>$_abUnits,'acq_rate'=>$_acqR,'comp_rate'=>$_cmpR,'net_velocity'=>$_netV,'months_to_clear'=>$_mtc,'status'=>$_stC,'growing'=>$_netV > 0];
+  unset($_asArr,$_abBoxes,$_abUnits,$_allAcq,$_ss2,$_span,$_acqR,$_cmpR,$_netV,$_mtc,$_stC,$_sas);
+}
+
+if ($hasBench) {
+  $_sdow = array_fill(0,7,[]); $_cut30 = date('Y-m-d',strtotime('-30 days')); $_cut60 = date('Y-m-d',strtotime('-60 days'));
+  $_r30c = 0; $_r30m = 0; $_p30c = 0;
+  foreach ($benchData as $_sb3) {
+    foreach ($_sb3['sessions'] ?? [] as $_bss) {
+      if (empty($_bss['date']) || !isset($_bss['duration'])) continue;
+      $_sdow[(int)date('w',strtotime($_bss['date']))][] = (int)$_bss['duration'];
+      if ($_bss['date'] >= $_cut30) { $_r30c++; $_r30m += (int)$_bss['duration']; }
+      elseif ($_bss['date'] >= $_cut60) $_p30c++;
+    }
+  }
+  $_dn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; $_da = [];
+  foreach ($_sdow as $d => $mins) $_da[$d] = count($mins) > 0 ? (int)round(array_sum($mins)/count($mins)) : 0;
+  $_mxA = max($_da ?: [0]); $_bdD = (int)array_search($_mxA, $_da);
+  $ciSessions = ['dow_avgs'=>$_da,'dow_names'=>$_dn,'best_dow'=>$_bdD,'best_dow_name'=>$_dn[$_bdD],'best_dow_avg'=>$_mxA,'recent_count'=>$_r30c,'recent_mins'=>$_r30m,'prev_count'=>$_p30c,'trend_up'=>$_r30c >= $_p30c];
+  unset($_sdow,$_cut30,$_cut60,$_r30c,$_r30m,$_p30c,$_sb3,$_bss,$_dn,$_da,$d,$mins,$_mxA,$_bdD);
+  $_stOrd = ['built','primed','basecoated','washed','highlighted','based','varnished','done'];
+  $_sDL = array_fill_keys($_stOrd,[]); $_sCurr = array_fill_keys($_stOrd,0);
+  foreach ($benchData as $_bsb) {
+    $stg = $_bsb['stage'] ?? 'built'; if (isset($_sCurr[$stg])) $_sCurr[$stg]++;
+    $hist2 = $_bsb['history'] ?? []; if (empty($hist2)) continue;
+    $pd = $_bsb['date_start'] ?? null; $ps = 'built';
+    foreach ($hist2 as $_hh) {
+      if ($pd && !empty($_hh['date'])) { $dys = max(0,(int)round((strtotime($_hh['date'])-strtotime($pd))/86400)); if ($dys < 365 && isset($_sDL[$ps])) $_sDL[$ps][] = $dys; }
+      $pd = $_hh['date'] ?? $pd; $ps = $_hh['to'] ?? $ps;
+    }
+  }
+  $_sAvg = []; foreach ($_sDL as $st2 => $dl) $_sAvg[$st2] = count($dl) > 0 ? round(array_sum($dl)/count($dl),1) : null;
+  $_sAvgF = array_filter($_sAvg, fn($v) => $v !== null); arsort($_sAvgF);
+  $_worst = !empty($_sAvgF) ? array_key_first($_sAvgF) : null;
+  $ciBottleneck = ['stage_avgs'=>$_sAvg,'worst_stage'=>$_worst,'worst_days'=>$_worst ? ($_sAvgF[$_worst] ?? null) : null,'current_counts'=>$_sCurr];
+  unset($_stOrd,$_sDL,$_sCurr,$_bsb,$stg,$hist2,$pd,$ps,$_hh,$dys,$_sAvg,$st2,$dl,$_sAvgF,$_worst);
+}
+
+if ($hasBattles && !empty($battlesData)) {
+  $_bBA = []; $_bVA = [];
+  foreach ($battlesData as $_bt2) {
+    $rk2 = $_bt2['result'] === 'win' ? 'w' : ($_bt2['result'] === 'loss' ? 'l' : 'd');
+    $arm2 = $_bt2['my_army'] ?? 'Unknown'; if (!isset($_bBA[$arm2])) $_bBA[$arm2] = ['w'=>0,'l'=>0,'d'=>0]; $_bBA[$arm2][$rk2]++;
+    $opp2 = $_bt2['opponent_army'] ?? 'Unknown'; if (!isset($_bVA[$opp2])) $_bVA[$opp2] = ['w'=>0,'l'=>0,'d'=>0]; $_bVA[$opp2][$rk2]++;
+  }
+  $_aWR = [];
+  foreach ($_bBA as $ak => $rec) { $tot = array_sum($rec); $_aWR[$ak] = $tot > 0 ? round($rec['w']/$tot*100) : 0; }
+  arsort($_aWR);
+  $ciBattles = ['total'=>$cnt_battles,'record'=>$battleRecord,'by_army'=>$_bBA,'vs_army'=>$_bVA,'best_army'=>!empty($_aWR) ? array_key_first($_aWR) : null,'army_wr'=>$_aWR];
+  unset($_bBA,$_bVA,$_bt2,$rk2,$arm2,$opp2,$_aWR,$ak,$rec,$tot);
+}
+
+if ($hasForces && !empty($forcesData)) {
+  $_fmM = []; foreach ($models as $_fm) $_fmM[$_fm['id']] = $_fm;
+  $_fcC = date('Y-m-d',strtotime('-30 days')); $_fcR = 0;
+  foreach ($models as $_fm2) { foreach ($_fm2['sessions'] ?? [] as $_fms) { if (($_fms['date'] ?? '') >= $_fcC) $_fcR += max(1,(int)($_fms['count'] ?? 1)); } }
+  $_mpw = max(0.1, $_fcR / 4.3);
+  $ciForces = [];
+  foreach ($forcesData as $_ffc) {
+    $_tgt2 = (int)($_ffc['target_count'] ?? 0); if ($_tgt2 <= 0) continue;
+    $_pnt2 = 0; foreach ($_ffc['models'] ?? [] as $_fid) { if (isset($_fmM[$_fid])) $_pnt2 += max(1,(int)($_fmM[$_fid]['count'] ?? 1)); }
+    $_rem2 = max(0,$_tgt2-$_pnt2); $_pct3 = min(100,(int)round($_pnt2/$_tgt2*100));
+    $_wl2 = $_mpw > 0 ? (int)ceil($_rem2/$_mpw) : null; $_cd2 = $_wl2 ? date('j M Y',strtotime("+{$_wl2} weeks")) : null;
+    $ciForces[] = ['id'=>$_ffc['id'],'name'=>$_ffc['name'],'painted'=>$_pnt2,'target'=>$_tgt2,'remaining'=>$_rem2,'pct'=>$_pct3,'weeks_left'=>$_wl2,'completion_date'=>$_cd2];
+  }
+  usort($ciForces, fn($a,$b) => $b['pct'] - $a['pct']);
+  unset($_fmM,$_fm,$_fcC,$_fcR,$_fm2,$_fms,$_mpw,$_ffc,$_tgt2,$_pnt2,$_fid,$_rem2,$_pct3,$_wl2,$_cd2);
+}
+
+$_stSc = ['varnished'=>10,'based'=>8,'highlighted'=>6,'washed'=>4,'basecoated'=>3,'primed'=>2,'built'=>1,'done'=>0];
+if ($hasBench) {
+  foreach ($benchData as $_bno) {
+    if (!empty($_bno['promoted_to'])) continue;
+    $noSc = $_stSc[$_bno['stage'] ?? 'built'] ?? 1; $noRs = [];
+    if ($noSc >= 8) $noRs[] = 'nearly done';
+    $_noM = 0;
+    foreach ($_bno['colors'] ?? [] as $_nc) { $_nc2 = implode('|',array_slice(explode('|',$_nc),0,2)); if (!isset($_ciOwned[$_nc]) && !isset($_ciOwned[$_nc2])) $_noM++; }
+    if ($_noM === 0 && !empty($_bno['colors'])) { $noSc += 5; $noRs[] = 'all paints owned'; } elseif ($_noM > 0) $noSc -= 2;
+    $_dS = !empty($_bno['last_touched']) ? max(0,(int)floor((time()-strtotime($_bno['last_touched']))/86400)) : 0;
+    if ($_dS > 30) { $noSc += 3; $noRs[] = 'neglected '.$_dS.'d'; } elseif ($_dS < 7) { $noSc += 1; $noRs[] = 'active'; }
+    $ciNextOrders[] = ['type'=>'bench','id'=>$_bno['id'],'name'=>$_bno['name'],'stage'=>$_bno['stage']??'built','score'=>$noSc,'reasons'=>$noRs];
+  }
+}
+foreach ($planned as $_pno) {
+  if (!empty($_pno['promoted_to']) || empty($_pno['colors'])) continue;
+  $_pnM = 0; foreach ($_pno['colors'] as $_nc3) { $_nc4 = implode('|',array_slice(explode('|',$_nc3),0,2)); if (!isset($_ciOwned[$_nc3]) && !isset($_ciOwned[$_nc4])) $_pnM++; }
+  if ($_pnM > 2) continue;
+  $pnSc = $_pnM === 0 ? 8 : ($_pnM === 1 ? 5 : 3); $pnRs = $_pnM === 0 ? ['fully stocked'] : [$_pnM.' paint'.($_pnM>1?'s':'').' away'];
+  $ciNextOrders[] = ['type'=>'planned','id'=>$_pno['id'],'name'=>$_pno['name'],'stage'=>'planned','score'=>$pnSc,'reasons'=>$pnRs];
+}
+usort($ciNextOrders, fn($a,$b) => $b['score'] - $a['score']);
+$ciNextOrders = array_slice($ciNextOrders,0,5);
+unset($_ciOwned,$_stSc,$_bno,$noSc,$noRs,$_noM,$_nc,$_nc2,$_dS,$_pno,$_pnM,$_nc3,$_nc4,$pnSc,$pnRs);
+
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
@@ -428,7 +575,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=87">
+  <link rel="stylesheet" href="styles.css?v=88">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -474,6 +621,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <li class="sg-item"><a href="#" data-tab="factions">Factions</a></li>
           <?php if ($hasForces): ?><li class="sg-item"><a href="#" data-tab="forces">Forces</a></li><?php endif; ?>
           <?php if ($hasBattles): ?><li class="sg-item"><a href="#" data-tab="battles">Battle Honours</a></li><?php endif; ?>
+          <li class="sg-item"><a href="#" data-tab="commissar">&#9876; The Commissar</a></li>
         </ul>
       </div>
 
@@ -498,17 +646,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <div class="nav-fade" id="nav-fade"></div>
     </nav>
-    <div class="waaagh-meter <?= $meterClass ?>">
-      <img src="img/waaagh.png" class="wm-title-img" alt="Waaagh! Index">
-      <div class="wm-gauge">
-        <div class="wm-fill"></div>
-        <img src="img/gauge.png" class="wm-gauge-img" alt="">
-        <div class="wm-needle"></div>
-        <div class="wm-pivot"></div>
-      </div>
-      <div class="wm-state"><?= htmlspecialchars($meterState) ?></div>
-      <div class="wm-week"><?php if ($sidebarWkActive): ?><?= implode(' &middot; ', $sidebarWkParts) ?><?php else: ?>Nowt done yet&hellip;<?php endif; ?></div>
-    </div>
     <div class="sidebar-footer">
       <button id="gs-trigger" type="button" title="Search everything (Ctrl+K or /)" aria-label="Open global search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1245,6 +1382,151 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div id="battles-empty" class="tab-empty hidden">No battles logged yet.</div>
     </div><!-- #tab-battles -->
   <?php endif; ?>
+
+  <div id="tab-commissar" class="tab-panel">
+    <div class="ci-wrap">
+      <div class="ci-hero">
+        <div class="ci-hero-text">
+          <div class="ci-hero-eyebrow">Astra Militarum &middot; Intelligence Division</div>
+          <h2 class="ci-hero-title">The Commissar&rsquo;s Dossier</h2>
+          <div class="ci-hero-sub">Rolling assessment &middot; <?= date('j M Y') ?></div>
+        </div>
+        <div class="ci-hero-portrait"><img src="img/models/1777377286_1.jpg" alt="The Commissar" loading="lazy"></div>
+      </div>
+      <div class="ci-grid">
+        <div class="ci-card ci-full">
+          <div class="ci-card-hd">&#9876; Next Orders</div>
+          <?php if (empty($ciNextOrders)): ?>
+            <p class="ci-sub">No active bench projects or ready planned schemes found.</p>
+          <?php else: ?>
+            <ol class="ci-orders">
+              <?php foreach ($ciNextOrders as $_oi => $_ord): ?>
+                <li class="ci-order">
+                  <span class="ci-order-rank"><?= $_oi + 1 ?>.</span>
+                  <span class="ci-order-name"><?= htmlspecialchars($_ord['name']) ?></span>
+                  <span class="ci-badge-type <?= $_ord['type'] === 'bench' ? 'ci-type-bench' : 'ci-type-planned' ?>"><?= $_ord['type'] === 'bench' ? ucfirst(htmlspecialchars($_ord['stage'])) : 'Planned' ?></span>
+                  <span class="ci-order-reasons"><?php foreach ($_ord['reasons'] as $_r): ?><span class="ci-reason"><?= htmlspecialchars($_r) ?></span><?php endforeach; ?></span>
+                </li>
+              <?php endforeach; ?>
+            </ol>
+          <?php endif; ?>
+        </div>
+        <?php if ($ciShame): ?>
+          <div class="ci-card <?= $ciShame['growing'] ? 'ci-alert' : '' ?>">
+            <div class="ci-card-hd">Shame Debt</div>
+            <div class="ci-big"><?= $ciShame['active_boxes'] ?></div>
+            <div class="ci-label"><?= $ciShame['active_boxes'] === 1 ? 'box' : 'boxes' ?> &middot; ~<?= $ciShame['active_units'] ?> units</div>
+            <div class="ci-sub">+<?= $ciShame['acq_rate'] ?>/mo in &nbsp;&middot;&nbsp; &minus;<?= $ciShame['comp_rate'] ?>/mo out &nbsp;&middot;&nbsp; <strong class="<?= $ciShame['growing'] ? 'ci-warn' : '' ?>">net <?= $ciShame['net_velocity'] > 0 ? '+' : '' ?><?= $ciShame['net_velocity'] ?></strong></div>
+            <?php if ($ciShame['months_to_clear']): ?><div class="ci-sub">At current rate, clear in ~<?= $ciShame['months_to_clear'] ?> months</div>
+            <?php elseif ($ciShame['growing']): ?><div class="ci-sub ci-warn">Pile growing faster than you paint</div><?php endif; ?>
+            <div style="display:flex;gap:6px;margin-top:8px;font-size:.62rem;color:#5a4828;">
+              <span><?= $ciShame['status']['sealed'] ?> sealed</span><span>&middot;</span><span><?= $ciShame['status']['opened'] ?> opened</span><span>&middot;</span><span><?= $ciShame['status']['partial'] ?> partial</span>
+            </div>
+          </div>
+        <?php else: ?>
+          <div class="ci-card"><div class="ci-card-hd">Shame Debt</div><p class="ci-sub">No Pile of Shame data.</p></div>
+        <?php endif; ?>
+        <?php if ($ciSessions): ?>
+          <?php $maxDow = max($ciSessions['dow_avgs'] ?: [1]); ?>
+          <div class="ci-card">
+            <div class="ci-card-hd">Session Patterns</div>
+            <div class="ci-big"><?= $ciSessions['best_dow_name'] ?></div>
+            <div class="ci-label">best day &middot; avg <?= $ciSessions['best_dow_avg'] ?> mins</div>
+            <div class="ci-dow-chart">
+              <?php foreach ($ciSessions['dow_avgs'] as $d => $avg): $barH = $maxDow > 0 ? max(2,(int)round($avg/$maxDow*40)) : 2; ?>
+                <div class="ci-dow-bar-wrap">
+                  <div class="ci-dow-bar <?= $d === $ciSessions['best_dow'] ? 'best' : '' ?>" style="height:<?= $barH ?>px;"></div>
+                  <div class="ci-dow-lbl"><?= substr($ciSessions['dow_names'][$d],0,2) ?></div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <div class="ci-sub">Last 30d: <?= $ciSessions['recent_count'] ?> sessions &middot; <?= $ciSessions['recent_mins'] ?> mins <?= $ciSessions['trend_up'] ? '<span style="color:#4a8a4a">&#9650;</span>' : '<span style="color:#8a2020">&#9660;</span>' ?></div>
+          </div>
+        <?php else: ?>
+          <div class="ci-card"><div class="ci-card-hd">Session Patterns</div><p class="ci-sub">No bench session data.</p></div>
+        <?php endif; ?>
+        <?php if ($ciBottleneck): ?>
+          <div class="ci-card">
+            <div class="ci-card-hd">Stage Bottleneck</div>
+            <?php if ($ciBottleneck['worst_stage']): ?>
+              <div class="ci-big" style="font-size:1.1rem;text-transform:uppercase;"><?= htmlspecialchars($ciBottleneck['worst_stage']) ?></div>
+              <div class="ci-label">avg <?= $ciBottleneck['worst_days'] ?> days &middot; longest stage</div>
+            <?php else: ?><div class="ci-sub">Not enough stage history yet.</div><?php endif; ?>
+            <div class="ci-stage-dist">
+              <?php foreach (['built','primed','basecoated','washed','highlighted','based','varnished','done'] as $_stpip): $cnt3 = $ciBottleneck['current_counts'][$_stpip] ?? 0; ?>
+                <span class="ci-stage-pip <?= $cnt3 > 0 ? 'has-models' : '' ?>"><?= ucfirst($_stpip) ?><?= $cnt3 > 0 ? ' <strong>'.$cnt3.'</strong>' : '' ?></span>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php else: ?>
+          <div class="ci-card"><div class="ci-card-hd">Stage Bottleneck</div><p class="ci-sub">No bench data.</p></div>
+        <?php endif; ?>
+        <div class="ci-card">
+          <div class="ci-card-hd">Force Forecasts</div>
+          <?php if (!empty($ciForces)): ?>
+            <?php foreach ($ciForces as $_ffc2): ?>
+              <div class="ci-force-row">
+                <div class="ci-force-name"><?= htmlspecialchars($_ffc2['name']) ?></div>
+                <div class="ci-force-bar-wrap"><div class="ci-force-bar-fill" style="width:<?= $_ffc2['pct'] ?>%;"></div></div>
+                <div class="ci-force-meta"><?= $_ffc2['painted'] ?>/<?= $_ffc2['target'] ?> models<?php if ($_ffc2['pct'] >= 100): ?> &middot; <span style="color:#4a8a4a">Complete</span><?php elseif ($_ffc2['completion_date']): ?> &middot; est. <?= $_ffc2['completion_date'] ?><?php endif; ?></div>
+              </div>
+            <?php endforeach; ?>
+          <?php else: ?><p class="ci-sub">No forces with target model counts set.</p><?php endif; ?>
+        </div>
+        <div class="ci-card">
+          <div class="ci-card-hd">Battle Dossier</div>
+          <?php if ($ciBattles): ?>
+            <div class="ci-wld">
+              <div><div class="ci-wld-w"><?= $ciBattles['record']['w'] ?></div><div class="ci-label">W</div></div>
+              <div><div class="ci-wld-l"><?= $ciBattles['record']['l'] ?></div><div class="ci-label">L</div></div>
+              <div><div class="ci-wld-d"><?= $ciBattles['record']['d'] ?></div><div class="ci-label">D</div></div>
+            </div>
+            <?php if ($ciBattles['best_army']): ?><div class="ci-sub">Best army: <strong><?= htmlspecialchars($ciBattles['best_army']) ?></strong> (<?= $ciBattles['army_wr'][$ciBattles['best_army']] ?>% win rate)</div><?php endif; ?>
+            <?php foreach (array_slice($ciBattles['army_wr'],0,4,true) as $_bka => $_bkwr): ?>
+              <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#7a6a3a;padding:3px 0;border-bottom:1px solid #1a1408;"><span><?= htmlspecialchars($_bka) ?></span><span><?= $ciBattles['by_army'][$_bka]['w'] ?>W <?= $ciBattles['by_army'][$_bka]['l'] ?>L &middot; <?= $_bkwr ?>%</span></div>
+            <?php endforeach; ?>
+          <?php else: ?><p class="ci-sub">No battle data.</p><?php endif; ?>
+        </div>
+        <div class="ci-card">
+          <div class="ci-card-hd">Supply Risk</div>
+          <?php if (empty($ciSupply)): ?>
+            <div class="ci-sub" style="color:#4a8a4a;">&#10003; All critical paints stocked</div>
+          <?php else: ?>
+            <?php foreach ($ciSupply as $_srp): ?>
+              <div class="ci-risk-item"><span style="flex:1"><?= htmlspecialchars($_srp['name']) ?></span><span class="ci-risk-uses"><?= $_srp['uses'] ?>&#215;</span><span class="<?= $_srp['stock'] === 'out' ? 'ci-risk-out' : 'ci-risk-low' ?>"><?= strtoupper($_srp['stock']) ?></span></div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
+      <div class="ci-divider">Historical Record</div>
+      <div class="ci-legacy">
+        <div class="ci-legacy-stat-grid">
+          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_paints_owned ?></div><div class="ci-legacy-stat-lbl">Paints Owned</div></div>
+          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= count($models) ?></div><div class="ci-legacy-stat-lbl">Schemes</div></div>
+          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= count($planned) ?></div><div class="ci-legacy-stat-lbl">Planned</div></div>
+          <?php if ($ci_wanted > 0): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_wanted ?></div><div class="ci-legacy-stat-lbl">Wanted</div></div><?php endif; ?>
+          <?php if ($ci_low_out > 0): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_low_out ?></div><div class="ci-legacy-stat-lbl">Low/Out</div></div><?php endif; ?>
+          <?php if ($hasBattles): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $cnt_battles ?></div><div class="ci-legacy-stat-lbl">Battles</div></div><?php endif; ?>
+        </div>
+        <?php if (!empty($ci_by_brand)): $maxBrand = max($ci_by_brand); ?>
+          <div style="margin-bottom:16px;">
+            <div class="ci-card-hd" style="margin-bottom:8px;">Collection by Brand</div>
+            <?php foreach ($ci_by_brand as $brand => $bCnt): ?>
+              <div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;font-size:.68rem;color:#7a6a3a;margin-bottom:2px;"><span><?= htmlspecialchars($brand) ?></span><span><?= $bCnt ?></span></div><div style="background:#1a1508;height:4px;border-radius:2px;"><div style="height:100%;background:#c9a227;border-radius:2px;width:<?= (int)round($bCnt/$maxBrand*100) ?>%;"></div></div></div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+        <?php if (!empty($ci_top_paints)): $ciPaintRank = 1; ?>
+          <div style="padding-bottom:8px;">
+            <div class="ci-card-hd" style="margin-bottom:8px;">Most Used Paints</div>
+            <?php foreach ($ci_top_paints as $pk => $pCnt): $_pkP = explode('|',$pk); ?>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1a1408;font-size:.7rem;color:#c4b49a;"><span style="color:#4a3a18;min-width:16px;"><?= $ciPaintRank++ ?></span><span style="flex:1"><?= htmlspecialchars($_pkP[1] ?? $pk) ?></span><span style="color:#5a4828;font-size:.62rem;"><?= htmlspecialchars($_pkP[0] ?? '') ?></span><span style="color:#c9a227;font-family:'Cinzel',serif;"><?= $pCnt ?>&#215;</span></div>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div><!-- #tab-commissar -->
 
   <?php if ($hasBooks): ?>
     <div id="tab-books" class="tab-panel">

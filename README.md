@@ -44,13 +44,13 @@ collapsible left-rail sidebar grouped into four sections.
 - **Factions** - automatic per-army rollup of schemes, recipes, bench work, and paint palette
 - **Forces & Rosters** - group painted schemes into named game rosters with readiness progress
 - **Battle Honours** - log every game played with result, opponent, army, mission, and notes; W/L/D record shown on force cards
+- **The Commissar's Dossier** - tactical intelligence briefing mined from all your data: next painting orders scored by stage and readiness, shame pile velocity, best painting day-of-week, stage bottleneck analysis, force completion forecasts, battle win rates per army, and supply risk flagging for high-use paints running low
 - **Pile of Shame** - track unbuilt boxes; promote to Planned or Bench when ready
 - **Rescue Tracker** - track eBay finds and second-hand minis through bidding, shipping, receiving, stripping, and prep before they hit the bench; before-photos capture condition on arrival; model counts feed into total ownership stats; promote to Bench or Shame when ready
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit
 - **Brush Inventory** - track brush condition (Prime / Workhorse / Retired)
 - **Supplies Inventory** - track hobby supplies (palettes, wet palettes, mats, lamps, etc.) with condition cycling
-- **Waaagh! Index** - persistent sidebar momentum gauge scoring your rolling 7-day activity across sessions, bench work, and journal entries; five states from DOZIN' to FULL WAAAGH!!
-- **Dis Week** - rolling 7-day summary shown below the Waaagh! Index gauge in the sidebar: models painted, bench sessions, battles fought, notes scribbled
+- **Waaagh! Index** - momentum gauge in the Admin Stats section scoring your rolling 7-day activity across sessions, bench work, and journal entries; five states from DOZIN' to FULL WAAAGH!! with a "Dis Week" activity summary beneath it
 - **Equivalency Search** - Citadel vs Vallejo vs Pro Acryl conversion table with owned-paint dots
 - **Codex Library** - optional army book and supplement tracker
 - **Scrap Notes** - optional freeform hobby journal with @mention linking to schemes and recipes
