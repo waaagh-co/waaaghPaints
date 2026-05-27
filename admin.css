@@ -1135,7 +1135,7 @@
 
     .as-group-label {
       font-family: var(--font-heading);
-      font-size: 8px;
+      font-size: 10px;
       letter-spacing: .22em;
       text-transform: uppercase;
       color: #2a1e0a;
@@ -1145,7 +1145,7 @@
     .as-link {
       display: block;
       font-family: var(--font-heading);
-      font-size: 11px;
+      font-size: 13px;
       letter-spacing: .07em;
       text-transform: uppercase;
       color: #6a5a30;
@@ -1177,7 +1177,7 @@
 
     .as-back-link {
       font-family: var(--font-heading);
-      font-size: 10px;
+      font-size: 12px;
       letter-spacing: .08em;
       color: #4a3a1a;
       text-decoration: none;

@@ -132,15 +132,16 @@
         fd.append('action', 'set_stock');
         fd.append('paint_id', pid);
         fd.append('stock', next);
-        const res = await fetch(ADMIN_PHP, {
-          method: 'POST',
-          body: fd
-        });
-        const data = await res.json();
-        if (data.ok) {
-          btn.dataset.stock = next;
-          btn.textContent = next || '·';
-          btn.className = next ? `stock-btn stock-${next}` : 'stock-btn';
+        try {
+          const res = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.ok) {
+            btn.dataset.stock = next;
+            btn.textContent = next || '·';
+            btn.className = next ? `stock-btn stock-${next}` : 'stock-btn';
+          }
+        } catch (e) {
+          console.warn('toggleStock failed:', e);
         }
       }
 
@@ -239,7 +240,7 @@
 
       function openPlannedEdit(btn) {
         if (window._adminShowSection) window._adminShowSection('section-planned');
-        const colors = JSON.parse(btn.dataset.colors || '[]');
+        const colors = (() => { try { return JSON.parse(btn.dataset.colors || '[]'); } catch { return []; } })();
         selectedPl = new Set(colors);
         document.getElementById('plannedFormTitle').textContent = 'Edit Planned Scheme';
         document.getElementById('plannedAction').value = 'edit_planned';
@@ -254,7 +255,7 @@
         buildListPl('');
         updateHiddenPl();
         if (typeof setRecipePickerSelection === 'function') {
-          const recipes = JSON.parse(btn.dataset.recipes || '[]');
+          const recipes = (() => { try { return JSON.parse(btn.dataset.recipes || '[]'); } catch { return []; } })();
           setRecipePickerSelection('plannedRecipePicker', 'plannedRecipeInputs', 'planned_recipes[]', recipes);
         }
         const wrap = document.getElementById('plannedFormWrap');
@@ -265,7 +266,7 @@
         });
       }
 
-      document.getElementById('plannedCancelBtn').addEventListener('click', () => {
+      document.getElementById('plannedCancelBtn')?.addEventListener('click', () => {
         document.getElementById('plannedFormWrap').style.display = 'none';
       });
 
@@ -1091,9 +1092,9 @@
 
         function openBenchEdit(btn) {
           if (window._adminShowSection) window._adminShowSection('section-bench');
-          const colors = JSON.parse(btn.dataset.colors || '[]');
-          const brushes = JSON.parse(btn.dataset.brushes || '[]');
-          const images = JSON.parse(btn.dataset.images || '[]');
+          const colors  = (() => { try { return JSON.parse(btn.dataset.colors  || '[]'); } catch { return []; } })();
+          const brushes = (() => { try { return JSON.parse(btn.dataset.brushes || '[]'); } catch { return []; } })();
+          const images  = (() => { try { return JSON.parse(btn.dataset.images  || '[]'); } catch { return []; } })();
           selectedBn = new Set(colors);
           selectedBnBrushes = new Set(brushes);
           document.getElementById('benchFormTitle').textContent = 'Edit Bench Entry';
@@ -1112,7 +1113,7 @@
           refreshBenchBrushPicker();
           resetBenchImageGrid(images);
           if (typeof setRecipePickerSelection === 'function') {
-            const recipes = JSON.parse(btn.dataset.recipes || '[]');
+            const recipes = (() => { try { return JSON.parse(btn.dataset.recipes || '[]'); } catch { return []; } })();
             setRecipePickerSelection('benchRecipePicker', 'benchRecipeInputs', 'bench_recipes[]', recipes);
           }
           const wrap = document.getElementById('benchFormWrap');
@@ -1242,7 +1243,7 @@
 
         function openRecipeEdit(btn) {
           if (window._adminShowSection) window._adminShowSection('section-recipes');
-          const steps = JSON.parse(btn.dataset.steps || '[]');
+          const steps = (() => { try { return JSON.parse(btn.dataset.steps || '[]'); } catch { return []; } })();
           document.getElementById('recipeFormTitle').textContent = 'Edit Recipe';
           document.getElementById('recipeAction').value = 'edit_recipe';
           document.getElementById('recipeId').value = btn.dataset.id;

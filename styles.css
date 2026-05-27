@@ -6096,7 +6096,7 @@
   .sidebar-home a {
     display: block;
     font-family: var(--font-heading);
-    font-size: .68rem;
+    font-size: .8rem;
     font-weight: 700;
     letter-spacing: .1em;
     text-transform: uppercase;
@@ -6127,7 +6127,7 @@
     border: none;
     cursor: pointer;
     font-family: var(--font-heading);
-    font-size: .58rem;
+    font-size: .68rem;
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
@@ -6162,7 +6162,7 @@
   .sg-item a {
     display: block;
     font-family: var(--font-heading);
-    font-size: .62rem;
+    font-size: .74rem;
     letter-spacing: .07em;
     text-transform: uppercase;
     color: #5a4828;

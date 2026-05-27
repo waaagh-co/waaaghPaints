@@ -1893,7 +1893,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
       $file = $_FILES[$key];
       if ($file['error'] !== UPLOAD_ERR_OK) continue;
       if ($file['size'] > MAX_FILE_BYTES) {
-        $formError = "Image $i exceeds 8 MB limit.";
+        $formError = "Image $i exceeds 25 MB limit.";
         break;
       }
       $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
@@ -1930,7 +1930,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
       if ($system !== '')     $entry['system']     = $system;
       if ($count > 1)         $entry['count']      = $count;
       $models[] = $entry;
-      file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+      file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
       $successMsg = 'Model "' . htmlspecialchars($name) . '" added successfully.';
     }
   }
@@ -1965,7 +1965,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'delete_model') {
   $delId  = $_POST['model_id'] ?? '';
   $models = file_exists(MODELS_FILE) ? (json_decode(file_get_contents(MODELS_FILE), true) ?? []) : [];
   $models = array_values(array_filter($models, fn($m) => ($m['id'] ?? '') !== $delId));
-  file_put_contents(MODELS_FILE, json_encode($models, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+  file_put_contents(MODELS_FILE, json_encode($models, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
   $successMsg = 'Entry deleted.';
 }
 
@@ -2049,7 +2049,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
         if ($count > 1)          $entry['count']       = $count;
         if (!empty($models[$idx]['sessions'])) $entry['sessions'] = $models[$idx]['sessions'];
         $models[$idx] = $entry;
-        file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        file_put_contents(MODELS_FILE, json_encode(array_values($models), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
         $_SESSION['flash'] = 'Model "' . htmlspecialchars($name) . '" updated successfully.';
         header('Location: ' . ADMIN_FILENAME);
         exit;
@@ -2435,7 +2435,7 @@ if ($authed && isset($_GET['edit_force'])) {
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="admin.css?v=10">
+  <link rel="stylesheet" href="admin.css?v=11">
 </head>
 
 <body<?php if ($authed && $editModel): ?> data-open-section="section-gallery" <?php elseif ($authed && $editForce): ?> data-open-section="section-forces" <?php endif; ?>>
