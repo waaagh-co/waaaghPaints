@@ -575,7 +575,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=88">
+  <link rel="stylesheet" href="styles.css?v=90">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1102,6 +1102,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         </div>
 
       </div>
+
+      <div class="wc-news-section" id="wc-news-section" style="display:none">
+        <div class="wc-news-heading">Latest from Warhammer Community</div>
+        <div class="wc-news-sub">warhammer-community.com &mdash; updated every 4 hours</div>
+        <div class="wc-news-grid" id="wc-news-grid"></div>
+      </div>
+
     </div>
   </div><!-- #tab-contents -->
 
@@ -1415,7 +1422,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <div class="ci-card <?= $ciShame['growing'] ? 'ci-alert' : '' ?>">
             <div class="ci-card-hd">Shame Debt</div>
             <div class="ci-big"><?= $ciShame['active_boxes'] ?></div>
-            <div class="ci-label"><?= $ciShame['active_boxes'] === 1 ? 'box' : 'boxes' ?> &middot; ~<?= $ciShame['active_units'] ?> units</div>
+            <div class="ci-la bel"><?= $ciShame['active_boxes'] === 1 ? 'box' : 'boxes' ?> &middot; ~<?= $ciShame['active_units'] ?> units</div>
             <div class="ci-sub">+<?= $ciShame['acq_rate'] ?>/mo in &nbsp;&middot;&nbsp; &minus;<?= $ciShame['comp_rate'] ?>/mo out &nbsp;&middot;&nbsp; <strong class="<?= $ciShame['growing'] ? 'ci-warn' : '' ?>">net <?= $ciShame['net_velocity'] > 0 ? '+' : '' ?><?= $ciShame['net_velocity'] ?></strong></div>
             <?php if ($ciShame['months_to_clear']): ?><div class="ci-sub">At current rate, clear in ~<?= $ciShame['months_to_clear'] ?> months</div>
             <?php elseif ($ciShame['growing']): ?><div class="ci-sub ci-warn">Pile growing faster than you paint</div><?php endif; ?>
@@ -1783,6 +1790,35 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const MODELS = <?= $modelsJson ?>;
   </script>
   <script src="js/index.js?v=10"></script>
+
+  <script>
+  (function() {
+    var sec = document.getElementById('wc-news-section');
+    var grid = document.getElementById('wc-news-grid');
+    if (!sec || !grid) return;
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    fetch('wc_proxy.php')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (!data || !data.length) return;
+        var html = '';
+        data.forEach(function(a) {
+          var ork = a.ork ? ' wc-ork' : '';
+          var thumbCls = a.image ? 'wc-news-thumb' : 'wc-news-thumb wc-news-thumb-empty';
+          var thumbStyle = a.image ? ' style="background-image:url(\'' + esc(a.image) + '\')"' : '';
+          var badge = a.ork ? '<span class="wc-ork-badge">WAAAGH!</span>' : '';
+          html += '<a class="wc-news-card' + ork + '" href="' + esc(a.url) + '" target="_blank" rel="noopener">' +
+            '<div class="' + thumbCls + '"' + thumbStyle + '></div>' +
+            badge +
+            '<div class="wc-news-title">' + esc(a.title) + '</div>' +
+            '</a>';
+        });
+        grid.innerHTML = html;
+        sec.style.display = '';
+      })
+      .catch(function() {});
+  })();
+  </script>
 
   <div id="install-banner">
     <div class="install-banner-text">
