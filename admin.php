@@ -1444,6 +1444,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
     if ($brushes)    $entry['brushes']    = $brushes;
     if ($recipes)    $entry['recipes']    = $recipes;
     if ($images)     $entry['wip_images'] = $images;
+    if (!empty($existing['history']))  $entry['history']  = $existing['history'];
     if (!empty($existing['sessions'])) $entry['sessions'] = $existing['sessions'];
 
     if ($isEdit) {
