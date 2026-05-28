@@ -2456,9 +2456,9 @@
             grid.innerHTML = list.map(r => `
           <div class="recipe-card" id="recipe-${esc(r.id)}">
             <button class="recipe-link-btn" title="Copy link" onclick="copyRecipeLink(event,'${esc(r.id)}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+            ${r.image ? `<img class="recipe-hero" src="${esc(r.image)}" alt="" onclick="openLightbox(['${esc(r.image)}'],0)">` : ''}
             <div class="recipe-card-header">
               <div class="recipe-card-header-left"><span class="recipe-card-name">${esc(r.name)}</span>${r.category ? `<span class="recipe-cat-badge">${esc(r.category)}</span>` : ''}${r.faction ? `<span class="recipe-faction-badge">${esc(r.faction)}</span>` : ''}</div>
-              ${r.image ? `<img class="recipe-thumb" src="${esc(r.image)}" alt="" onclick="openLightbox(['${esc(r.image)}'],0)">` : ''}
             </div>
             <div class="recipe-card-body">
             ${r.description ? `<div class="recipe-card-desc">${esc(r.description)}</div>` : ''}

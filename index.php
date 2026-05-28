@@ -563,19 +563,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="apple-mobile-web-app-title" content="Waaagh! Paint">
   <link rel="apple-touch-icon" href="img/logo_sm.png">
   <link rel="canonical" href="<?= htmlspecialchars(SITE_URL) ?>">
-  <meta name="description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
+  <meta name="description" content="Personal Warhammer hobby manager - paint inventory with restock tracking, painted scheme gallery, step-by-step recipes, workbench progress, battle log, and force rosters. Flat-file PHP, no database, self-hostable.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="<?= htmlspecialchars(SITE_URL) ?>">
   <meta property="og:title" content="Waaagh! Paint Collection">
-  <meta property="og:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
+  <meta property="og:description" content="Personal Warhammer hobby manager - paint inventory with restock tracking, painted scheme gallery, step-by-step recipes, workbench progress, battle log, and force rosters. Flat-file PHP, no database, self-hostable.">
   <meta property="og:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Waaagh! Paint Collection">
-  <meta name="twitter:description" content="Personal Warhammer 40k hobby tracker - paint inventory, painted model gallery, step-by-step painting recipes, workbench progress, and codex reference library.">
+  <meta name="twitter:description" content="Personal Warhammer hobby manager - paint inventory with restock tracking, painted scheme gallery, step-by-step recipes, workbench progress, battle log, and force rosters. Flat-file PHP, no database, self-hostable.">
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=93">
+  <link rel="stylesheet" href="styles.css?v=94">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",

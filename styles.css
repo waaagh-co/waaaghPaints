@@ -3935,16 +3935,15 @@
       min-width: 0;
     }
 
-    .recipe-thumb {
-      width: 80px;
-      height: 80px;
+    .recipe-hero {
+      width: 100%;
+      height: 140px;
       object-fit: cover;
-      border-radius: 3px;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
-      cursor: zoom-in;
       display: block;
+      cursor: zoom-in;
+      transition: opacity .15s;
     }
+    .recipe-hero:hover { opacity: .88; }
 
     .recipe-card-body {
       padding: 10px 14px 14px;
