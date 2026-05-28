@@ -1840,15 +1840,22 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'export_backup') 
     ],
   ];
   $files = [
-    'paints'     => __DIR__ . '/data/paints.json',
-    'models'     => __DIR__ . '/data/models.json',
-    'planned'    => __DIR__ . '/data/planned.json',
-    'brushes'    => __DIR__ . '/data/brushes.json',
-    'bench'      => __DIR__ . '/data/bench.json',
-    'recipes'    => __DIR__ . '/data/recipes.json',
-    'books'      => __DIR__ . '/data/books.json',
-    'journal'    => __DIR__ . '/data/journal.json',
-    'tab_stats'  => __DIR__ . '/data/tab_stats.json',
+    'paints'    => __DIR__ . '/data/paints.json',
+    'models'    => __DIR__ . '/data/models.json',
+    'planned'   => __DIR__ . '/data/planned.json',
+    'brushes'   => __DIR__ . '/data/brushes.json',
+    'bench'     => __DIR__ . '/data/bench.json',
+    'recipes'   => __DIR__ . '/data/recipes.json',
+    'books'     => __DIR__ . '/data/books.json',
+    'journal'   => __DIR__ . '/data/journal.json',
+    'shame'     => __DIR__ . '/data/shame.json',
+    'wishlist'  => __DIR__ . '/data/wishlist.json',
+    'forces'    => __DIR__ . '/data/forces.json',
+    'battles'   => __DIR__ . '/data/battles.json',
+    'supplies'  => __DIR__ . '/data/supplies.json',
+    'rescues'   => __DIR__ . '/data/rescues.json',
+    'goals'     => __DIR__ . '/data/goals.json',
+    'tab_stats' => __DIR__ . '/data/tab_stats.json',
   ];
   foreach ($files as $key => $path) {
     if (file_exists($path)) {
@@ -1860,6 +1867,39 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'export_backup') 
   header('Content-Type: application/json; charset=utf-8');
   header('Content-Disposition: attachment; filename="' . $filename . '"');
   echo json_encode($bundle, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  exit;
+}
+
+if ($authed && isset($_POST['action']) && $_POST['action'] === 'import_backup') {
+  $result = ['ok' => false, 'msg' => '', 'restored' => []];
+  $upload = $_FILES['backup_file'] ?? null;
+  if (!$upload || $upload['error'] !== UPLOAD_ERR_OK) {
+    $result['msg'] = 'No file uploaded or upload error.';
+  } else {
+    $raw = file_get_contents($upload['tmp_name']);
+    $data = $raw ? json_decode($raw, true) : null;
+    if (!$data || !isset($data['_meta']['app']) || $data['_meta']['app'] !== 'Waaagh! Paint') {
+      $result['msg'] = 'Invalid backup file - not a Waaagh! Paint backup.';
+    } else {
+      $allowed = ['paints','models','planned','brushes','bench','recipes','books','journal','shame','wishlist','forces','battles','supplies','rescues','goals','tab_stats'];
+      foreach ($allowed as $key) {
+        if (!array_key_exists($key, $data)) continue;
+        $path = __DIR__ . '/data/' . $key . '.json';
+        $encoded = json_encode($data[$key], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if (file_put_contents($path, $encoded, LOCK_EX) !== false) {
+          $result['restored'][] = $key;
+        }
+      }
+      if ($result['restored']) {
+        $result['ok'] = true;
+        $result['msg'] = 'Restored ' . count($result['restored']) . ' file' . (count($result['restored']) !== 1 ? 's' : '') . ': ' . implode(', ', $result['restored']) . '. Backup exported at ' . ($data['_meta']['exported_at'] ?? 'unknown date') . '.';
+      } else {
+        $result['msg'] = 'Backup parsed but contained no restorable data files.';
+      }
+    }
+  }
+  $_SESSION['flash'] = ($result['ok'] ? 'ok|' : 'err|') . $result['msg'];
+  header('Location: admin.php#section-stats');
   exit;
 }
 
@@ -2488,8 +2528,18 @@ if ($authed && isset($_GET['edit_force'])) {
     <div class="as-footer">
       <a href="index.php" class="as-back-link">&#8592; Back to site</a>
       <form method="post" style="margin:0"><input type="hidden" name="action" value="export_backup"><button type="submit" class="btn btn-sm" title="Download a JSON backup of every data file">Export Backup</button></form>
+      <button class="btn btn-sm" onclick="document.getElementById('import-backup-panel').style.display=document.getElementById('import-backup-panel').style.display==='none'?'flex':'none'" title="Restore from a previously exported backup JSON">Import Backup</button>
       <form method="post" style="margin:0"><button name="logout" value="1" class="btn btn-sm">Log out</button></form>
     </div>
+  <div id="import-backup-panel" style="display:none;flex-direction:column;gap:6px;padding:10px 12px;border-top:1px solid #2a1e08;background:#0a0806;">
+    <div style="font-family:var(--font-heading);font-size:.58rem;letter-spacing:.12em;color:#8a3020;text-transform:uppercase;">Restore from Backup</div>
+    <div style="font-size:.62rem;color:#5a4828;">This overwrites existing data files. Images are not included in backups.</div>
+    <form method="post" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:6px;">
+      <input type="hidden" name="action" value="import_backup">
+      <input type="file" name="backup_file" accept=".json" required style="font-size:.65rem;color:#c4b49a;">
+      <button type="submit" class="btn btn-sm" style="border-color:#8a2020;color:#c47a6a;" onclick="return confirm('This will overwrite your current data with the backup. Continue?')">Restore</button>
+    </form>
+  </div>
   </aside>
   <button class="admin-sidebar-toggle" id="admin-sidebar-toggle" aria-label="Toggle navigation">&#9776;</button>
   <div class="admin-main">
