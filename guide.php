@@ -304,6 +304,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Stock badges</strong> - shown inline in the paint name cell</li>
       <li><strong>Notes / Stars button</strong> - a pencil icon appears on any paint with notes; a gold ★ appears on any paint with a quality rating. Click either to open a drawer showing the paint's notes and star rating. Both are read-only here - set them in Admin</li>
       <li><strong>Flagged filter</strong> - click the <em>Flagged</em> button in the controls bar to show only paints marked low, out, or wanted. The button turns gold when active - useful for a quick restock check before sitting down to paint. Click again or hit Reset to clear it</li>
+      <li><strong>Restock List</strong> - click the <em>Restock List</em> button for a full-screen shopping list of every flagged paint, split into three sections: Out, Low, and Wanted, each grouped by brand. Print or Copy to take it to the hobby shop. The same list is also one tap away from the landing page - the flagged count on the Paint Inventory entry opens it directly</li>
     </ul>
     <div class="badge-row">
       <span class="sbadge low">low</span>

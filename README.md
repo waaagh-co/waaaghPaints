@@ -35,7 +35,9 @@ collapsible left-rail sidebar grouped into four sections.
 
 - **Paint Inventory** - track every paint you own with stock level (normal/low/out/wanted), hex
   color swatch, quality rating, and freeform notes; **Flagged filter** instantly shows only
-  low/out/wanted paints so you know what to restock before sitting down to paint
+  low/out/wanted paints so you know what to restock before sitting down to paint; **Restock List**
+  opens a full-screen shopping list (Out / Low / Wanted, grouped by brand) with Print and Copy -
+  also accessible in one tap from the landing page flagged count
 - **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
   checklist for repainting, and **Warpaint Mode** - a full-screen focused reference overlay
   with large imagery, readable recipe steps, and stock-aware paint palette designed to be
