@@ -6342,3 +6342,12 @@
 /* ── Sidebar Tip Jar ──────────────────────────── */
 .sidebar-tipjar { display: block; padding: 10px 12px 6px; }
 .sidebar-tipjar img { display: block; width: 100%; height: auto; }
+
+/* ── Restock List ──────────────────────────── */
+.inv-restock-btn { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; background: var(--bg-input); cursor: pointer; color: var(--text-dim); font-family: var(--font-heading); letter-spacing: .06em; }
+.inv-restock-btn:hover { border-color: #8a6a1a; color: var(--gold); }
+.restock-trigger { background: none; border: none; color: #c97a20; font: inherit; font-size: inherit; cursor: pointer; padding: 0; text-decoration: underline dotted; }
+.restock-trigger:hover { color: #c9a227; }
+.restock-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 290; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.restock-overlay.open { opacity: 1; pointer-events: all; }
+.shop-wanted { color: #4a8ab8; border-color: #1a3a5a; }

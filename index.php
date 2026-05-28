@@ -575,7 +575,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=91">
+  <link rel="stylesheet" href="styles.css?v=93">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -748,6 +748,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       $cnt_paints   = count($paints);
       $cnt_owned    = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') !== 'wanted'));
       $cnt_low_out  = count(array_filter($paints, fn($p) => in_array($p['stock'] ?? '', ['low', 'out'], true)));
+      $cnt_wanted   = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') === 'wanted'));
       $cnt_models   = count($models);
       $cnt_models_painted = array_sum(array_map(fn($m) => max(1, (int)($m['count'] ?? 1)), $models));
       $cnt_planned  = count($planned);
@@ -1048,7 +1049,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             <a class="contents-entry" data-jump="inventory">
               <div class="contents-entry-name">Paint Inventory</div>
               <div class="contents-entry-blurb">Every paint catalogued with stock status. Know exactly what to grab before you sit down.</div>
-              <div class="contents-entry-count"><?= $cnt_owned ?> owned<?= $cnt_low_out > 0 ? ' &middot; <span style="color:#c97a20">' . $cnt_low_out . ' low/out</span>' : '' ?></div>
+              <div class="contents-entry-count"><?= $cnt_owned ?> owned<?php $flagTotal = $cnt_low_out + $cnt_wanted; if ($flagTotal > 0): ?> &middot; <button class="restock-trigger" onclick="event.stopPropagation();openRestockList()"><?= $flagTotal ?> flagged &rsaquo;</button><?php endif; ?></div>
             </a>
             <?php if ($hasBrushes): ?>
               <a class="contents-entry" data-jump="brushes">
@@ -1212,6 +1213,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
       <button id="reset">Reset</button>
       <button id="filter-flagged" class="inv-flagged-btn" title="Show low / out / wanted paints only">Flagged</button>
+      <button class="inv-restock-btn" onclick="openRestockList()" title="Open full restock shopping list">Restock List</button>
       <span id="count"></span>
     </div>
     <p class="tab-blurb">The armoury laid bare. Know your stock before you commit colour to plastic. (Click &#9998; for notes or ★ for rating.)</p>
@@ -1697,6 +1699,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <button onclick="window.print()">Print</button>
         <button id="pull-copy-btn" onclick="copyPullList()">Copy</button>
         <button onclick="closePull()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="restock-overlay" id="restock-overlay">
+    <div class="shop-sheet">
+      <div class="shop-title">Restock List</div>
+      <div class="shop-subtitle" id="restock-subtitle"></div>
+      <div id="restock-content"></div>
+      <div class="shop-actions">
+        <button onclick="printRestockList()">Print</button>
+        <button id="restock-copy-btn" onclick="copyRestockList()">Copy</button>
+        <button onclick="closeRestockList()">Close</button>
       </div>
     </div>
   </div>

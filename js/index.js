@@ -731,6 +731,10 @@
         closeShoppingList();
         return;
       }
+      if (e.key === 'Escape' && document.getElementById('restock-overlay').classList.contains('open')) {
+        closeRestockList();
+        return;
+      }
       if (document.getElementById('warpaint-overlay').classList.contains('open')) {
         if (e.key === 'Escape') { closeWarpaint(); return; }
         if (e.key === 'ArrowLeft')  { _wpShiftImg(-1); return; }
@@ -2906,6 +2910,61 @@
       if (e.target === document.getElementById('shop-overlay')) closeShoppingList();
     });
 
+    function openRestockList() {
+      const out = {}, low = {}, wanted = {};
+      PAINTS.forEach(p => {
+        if (!p.stock) return;
+        const bucket = p.stock === 'out' ? out : p.stock === 'low' ? low : p.stock === 'wanted' ? wanted : null;
+        if (!bucket) return;
+        if (!bucket[p.brand]) bucket[p.brand] = [];
+        bucket[p.brand].push(p.name);
+      });
+      const section = (obj, label, cls) => {
+        const brands = Object.keys(obj).sort();
+        if (!brands.length) return '';
+        const total = brands.reduce((n, b) => n + obj[b].length, 0);
+        let h = `<div class="shop-section-heading ${cls}">${label} — ${total} paint${total !== 1 ? 's' : ''}</div>`;
+        brands.forEach(b => {
+          h += `<div class="shop-brand">${esc(b)}</div><ul class="shop-paint-list">`;
+          obj[b].sort().forEach(name => { h += `<li><span class="shop-paint-name">${esc(name)}</span></li>`; });
+          h += '</ul>';
+        });
+        return h;
+      };
+      let html = section(out, 'Out', 'shop-must') + section(low, 'Low', 'shop-consider') + section(wanted, 'Wanted', 'shop-wanted');
+      if (!html) html = '<div class="shop-all-good">All stocked — nothing flagged!</div>';
+      const total = Object.values(out).flat().length + Object.values(low).flat().length + Object.values(wanted).flat().length;
+      document.getElementById('restock-subtitle').textContent = total + ' paint' + (total !== 1 ? 's' : '') + ' flagged';
+      document.getElementById('restock-content').innerHTML = html;
+      document.getElementById('restock-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRestockList() {
+      document.getElementById('restock-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function printRestockList() { document.body.classList.add('print-shop'); window.print(); document.body.classList.remove('print-shop'); }
+
+    function copyRestockList() {
+      let text = 'Restock List\n\n';
+      document.getElementById('restock-content').querySelectorAll('.shop-section-heading, .shop-brand, .shop-paint-list li').forEach(el => {
+        if (el.classList.contains('shop-section-heading')) text += '\n' + el.textContent.trim() + '\n';
+        else if (el.classList.contains('shop-brand')) text += '\n' + el.textContent.trim() + '\n';
+        else text += '  □ ' + (el.querySelector('.shop-paint-name')?.textContent || '') + '\n';
+      });
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        const btn = document.getElementById('restock-copy-btn');
+        const prev = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = prev, 2000);
+      });
+    }
+
+    document.getElementById('restock-overlay').addEventListener('click', e => {
+      if (e.target.id === 'restock-overlay') closeRestockList();
+    });
 
     function drawerStarSet(n) {
       document.querySelectorAll('#notes-star-picker .nsp-star').forEach(s => {
