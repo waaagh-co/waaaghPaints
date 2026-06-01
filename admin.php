@@ -554,6 +554,17 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
   exit;
 }
 
+function dedupeColors(array $colors): array {
+  $has3 = [];
+  foreach ($colors as $c) {
+    if (substr_count($c, '|') >= 2) { [$b,$n] = explode('|', $c, 3); $has3[$b.'|'.$n] = true; }
+  }
+  return array_values(array_filter($colors, function($c) use ($has3) {
+    if (substr_count($c, '|') < 2) { [$b,$n] = explode('|', $c, 2); return !isset($has3[$b.'|'.$n]); }
+    return true;
+  }));
+}
+
 function bookSort(array &$arr): void
 {
   usort($arr, fn($a, $b) => ($a['faction'] ?? '') <=> ($b['faction'] ?? '') ?: ($a['title'] ?? '') <=> ($b['title'] ?? ''));
@@ -1929,7 +1940,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
   $description  = trim($_POST['description']   ?? '');
   $codex_source = trim($_POST['codex_source']  ?? '');
   $count        = max(1, (int)($_POST['model_count'] ?? 1));
-  $colors       = $_POST['colors'] ?? [];
+  $colors       = dedupeColors($_POST['colors'] ?? []);
   $recipes      = array_values(array_filter($_POST['gallery_recipes'] ?? []));
   $theme_hex    = preg_match('/^#[0-9a-fA-F]{6}$/', trim($_POST['theme_hex'] ?? '')) ? strtolower(trim($_POST['theme_hex'])) : '';
   $summary      = array_filter([
@@ -2036,7 +2047,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
   $description  = trim($_POST['description']   ?? '');
   $codex_source = trim($_POST['codex_source']  ?? '');
   $count        = max(1, (int)($_POST['model_count'] ?? 1));
-  $colors       = $_POST['colors'] ?? [];
+  $colors       = dedupeColors($_POST['colors'] ?? []);
   $recipes      = array_values(array_filter($_POST['gallery_recipes'] ?? []));
   $theme_hex    = preg_match('/^#[0-9a-fA-F]{6}$/', trim($_POST['theme_hex'] ?? '')) ? strtolower(trim($_POST['theme_hex'])) : '';
   $summary      = array_filter([

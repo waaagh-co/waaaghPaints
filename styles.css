@@ -1940,6 +1940,10 @@
       color: var(--amber);
     }
 
+    .nearest-hint { display: block; font-size: .68rem; color: #4a3a18; font-style: italic; margin-top: 2px; padding-left: 2px; }
+    .nh-swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; border: 1px solid rgba(255,255,255,.2); flex-shrink: 0; }
+    .wp-step-body .nearest-hint { font-size: .8rem; margin-top: 4px; color: #5a4828; }
+
     .pull-issue-badge {
       font-size: 9px;
       font-family: var(--font-heading);
@@ -2138,6 +2142,9 @@
     .wp-step-brand { font-size: 11px; color: #4a3a1a; }
     .wp-step-meta { font-size: 11px; color: #5a4a28; }
     .wp-step-note { font-style: italic; font-size: 13px; color: #7a6a4a; margin-top: 4px; }
+    .wp-step-mix { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-size: 14px; }
+    .wp-mix-sep { color: #4a3a18; font-size: 12px; }
+    .wp-step-brush { font-size: 11px; color: #4a3a18; font-style: italic; margin-top: 3px; }
 
     .wp-stock-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
     .wp-dot-owned   { background: #2a5a1a; }

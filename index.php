@@ -352,7 +352,8 @@ unset($_wtnOwned, $_wp, $_bActive, $_b, $_days, $_pl, $_miss, $_c, $_mById, $_m2
 // === COMMISSAR INTELLIGENCE ===
 $ciShame = null; $ciSessions = null; $ciBottleneck = null;
 $ciBattles = null; $ciForces = null; $ciSupply = []; $ciNextOrders = [];
-
+$ci_paints_owned = 0; $ci_wanted = 0; $ci_low_out = 0; $ci_by_brand = []; $ci_top_paints = [];
+if (!defined('SHOW_COMMISSAR') || SHOW_COMMISSAR) {
 $_ciOwned = [];
 foreach ($paints as $_p) {
   if (($_p['stock'] ?? '') !== 'wanted') {
@@ -495,6 +496,7 @@ foreach ($planned as $_pno) {
 usort($ciNextOrders, fn($a,$b) => $b['score'] - $a['score']);
 $ciNextOrders = array_slice($ciNextOrders,0,5);
 unset($_ciOwned,$_stSc,$_bno,$noSc,$noRs,$_noM,$_nc,$_nc2,$_dS,$_pno,$_pnM,$_nc3,$_nc4,$pnSc,$pnRs);
+} // end SHOW_COMMISSAR
 
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
@@ -575,7 +577,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=94">
+  <link rel="stylesheet" href="styles.css?v=96">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -621,7 +623,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <li class="sg-item"><a href="#" data-tab="factions">Factions</a></li>
           <?php if ($hasForces): ?><li class="sg-item"><a href="#" data-tab="forces">Forces</a></li><?php endif; ?>
           <?php if ($hasBattles): ?><li class="sg-item"><a href="#" data-tab="battles">Battle Honours</a></li><?php endif; ?>
-          <li class="sg-item"><a href="#" data-tab="commissar">&#9876; The Commissar</a></li>
+          <?php if (!defined('SHOW_COMMISSAR') || SHOW_COMMISSAR): ?><li class="sg-item"><a href="#" data-tab="commissar">&#9876; The Commissar</a></li><?php endif; ?>
         </ul>
       </div>
 
@@ -739,8 +741,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <div id="tab-contents" class="tab-panel active">
     <div class="contents-wrap">
       <div class="contents-mast">
-        <img src="img/looted.png" alt="Looted Knowledge" class="contents-title-img">
-        <p class="contents-tagline">Dis is not a blog. It's a paintin' tool. Use it. Steal from it. Ignore half of it.</p>
+        <img src="<?= htmlspecialchars(defined('HERO_IMAGE') ? HERO_IMAGE : 'img/looted.png') ?>" alt="Looted Knowledge" class="contents-title-img">
+        <p class="contents-tagline"><?= htmlspecialchars(defined('SITE_TAGLINE') ? SITE_TAGLINE : "Dis is not a blog. It's a paintin' tool. Use it. Steal from it. Ignore half of it.") ?></p>
       </div>
 
       <?php
@@ -841,11 +843,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       ?>
 
+      <?php if (!defined('SHOW_HEATMAP') || SHOW_HEATMAP): ?>
       <div class="hero-wrap">
         <div class="hero-bar">
           <div id="hero-heatmap" class="hero-heatmap"></div>
         </div>
       </div>
+      <?php endif; ?>
 
       <?php
       ?>
@@ -1109,11 +1113,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
 
       </div>
 
+      <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
       <div class="wc-news-section" id="wc-news-section" style="display:none">
         <div class="wc-news-heading">Latest from Warhammer Community</div>
         <div class="wc-news-sub">warhammer-community.com &mdash; updated every 4 hours</div>
         <div class="wc-news-grid" id="wc-news-grid"></div>
       </div>
+      <?php endif; ?>
 
     </div>
   </div><!-- #tab-contents -->
@@ -1397,6 +1403,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div><!-- #tab-battles -->
   <?php endif; ?>
 
+  <?php if (!defined('SHOW_COMMISSAR') || SHOW_COMMISSAR): ?>
   <div id="tab-commissar" class="tab-panel">
     <div class="ci-wrap">
       <div class="ci-hero">
@@ -1541,6 +1548,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
     </div>
   </div><!-- #tab-commissar -->
+  <?php endif; // SHOW_COMMISSAR ?>
 
   <?php if ($hasBooks): ?>
     <div id="tab-books" class="tab-panel">
@@ -1808,6 +1816,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </script>
   <script src="js/index.js?v=10"></script>
 
+  <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
   <script>
   (function() {
     var sec = document.getElementById('wc-news-section');
@@ -1836,6 +1845,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       .catch(function() {});
   })();
   </script>
+  <?php endif; ?>
 
   <div id="install-banner">
     <div class="install-banner-text">

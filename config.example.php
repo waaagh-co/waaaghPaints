@@ -20,3 +20,14 @@ define('ADMIN_PASSWORD', 'change-me');
 // ── Analytics (optional) ──────────────────────────────────────────────────
 // Set your GA4 Measurement ID (G-XXXXXXXXXX) or leave empty string to disable.
 define('GA4_ID', '');
+
+// ── Landing page customisation ────────────────────────────────────────────
+// Override the mast image and tagline on the Looted Knowledge landing tab.
+define('HERO_IMAGE',   'img/looted.png');
+define('SITE_TAGLINE', "Dis is not a blog. It's a paintin' tool. Use it. Steal from it. Ignore half of it.");
+
+// ── Feature toggles ───────────────────────────────────────────────────────
+// Set to false to hide a feature entirely. Omitting a constant keeps it visible.
+define('SHOW_HEATMAP',   true);   // Hobby Activity heatmap on the landing page
+define('SHOW_WC_NEWS',   true);   // Latest from Warhammer Community widget
+define('SHOW_COMMISSAR', true);   // The Commissar's Dossier tab

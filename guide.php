@@ -341,8 +341,8 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Game System filter</strong> - dropdown in the controls bar to filter by 40k, Kill Team, Blood Bowl, etc.</li>
       <li><strong>Faction tags</strong> - click a tag on any card to filter the whole gallery to that faction; an active pill appears at the top to clear it</li>
       <li><strong>Colour pills</strong> - click any paint name on a card to jump straight to that paint in the Inventory tab</li>
-      <li><strong>Pull list button</strong> - opens a checklist of every paint needed for that scheme; missing paints are flagged red, low-stock orange; Print or Copy to take shopping. When a scheme has linked recipes, the pull sheet becomes a sequenced step-by-step guide instead of a flat list</li>
-      <li><strong>&#9876; Warpaint button</strong> - opens <strong>Warpaint Mode</strong>, a full-screen overlay designed to be used at arm's length while you actually paint. The left panel shows your scheme photo large with the scheme name overlaid in gold at the bottom; the right panel shows the summary block, your description formatted as readable sections and bullets, then every linked recipe rendered inline with all steps at 17px - technique badge, stock dot, paint name, brand, and any notes. Each recipe has a <em>&#9654; Guide</em> button to launch step-by-step mode on top. A paint palette at the bottom covers any colours not already in a recipe. Arrow keys cycle through photos; ESC closes. The Pull list is accessible from inside Warpaint Mode too</li>
+      <li><strong>Pull list button</strong> - opens a checklist of every paint needed for that scheme; missing paints are flagged red, low-stock orange; Print or Copy to take shopping. When a scheme has linked recipes, the pull sheet becomes a sequenced step-by-step guide instead of a flat list. For any missing paint that has a hex colour set, a dimmed <em>≈ nearest owned</em> suggestion appears below it based on RGB colour distance</li>
+      <li><strong>&#9876; Warpaint button</strong> - opens <strong>Warpaint Mode</strong>, a full-screen overlay designed to be used at arm's length while you actually paint. The left panel shows your scheme photo large with the scheme name overlaid in gold at the bottom; the right panel shows the summary block, your description formatted as readable sections and bullets, then every linked recipe rendered inline with all steps at 17px - technique badge, stock dot, paint swatch, paint name, brand, mix paint (with its own swatch and stock dot), ratio, and brush recommendation. Missing paints also show a nearest-owned colour suggestion. Each recipe has a <em>&#9654; Guide</em> button to launch step-by-step mode on top. A paint palette at the bottom covers any colours not already in a recipe. Arrow keys cycle through photos; ESC closes. The Pull list is accessible from inside Warpaint Mode too</li>
     </ul>
 
     <h3>Factions tab</h3>
@@ -427,7 +427,7 @@ if (empty($_SESSION['admin'])) {
     <p>Your personal painting handbook - reusable technique recipes (&quot;How I Paint Ork Flesh,&quot; &quot;NMM Gold,&quot; &quot;Blood Angels Red&quot;) that schemes can reference instead of duplicating the steps. Only visible if the library has been started in Admin.</p>
     <ul>
       <li><strong>Cards</strong> show the recipe name, category badge, faction, description, and the ordered step list</li>
-      <li>Each step shows a <strong>technique badge</strong> (Basecoat / Wash / Shade / Layer / Edge / Highlight / Glaze / Drybrush / Stipple / Blend / Special) plus the paint with its ownership/low/missing dot, the paint swatch, and any ratio / note / brush meta</li>
+      <li>Each step shows a <strong>technique badge</strong> (Basecoat / Wash / Shade / Layer / Edge / Highlight / Glaze / Drybrush / Stipple / Blend / Special) plus the paint with its ownership/low/missing dot, the paint swatch, and any ratio / note / brush meta. For missing paints that have a hex colour set, a dimmed <em>≈ nearest owned</em> colour suggestion appears below the step based on RGB colour distance across your inventory</li>
       <li><strong>Search</strong> filters across recipe names, descriptions, factions, notes, and step paint names / techniques</li>
       <li><strong>Category filter pills</strong> appear automatically from whatever categories you use - only the ones in use are shown</li>
       <li><strong>&quot;Used in&quot; footer</strong> lists every gallery / planned / bench entry that references the recipe; click a gallery entry to jump to it</li>
@@ -693,8 +693,20 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Edit / &times;</strong> - update or remove any entry</li>
     </ul>
 
-    <h3>Export Backup</h3>
-    <p>The <strong>Export Backup</strong> button in the top-right of the admin page (next to Log Out) downloads a single JSON file containing all your data - paints, schemes, planned schemes, bench projects, recipes, brushes, journal, Codex Library, and tab stats. Images are not included. Keep a copy somewhere safe; restoring means putting the JSON files back in the <code>data/</code> folder.</p>
+    <h3>Export &amp; Import Backup</h3>
+    <p>The <strong>Export Backup</strong> button in the sidebar footer downloads a single JSON file containing all your data - paints, schemes, planned, bench, recipes, brushes, journal, Codex Library, shame pile, wishlist, forces, battles, supplies, rescues, goals, and tab stats. Images are not included.</p>
+    <p>The <strong>Import Backup</strong> button (next to Export) reveals a file upload form. Choose a previously exported backup JSON and click Restore - each recognised data file is overwritten with the backup contents. A flash message confirms what was restored. Images are not restored (they live on disk and are not included in the backup).</p>
+
+    <h3>config.php settings</h3>
+    <p>All instance settings live in <code>config.php</code>. In addition to the standard identity and password fields, the following are available:</p>
+    <ul>
+      <li><code>HERO_IMAGE</code> - web-relative path to the mast image on the landing page (default: <code>img/looted.png</code>)</li>
+      <li><code>SITE_TAGLINE</code> - the italic line beneath the mast image (default: "Dis is not a blog...")</li>
+      <li><code>SHOW_HEATMAP</code> - set to <code>false</code> to hide the Hobby Activity heatmap on the landing page</li>
+      <li><code>SHOW_WC_NEWS</code> - set to <code>false</code> to hide the Latest from Warhammer Community widget</li>
+      <li><code>SHOW_COMMISSAR</code> - set to <code>false</code> to hide The Commissar's Dossier tab entirely (sidebar link and tab panel)</li>
+    </ul>
+    <p>All feature toggles default to <code>true</code> if omitted from config, so existing installs without these lines are unaffected.</p>
 
     <div class="tip">The main site is read-only - all edits and additions go through admin.</div>
   </div>

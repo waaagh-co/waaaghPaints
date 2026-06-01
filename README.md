@@ -39,9 +39,12 @@ collapsible left-rail sidebar grouped into four sections.
   opens a full-screen shopping list (Out / Low / Wanted, grouped by brand) with Print and Copy -
   also accessible in one tap from the landing page flagged count
 - **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
-  checklist for repainting, and **Warpaint Mode** - a full-screen focused reference overlay
-  with large imagery, readable recipe steps, and stock-aware paint palette designed to be
-  used at arm's length while you actually paint
+  checklist for repainting (missing paints show a nearest-owned color suggestion via RGB
+  hex distance), and **Warpaint Mode** - a full-screen focused reference overlay with large
+  imagery, full recipe step detail (technique badge, swatch, stock dot, mix paint with its
+  own swatch and stock indicator, ratio, brush recommendation), nearest-owned suggestions
+  for missing paints, and a stock-aware paint palette - designed for use at arm's length
+  while you actually paint
 - **Planned Schemes** - wishlist of future projects with readiness tracking (Ready / Almost /
   Needs Work) and a shopping list for missing paints
 - **On the Bench** - active WIP projects with stage tracking, session logging, and WIP photos
@@ -172,6 +175,11 @@ never committed to git):
 | `ADMIN_FILENAME` | Filename of the admin panel (default: `admin.php`). Rename the file and set this to match for security. |
 | `ADMIN_PASSWORD` | Password for the admin panel - change this before deploying |
 | `GA4_ID` | Google Analytics 4 Measurement ID (e.g. `G-XXXXXXXXXX`); leave empty to disable |
+| `HERO_IMAGE` | Web-relative path to the landing page mast image (default: `img/looted.png`) |
+| `SITE_TAGLINE` | Tagline text beneath the mast image on the landing tab |
+| `SHOW_HEATMAP` | `false` to hide the Hobby Activity heatmap on the landing page |
+| `SHOW_WC_NEWS` | `false` to hide the Warhammer Community news widget |
+| `SHOW_COMMISSAR` | `false` to hide The Commissar's Dossier tab entirely |
 
 ---
 

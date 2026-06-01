@@ -837,7 +837,7 @@
     function renderPullLi(raw, name) {
       const key = upgradeKey(raw);
       const stock = paintStock.get(key) || '';
-      if (!paintOwned.has(key)) return `<li>${esc(name)}<span class="pull-flag missing">missing</span></li>`;
+      if (!paintOwned.has(key)) return `<li>${esc(name)}<span class="pull-flag missing">missing</span>${nearestHintHtml(raw)}</li>`;
       if (stock === 'out') return `<li>${esc(name)}<span class="pull-flag out">out</span></li>`;
       if (stock === 'low') return `<li>${esc(name)}<span class="pull-flag low">low</span></li>`;
       return `<li>${esc(name)}</li>`;
@@ -870,7 +870,8 @@
             else if (stock === 'low') flag = `<span class="pull-flag low">low</span>`;
             const techLabel = (s.technique || 'special');
             const extras = [s.ratio, s.note].filter(Boolean).map(esc).join(' · ');
-            html += `<li><span style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-right:6px;font-family:'Cinzel',serif">${i + 1}. ${esc(techLabel)}</span><strong>${esc(name)}</strong>${brand ? ` <span style="color:#aaa;font-size:11px">${esc(brand)}</span>` : ''}${extras ? ` <em style="color:#888;font-size:11px">${extras}</em>` : ''}${flag}</li>`;
+            const nearHint = !paintOwned.has(key) ? nearestHintHtml(s.paint || '') : '';
+            html += `<li><span style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999;margin-right:6px;font-family:'Cinzel',serif">${i + 1}. ${esc(techLabel)}</span><strong>${esc(name)}</strong>${brand ? ` <span style="color:#aaa;font-size:11px">${esc(brand)}</span>` : ''}${extras ? ` <em style="color:#888;font-size:11px">${extras}</em>` : ''}${flag}${nearHint}</li>`;
           });
           html += `</ul>`;
         });
@@ -933,6 +934,37 @@
         if ((p.brand + '|' + p.name + '|' + (p.layer || '')).toLowerCase() === uk) return p.hex || null;
       }
       return null;
+    }
+
+    function _hexToRgb(h) { return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]; }
+
+    function nearestOwnedHex(paintKey) {
+      const uk = upgradeKey(paintKey).toLowerCase();
+      let tHex = null;
+      for (const p of PAINTS) {
+        if ((p.brand+'|'+p.name+'|'+(p.layer||'')).toLowerCase()===uk || (p.brand+'|'+p.name).toLowerCase()===uk) { tHex = p.hex||null; break; }
+      }
+      if (!tHex) return null;
+      const [tr,tg,tb] = _hexToRgb(tHex);
+      let best = null, bestDist = Infinity;
+      for (const p of PAINTS) {
+        if (!p.hex) continue;
+        const pKey = p.brand+'|'+p.name;
+        if ((pKey+'|'+(p.layer||'')).toLowerCase()===uk || pKey.toLowerCase()===uk) continue;
+        if (!paintOwned.has(pKey)) continue;
+        const st = paintStock.get(pKey)||'';
+        if (st==='out'||st==='wanted') continue;
+        const [r,g,b] = _hexToRgb(p.hex);
+        const d = Math.sqrt((r-tr)**2+(g-tg)**2+(b-tb)**2);
+        if (d < bestDist) { bestDist=d; best=p; }
+      }
+      return best ? {name:best.name, brand:best.brand, hex:best.hex} : null;
+    }
+
+    function nearestHintHtml(paintKey) {
+      const m = nearestOwnedHex(paintKey);
+      if (!m) return '';
+      return `<span class="nearest-hint"><span class="nh-swatch" style="background:${m.hex}"></span>≈ ${esc(m.name)}</span>`;
     }
 
     function _wpShiftImg(dir) {
@@ -1028,8 +1060,21 @@
             const techLabel = TECH[tech] || tech;
             const note = s.note ? `<div class="wp-step-note">${esc(s.note)}</div>` : '';
             const ratio = s.ratio ? ` <span class="wp-step-meta">${esc(s.ratio)}</span>` : '';
-            const mixHtml = s.mix_paint ? ` <span class="wp-step-meta">+ ${esc((s.mix_paint.split('|')[1]) || s.mix_paint)}</span>` : '';
-            html += `<li class="wp-step-row"><span class="wp-step-num">${i + 1}</span><span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(techLabel)}</span><div class="wp-step-body"><div class="wp-step-paint"><span class="wp-stock-dot wp-dot-${dotCls}"></span>${swatch}<strong>${esc(name)}</strong><span class="wp-step-brand">${esc(brand)}${layer ? ' \xb7 ' + esc(layer) : ''}</span>${ratio}${mixHtml}</div>${note}</div></li>`;
+            let mixHtml = '';
+            if (s.mix_paint) {
+              const mp = s.mix_paint.split('|'); const mName = mp[1] || s.mix_paint;
+              const mKey = upgradeKey(s.mix_paint);
+              const mDotCls = !paintOwned.has(mKey) ? 'missing' : (paintStock.get(mKey) === 'out' ? 'out' : paintStock.get(mKey) === 'low' ? 'low' : 'owned');
+              const mHex = _wpHex(s.mix_paint);
+              mixHtml = ` <span class="wp-step-mix"><span class="wp-mix-sep">+</span>${mHex ? `<span class="wp-swatch" style="background:${mHex}"></span>` : ''}<span class="wp-stock-dot wp-dot-${mDotCls}"></span>${esc(mName)}</span>`;
+            }
+            let brushHtml = '';
+            if (s.brush && typeof BRUSHES_DATA !== 'undefined' && BRUSHES_DATA) {
+              const bEntry = BRUSHES_DATA.find(function(x) { return x.id === s.brush; });
+              if (bEntry) brushHtml = `<div class="wp-step-brush">${esc([bEntry.brand, bEntry.series, bEntry.size].filter(Boolean).join(' \xb7 '))}</div>`;
+            }
+            const wpNear = dotCls === 'missing' ? nearestHintHtml(s.paint || '') : '';
+            html += `<li class="wp-step-row"><span class="wp-step-num">${i + 1}</span><span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(techLabel)}</span><div class="wp-step-body"><div class="wp-step-paint"><span class="wp-stock-dot wp-dot-${dotCls}"></span>${swatch}<strong>${esc(name)}</strong><span class="wp-step-brand">${esc(brand)}${layer ? ' \xb7 ' + esc(layer) : ''}</span>${ratio}${mixHtml}</div>${brushHtml}${note}${wpNear}</div></li>`;
           });
           html += `</ol>`;
         }
@@ -2367,6 +2412,7 @@
                 }
               }
               const tech = s.technique || 'special';
+              const nearHint = statusCls === 'missing' ? nearestHintHtml(s.paint || '') : '';
               return `<li class="recipe-step-row">
             <span class="recipe-step-num">${i + 1}.</span>
             <div class="recipe-step-body">
@@ -2374,7 +2420,7 @@
                 <span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(TECH_LABEL[tech] || tech)}</span>
                 <span class="recipe-step-paint ${statusCls}">${swatch}${esc(name)}${brand ? ` <span style="color:#4a3a1a;font-size:9px">${esc(brand)}${layer ? ' · ' + esc(layer) : ''}</span>` : ''}</span>${mixHtml}
               </div>
-              ${meta.length ? `<div class="recipe-step-meta">${meta.join(' &middot; ')}</div>` : ''}
+              ${meta.length ? `<div class="recipe-step-meta">${meta.join(' &middot; ')}</div>` : ''}${nearHint}
             </div>
           </li>`;
             }).join('') + '</ol>';
