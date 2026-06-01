@@ -190,11 +190,20 @@
     function buildAchromatic(paints) {
       if (!paints.length) return '';
       const _L_DEFAULTS = {Black:8,Shade:18,Wash:22,Contrast:38,Ink:28,Grey:52,Metallic:48,Texture:54,Medium:55,Primer:68,Effect:48,Fluid:52,Utility:52,Special:50,Transparent:62,Pigment:50,Fluorescent:76,White:92};
+      const _H_DEFAULTS = {Black:0,Grey:0,White:0,Metallic:35,Wash:25,Shade:20,Contrast:30,Ink:230,Medium:0,Effect:300,Fluid:200,Utility:0,Special:120,Transparent:180,Fluorescent:65,Primer:0,Texture:30,Pigment:50};
       function _lightness(p) {
         if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) return hexToHsl(p.hex)[2];
         return _L_DEFAULTS[p.color] || 50;
       }
-      const byLight = arr => [...arr].sort((a,b) => _lightness(a) - _lightness(b));
+      function _hue(p) {
+        if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) return hexToHsl(p.hex)[0];
+        return _H_DEFAULTS[p.color] ?? 0;
+      }
+      const byHueThenLight = arr => [...arr].sort((a, b) => {
+        const ha = Math.round(_hue(a) / 30), hb = Math.round(_hue(b) / 30);
+        if (ha !== hb) return ha - hb;
+        return _lightness(a) - _lightness(b);
+      });
       const GRP = {
         'Metallic':        ['Metallic'],
         'Wash & Shade':    ['Wash','Shade'],
@@ -206,7 +215,7 @@
       const CAT_FB = {Metallic:'#888',Wash:'#4a3a28',Shade:'#3a3028',Contrast:'#6a5a40',Primer:'#aaa',Texture:'#8a7a60',White:'#f0eee8',Grey:'#888',Black:'#2a2a2a',Ink:'#3a3060',Medium:'#6a5030',Effect:'#6a4a60',Fluid:'#506080',Utility:'#5a5a5a',Special:'#4a6a3a',Transparent:'#5a8a8a',Fluorescent:'#c8e040',Pigment:'#8a7a40'};
       let html = `<div class="wheel-ach-hd">Achromatic &amp; Special (${paints.length})</div>`;
       for (const [label, cats] of Object.entries(GRP)) {
-        const group = byLight(paints.filter(p => cats.includes(p.color)));
+        const group = byHueThenLight(paints.filter(p => cats.includes(p.color)));
         if (!group.length) continue;
         group.forEach(p => used.add(paintKey(p)));
         const isGrey = label === 'Greyscale';
@@ -218,7 +227,7 @@
         });
         html += '</div></div>';
       }
-      const other = byLight(paints.filter(p => !used.has(paintKey(p))));
+      const other = byHueThenLight(paints.filter(p => !used.has(paintKey(p))));
       if (other.length) {
         html += `<div class="wheel-ach-group"><div class="wheel-ach-group-lbl">Other</div><div class="wheel-ach-swatches">`;
         other.forEach(p => {
