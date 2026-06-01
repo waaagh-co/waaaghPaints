@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=97">
+  <link rel="stylesheet" href="styles.css?v=98">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1304,6 +1304,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <button id="reset">Reset</button>
       <button id="filter-flagged" class="inv-flagged-btn" title="Show low / out / wanted paints only">Flagged</button>
       <button class="inv-restock-btn" onclick="openRestockList()" title="Open full restock shopping list">Restock List</button>
+      <button class="inv-wheel-btn" id="inv-wheel-btn" title="Colour wheel view">&#11044; Wheel</button>
+      <button class="inv-wheel-copy" id="inv-wheel-copy" title="Copy link to wheel view">&#128279; Copy link</button>
       <span id="count"></span>
     </div>
     <p class="tab-blurb">The armoury laid bare. Know your stock before you commit colour to plastic. (Click &#9998; for notes or ★ for rating.)</p>
@@ -1325,6 +1327,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <div id="empty">No paints match your filters.</div>
     </div>
 
+    <div id="wheel-view" style="display:none">
+      <div id="wheel-svg-wrap" class="wheel-svg-wrap"></div>
+      <div id="wheel-achromatic" class="wheel-achromatic"></div>
+    </div>
+    <div id="wheel-tooltip"></div>
 
   </div><!-- #tab-inventory -->
 

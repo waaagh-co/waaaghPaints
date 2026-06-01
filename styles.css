@@ -6391,3 +6391,27 @@
 .ms-cat-rescue.ms-unlocked { border-color: #5a3010; }
 .ms-cat-rescue.ms-unlocked .ms-name { color: #d08040; }
 .ms-commissar { border-bottom: none; border-top: 1px solid #2a1e08; background: transparent; padding: 12px 14px 8px; }
+
+/* ── Paint Colour Wheel ──────────────────────────── */
+.inv-wheel-btn { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; background: var(--bg-input); cursor: pointer; color: var(--text-dim); font-family: var(--font-heading); letter-spacing: .06em; }
+.inv-wheel-btn:hover { border-color: #8a6a1a; color: var(--gold); }
+.inv-wheel-btn.active { border-color: var(--gold); color: var(--gold); background: #1a1208; }
+.inv-wheel-copy { padding: 4px 10px; border: 1px solid #4a3a10; border-radius: 4px; font-size: 11px; background: #1a1208; cursor: pointer; color: #c9a227; font-family: var(--font-heading); letter-spacing: .06em; }
+.inv-wheel-copy:hover { border-color: var(--gold); }
+.wheel-svg-wrap { display: flex; justify-content: center; padding: 14px 0 6px; }
+.wheel-svg-wrap svg { width: min(560px, 100%); height: auto; cursor: default; }
+circle.paint-dot { cursor: pointer; transition: opacity .1s; }
+circle.paint-dot:hover { opacity: .7; }
+#wheel-tooltip { position: fixed; background: #1a1408; border: 1px solid #4a3010; color: #c4b49a; font-size: .65rem; padding: 5px 9px; border-radius: 2px; pointer-events: none; z-index: 300; display: none; white-space: nowrap; line-height: 1.6; }
+.wheel-achromatic { padding: 0 14px 20px; max-width: 520px; margin: 0 auto; }
+.wheel-ach-hd { font-family: var(--font-heading); font-size: .52rem; letter-spacing: .16em; color: #4a3a18; text-transform: uppercase; margin: 6px 0 10px; border-top: 1px solid #1a1408; padding-top: 10px; text-align: center; }
+.wheel-ach-group { margin-bottom: 10px; }
+.wheel-ach-group-lbl { font-size: .58rem; color: #6a5828; margin-bottom: 5px; font-family: var(--font-heading); letter-spacing: .04em; }
+.wheel-ach-swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+.wheel-ach-dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(255,255,255,.1); cursor: pointer; flex-shrink: 0; transition: opacity .1s; }
+.wheel-ach-dot:hover { opacity: .75; }
+.wheel-ach-dot.stock-low { box-shadow: 0 0 0 2px #c9a227; }
+.wheel-ach-dot.stock-out { box-shadow: 0 0 0 2px #8a2020; }
+.wheel-ach-grey { border-top: 1px solid #2a1e08; padding-top: 10px; margin-top: 4px; }
+.wheel-ach-swatches-grey { gap: 3px; }
+.wheel-ach-swatches-grey .wheel-ach-dot { border-color: rgba(255,255,255,.2); }

@@ -4,6 +4,9 @@
     const paintOwned = new Set(PAINTS.filter(p => p.stock !== 'wanted').map(paintKey));
     const paintStock = new Map(PAINTS.filter(p => p.stock).map(p => [paintKey(p), p.stock]));
     const paintByKeyLC = new Map(PAINTS.map(p => [(p.brand + '|' + p.name).toLowerCase(), p.stock || '']));
+    const _paintByKey       = new Map(PAINTS.map(p => [paintKey(p), p]));
+    const _ACHROMATIC_CATS  = new Set(['White','Grey','Black','Metallic','Wash','Shade','Contrast','Ink','Texture','Primer','Pigment','Medium','Effect','Fluid','Utility','Special','Transparent','Fluorescent']);
+    const _CAT_HUE          = {Red:0,Orange:25,Yellow:55,Green:120,Blue:220,Purple:270,Pink:320,Brown:30};
 
     // Upgrade legacy 2-part stored keys to 3-part where unambiguous
     const _legacyUpgrade = new Map();
@@ -24,6 +27,7 @@
     let sortCol = 'name';
     let sortDir = 1; // 1=asc, -1=desc
     let stockFilter = false;
+    let wheelActive = false;
 
     const searchEl = document.getElementById('search');
     const filterBrand = document.getElementById('filter-brand');
@@ -35,7 +39,12 @@
     const tbody = document.getElementById('tbody');
     const emptyEl = document.getElementById('empty');
     const table = document.getElementById('paint-table');
-    const headers = document.querySelectorAll('th[data-col]');
+    const headers     = document.querySelectorAll('th[data-col]');
+    const wheelBtn    = document.getElementById('inv-wheel-btn');
+    const wheelView   = document.getElementById('wheel-view');
+    const wheelSvgWrap = document.getElementById('wheel-svg-wrap');
+    const wheelAchEl  = document.getElementById('wheel-achromatic');
+    const wheelTip    = document.getElementById('wheel-tooltip');
 
     function render() {
       const q = searchEl.value.toLowerCase();
@@ -90,7 +99,7 @@
           const starVal = p.stars || 0;
           const notesBtn = `<button class="notes-btn${p.notes ? ' has-notes' : ''}" title="${p.notes ? 'View notes' : 'No notes'}" data-pid="${esc(pid)}" data-stars="${starVal}" data-notes-brand="${esc(p.brand)}" data-notes-name="${esc(p.name)}" data-notes-text="${esc(p.notes||'')}">&#9998;</button>`;
           const starBtn = `<button class="star-rate-btn${starVal ? ' has-stars' : ''}" title="${starVal ? starVal + ' stars' : 'Rate this paint'}" data-pid="${esc(pid)}" data-stars="${starVal}" data-notes-brand="${esc(p.brand)}" data-notes-name="${esc(p.name)}" data-notes-text="${esc(p.notes||'')}">★</button>`;
-          return `<tr class="brand-${slug}" data-brand="${esc(p.brand)}" data-name="${esc(p.name)}" data-layer="${esc(p.layer||'')}" title="Show schemes using this paint">
+          return `<tr class="brand-${slug}" data-brand="${esc(p.brand)}" data-name="${esc(p.name)}" data-layer="${esc(p.layer||'')}" data-key="${esc(pid)}" title="Show schemes using this paint">
         <td><span class="${swatchClass}" title="${p.color}"></span></td>
         <td>${esc(p.brand)}</td>
         <td>${esc(p.name)}${stockBadge}${notesBtn}${starBtn}</td>
@@ -115,6 +124,175 @@
           icon.textContent = '';
         }
       });
+    }
+
+    function renderWheel() {
+      const q = searchEl.value.toLowerCase();
+      const brand = filterBrand.value;
+      const color = filterColor.value;
+      const layer = filterLayer.value;
+      const filtered = PAINTS.filter(p => {
+        if (brand && p.brand !== brand) return false;
+        if (color && p.color !== color) return false;
+        if (layer && p.layer !== layer) return false;
+        if (stockFilter && !p.stock) return false;
+        if (q) { const s = (p.name+' '+(p.hue||'')+' '+p.brand).toLowerCase(); if (!s.includes(q)) return false; }
+        return true;
+      });
+      const chromatic  = filtered.filter(p => getHue(p) !== null);
+      const achromatic = filtered.filter(p => getHue(p) === null);
+      if (wheelSvgWrap) wheelSvgWrap.innerHTML = buildWheelSvg(chromatic);
+      if (wheelAchEl)  wheelAchEl.innerHTML   = buildAchromatic(achromatic);
+      wireWheelEvents();
+      countEl.textContent = filtered.length + ' of ' + PAINTS.length + ' paints';
+    }
+
+    function buildWheelSvg(paints) {
+      const CX=450, CY=450, SEGS=24, DEG=15, BASE_R=100, RING=11;
+      let bg = '';
+      for (let i=0; i<SEGS; i++) {
+        const hd=i*DEG, aS=(hd-90-DEG/2)*Math.PI/180, aE=(hd-90+DEG/2)*Math.PI/180;
+        const R1=248, R2=280;
+        const x1=CX+R1*Math.cos(aS), y1=CY+R1*Math.sin(aS);
+        const x2=CX+R2*Math.cos(aS), y2=CY+R2*Math.sin(aS);
+        const x3=CX+R2*Math.cos(aE), y3=CY+R2*Math.sin(aE);
+        const x4=CX+R1*Math.cos(aE), y4=CY+R1*Math.sin(aE);
+        bg += `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z" fill="hsl(${hd},70%,55%)" opacity=".18"/>`;
+      }
+      const buckets = Array.from({length:SEGS}, ()=>[]);
+      paints.forEach(p => {
+        const h = getHue(p);
+        const seg = Math.floor(((h%360)+360)%360/DEG)%SEGS;
+        buckets[seg].push(p);
+      });
+      let dots = '';
+      buckets.forEach((bucket, seg) => {
+        bucket.forEach((p, ring) => {
+          const h = getHue(p);
+          const angle = (h-90)*Math.PI/180;
+          const r = BASE_R + ring*RING;
+          const x = CX+r*Math.cos(angle), y = CY+r*Math.sin(angle);
+          const fill   = p.hex || `hsl(${h},60%,45%)`;
+          const stroke = p.stock==='out'?'#8a2020':p.stock==='low'?'#c9a227':'rgba(0,0,0,.4)';
+          dots += `<circle class="paint-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="${fill}" stroke="${stroke}" stroke-width="2" data-key="${esc(paintKey(p))}"/>`;
+        });
+      });
+      const n = paints.length;
+      const legend = `<g transform="translate(${CX},${CY+320})">
+        <circle cx="-52" cy="0" r="6" fill="#2a2010" stroke="#c9a227" stroke-width="2"/>
+        <text x="-42" y="4" font-family="sans-serif" font-size="11" fill="#6a5828">Low stock</text>
+        <circle cx="38" cy="0" r="6" fill="#2a0808" stroke="#8a2020" stroke-width="2"/>
+        <text x="48" y="4" font-family="sans-serif" font-size="11" fill="#6a5828">Out of stock</text>
+      </g>`;
+      return `<svg viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg" id="wheel-svg">${bg}${dots}<circle cx="${CX}" cy="${CY}" r="88" fill="#0a0806" opacity=".92"/><text x="${CX}" y="${CY-4}" text-anchor="middle" font-family="Cinzel,serif" font-size="30" fill="#c9a227">${n}</text><text x="${CX}" y="${CY+20}" text-anchor="middle" font-family="Cinzel,serif" font-size="10" fill="#5a4a28" letter-spacing="3">CHROMATIC</text>${legend}</svg>`;
+    }
+
+    function buildAchromatic(paints) {
+      if (!paints.length) return '';
+      const _L_DEFAULTS = {Black:8,Shade:18,Wash:22,Contrast:38,Ink:28,Grey:52,Metallic:48,Texture:54,Medium:55,Primer:68,Effect:48,Fluid:52,Utility:52,Special:50,Transparent:62,Pigment:50,Fluorescent:76,White:92};
+      function _lightness(p) {
+        if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) return hexToHsl(p.hex)[2];
+        return _L_DEFAULTS[p.color] || 50;
+      }
+      const byLight = arr => [...arr].sort((a,b) => _lightness(a) - _lightness(b));
+      const GRP = {
+        'Metallic':        ['Metallic'],
+        'Wash & Shade':    ['Wash','Shade'],
+        'Contrast':        ['Contrast'],
+        'Primer & Texture':['Primer','Texture'],
+        'Greyscale':       ['White','Grey','Black'],
+      };
+      const used = new Set();
+      const CAT_FB = {Metallic:'#888',Wash:'#4a3a28',Shade:'#3a3028',Contrast:'#6a5a40',Primer:'#aaa',Texture:'#8a7a60',White:'#f0eee8',Grey:'#888',Black:'#2a2a2a',Ink:'#3a3060',Medium:'#6a5030',Effect:'#6a4a60',Fluid:'#506080',Utility:'#5a5a5a',Special:'#4a6a3a',Transparent:'#5a8a8a',Fluorescent:'#c8e040',Pigment:'#8a7a40'};
+      let html = `<div class="wheel-ach-hd">Achromatic &amp; Special (${paints.length})</div>`;
+      for (const [label, cats] of Object.entries(GRP)) {
+        const group = byLight(paints.filter(p => cats.includes(p.color)));
+        if (!group.length) continue;
+        group.forEach(p => used.add(paintKey(p)));
+        const isGrey = label === 'Greyscale';
+        html += `<div class="wheel-ach-group${isGrey?' wheel-ach-grey':''}"><div class="wheel-ach-group-lbl">${label}</div><div class="wheel-ach-swatches${isGrey?' wheel-ach-swatches-grey':''}">`;
+        group.forEach(p => {
+          const fill = p.hex || CAT_FB[p.color] || '#5a5a5a';
+          const sc = p.stock==='out'?' stock-out':p.stock==='low'?' stock-low':'';
+          html += `<div class="wheel-ach-dot${sc}" style="background:${fill}" data-key="${esc(paintKey(p))}"></div>`;
+        });
+        html += '</div></div>';
+      }
+      const other = byLight(paints.filter(p => !used.has(paintKey(p))));
+      if (other.length) {
+        html += `<div class="wheel-ach-group"><div class="wheel-ach-group-lbl">Other</div><div class="wheel-ach-swatches">`;
+        other.forEach(p => {
+          const fill = p.hex || CAT_FB[p.color] || '#5a5a5a';
+          const sc = p.stock==='out'?' stock-out':p.stock==='low'?' stock-low':'';
+          html += `<div class="wheel-ach-dot${sc}" style="background:${fill}" data-key="${esc(paintKey(p))}"></div>`;
+        });
+        html += '</div></div>';
+      }
+      return html;
+    }
+
+    function _wheelJumpToPaint(p) {
+      wheelActive = false;
+      if (wheelBtn) wheelBtn.classList.remove('active');
+      if (wheelView)  wheelView.style.display = 'none';
+      if (wheelTip)   wheelTip.style.display  = 'none';
+      searchEl.value      = p.name;
+      filterBrand.value   = p.brand;
+      filterLayer.value   = p.layer || '';
+      filterColor.value   = '';
+      render();
+      setTimeout(() => {
+        const row = tbody.querySelector(`tr[data-key="${CSS.escape(paintKey(p))}"]`);
+        if (row) {
+          row.scrollIntoView({block:'center', behavior:'smooth'});
+          row.style.boxShadow = 'inset 0 0 0 2px #c9a227';
+          setTimeout(() => { row.style.boxShadow = ''; }, 1400);
+        }
+      }, 80);
+    }
+
+    function wireWheelEvents() {
+      const svg = document.getElementById('wheel-svg');
+      if (svg) {
+        svg.addEventListener('mousemove', e => {
+          const dot = e.target.closest('.paint-dot');
+          if (!dot || !wheelTip) return;
+          const p = _paintByKey.get(dot.dataset.key);
+          if (!p) return;
+          const stock = p.stock ? ` <span class="inv-stock-badge inv-stock-${p.stock}">${p.stock}</span>` : '';
+          wheelTip.innerHTML = `<strong>${esc(p.name)}</strong>${stock}<br><span style="color:#6a5828">${esc(p.brand)} &middot; ${esc(p.layer||'')}</span>`;
+          wheelTip.style.display = 'block';
+          wheelTip.style.left = (e.clientX+14)+'px';
+          wheelTip.style.top  = (e.clientY-10)+'px';
+        });
+        svg.addEventListener('mouseleave', () => { if (wheelTip) wheelTip.style.display='none'; });
+        svg.addEventListener('click', e => {
+          const dot = e.target.closest('.paint-dot');
+          if (!dot) return;
+          const p = _paintByKey.get(dot.dataset.key);
+          if (p) _wheelJumpToPaint(p);
+        });
+      }
+      if (wheelAchEl) {
+        wheelAchEl.addEventListener('mouseover', e => {
+          const dot = e.target.closest('.wheel-ach-dot');
+          if (!dot || !wheelTip) return;
+          const p = _paintByKey.get(dot.dataset.key);
+          if (!p) return;
+          const stock = p.stock ? ` <span class="inv-stock-badge inv-stock-${p.stock}">${p.stock}</span>` : '';
+          wheelTip.innerHTML = `<strong>${esc(p.name)}</strong>${stock}<br><span style="color:#6a5828">${esc(p.brand)} &middot; ${esc(p.layer||'')}</span>`;
+          wheelTip.style.display = 'block';
+          wheelTip.style.left = (e.clientX+14)+'px';
+          wheelTip.style.top  = (e.clientY-10)+'px';
+        });
+        wheelAchEl.addEventListener('mouseleave', () => { if (wheelTip) wheelTip.style.display='none'; });
+        wheelAchEl.addEventListener('click', e => {
+          const dot = e.target.closest('.wheel-ach-dot');
+          if (!dot) return;
+          const p = _paintByKey.get(dot.dataset.key);
+          if (p) _wheelJumpToPaint(p);
+        });
+      }
     }
 
     function esc(str) {
@@ -177,16 +355,18 @@
       });
     });
 
-    searchEl.addEventListener('input', render);
-    filterBrand.addEventListener('change', render);
-    filterColor.addEventListener('change', render);
-    filterLayer.addEventListener('change', render);
+    const _invRender = () => wheelActive ? renderWheel() : render();
+
+    searchEl.addEventListener('input', _invRender);
+    filterBrand.addEventListener('change', _invRender);
+    filterColor.addEventListener('change', _invRender);
+    filterLayer.addEventListener('change', _invRender);
 
     if (flaggedBtn) {
       flaggedBtn.addEventListener('click', () => {
         stockFilter = !stockFilter;
         flaggedBtn.classList.toggle('active', stockFilter);
-        render();
+        _invRender();
       });
     }
 
@@ -199,8 +379,54 @@
       sortDir = 1;
       stockFilter = false;
       if (flaggedBtn) flaggedBtn.classList.remove('active');
-      render();
+      _invRender();
     });
+
+    const wheelCopyBtn = document.getElementById('inv-wheel-copy');
+
+    function _wheelUrl() {
+      const u = new URL(location.href);
+      u.searchParams.set('tab', 'inventory');
+      u.searchParams.set('wheel', '1');
+      return u.toString();
+    }
+
+    function _setWheelUrlState(on) {
+      const u = new URL(location.href);
+      if (on) { u.searchParams.set('tab', 'inventory'); u.searchParams.set('wheel', '1'); }
+      else     { u.searchParams.delete('wheel'); }
+      history.replaceState(null, '', u.toString());
+      if (wheelCopyBtn) wheelCopyBtn.style.display = on ? '' : 'none';
+    }
+
+    if (wheelBtn) {
+      wheelBtn.addEventListener('click', () => {
+        wheelActive = !wheelActive;
+        wheelBtn.classList.toggle('active', wheelActive);
+        _setWheelUrlState(wheelActive);
+        if (wheelActive) {
+          table.style.display = 'none';
+          emptyEl.style.display = 'none';
+          if (wheelView) wheelView.style.display = 'block';
+          renderWheel();
+        } else {
+          if (wheelView)  wheelView.style.display = 'none';
+          if (wheelTip)   wheelTip.style.display  = 'none';
+          render();
+        }
+      });
+    }
+
+    if (wheelCopyBtn) {
+      wheelCopyBtn.style.display = 'none';
+      wheelCopyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(_wheelUrl()).then(() => {
+          const prev = wheelCopyBtn.textContent;
+          wheelCopyBtn.textContent = '✓';
+          setTimeout(() => { wheelCopyBtn.textContent = prev; }, 1500);
+        });
+      });
+    }
 
     MODELS.forEach(m => {
       const mc = Math.max(1, parseInt(m.count || 1, 10));
@@ -212,6 +438,17 @@
 
     // Initial render - must be after MODELS loop so paintUsage is populated
     render();
+
+    // Auto-activate wheel view if ?wheel=1 in URL
+    if (new URLSearchParams(location.search).get('wheel') === '1') {
+      wheelActive = true;
+      if (wheelBtn) wheelBtn.classList.add('active');
+      _setWheelUrlState(true);
+      table.style.display = 'none';
+      emptyEl.style.display = 'none';
+      if (wheelView) wheelView.style.display = 'block';
+      renderWheel();
+    }
 
     // Returns the full effective paint list for a scheme: own colors + step paints from referenced recipes (deduped).
     // _RECIPE_BY_ID is set lazily by the Recipes IIFE; falls back to own colors when recipes aren't loaded yet.
@@ -937,6 +1174,26 @@
     }
 
     function _hexToRgb(h) { return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]; }
+
+    function hexToHsl(hex) {
+      let [r,g,b] = _hexToRgb(hex);
+      r/=255; g/=255; b/=255;
+      const max=Math.max(r,g,b), min=Math.min(r,g,b), l=(max+min)/2;
+      if (max===min) return [0,0,Math.round(l*100)];
+      const d=max-min, s=d/(l>0.5?2-max-min:max+min);
+      let h=max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4;
+      return [h*60, Math.round(s*100), Math.round(l*100)];
+    }
+
+
+    function getHue(p) {
+      if (_ACHROMATIC_CATS.has(p.color)) return null;
+      if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) {
+        const [h,s] = hexToHsl(p.hex);
+        if (s >= 8) return h;
+      }
+      return _CAT_HUE[p.color] !== undefined ? _CAT_HUE[p.color] : null;
+    }
 
     function nearestOwnedHex(paintKey) {
       const uk = upgradeKey(paintKey).toLowerCase();
