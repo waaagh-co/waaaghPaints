@@ -196,7 +196,10 @@
         return _L_DEFAULTS[p.color] || 50;
       }
       function _hue(p) {
-        if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) return hexToHsl(p.hex)[0];
+        if (p.hex && /^#[0-9a-f]{6}$/i.test(p.hex)) {
+          const [h, s] = hexToHsl(p.hex);
+          return s < 5 ? 210 : h;
+        }
         return _H_DEFAULTS[p.color] ?? 0;
       }
       const byHueThenLight = arr => [...arr].sort((a, b) => {
