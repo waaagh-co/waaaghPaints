@@ -1,4 +1,5 @@
 <?php
+@ini_set('display_errors', '0');
 require_once __DIR__ . '/config.php';
 if (!defined('ADMIN_FILENAME')) define('ADMIN_FILENAME', 'admin.php');
 if (!function_exists('mb_substr'))    { function mb_substr($s,$start,$len=null)  { return $len===null ? substr($s,$start) : substr($s,$start,$len); } }
@@ -30,6 +31,9 @@ define('FORCES_FILE',    __DIR__ . '/data/forces.json');
 define('WISHLIST_FILE',  __DIR__ . '/data/wishlist.json');
 define('BATTLES_FILE',   __DIR__ . '/data/battles.json');
 define('GOALS_FILE',     __DIR__ . '/data/goals.json');
+
+const BENCH_STAGES    = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
+const BENCH_MAX_IMAGES = 8;
 
 function e(string $s): string
 {
@@ -499,15 +503,22 @@ if ($authed && ($_POST['action'] ?? '') === 'delete_planned') {
 
 if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
   header('Content-Type: application/json');
+  register_shutdown_function(function() {
+    $e = error_get_last();
+    if ($e && in_array($e['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE], true)) {
+      while (ob_get_level()) ob_end_clean();
+      echo json_encode(['ok' => false, 'error' => 'fatal: ' . $e['message'] . ' in ' . $e['file'] . ':' . $e['line']]);
+    }
+  });
+  ob_start();
   $pid = trim($_POST['planned_id'] ?? '');
-  if (!$pid) { echo json_encode(['ok' => false]); exit; }
+  if (!$pid) { ob_end_clean(); echo json_encode(['ok' => false, 'error' => 'no id']); exit; }
   $all = file_exists(PLANNED_FILE) ? (json_decode(file_get_contents(PLANNED_FILE), true) ?? []) : [];
   $found = false;
   $eName = $eFaction = $eSystem = '';
   $eColors = $eRecipes = [];
-  foreach ($all as &$p) {
+  foreach ($all as $p) {
     if ($p['id'] === $pid && empty($p['promoted_to'])) {
-      $p['promoted_to'] = 'bench';
       $eName    = $p['name']    ?? '';
       $eFaction = $p['faction'] ?? '';
       $eSystem  = $p['system']  ?? '';
@@ -517,9 +528,7 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
       break;
     }
   }
-  unset($p);
-  if (!$found) { echo json_encode(['ok' => false]); exit; }
-  file_put_contents(PLANNED_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  if (!$found) { ob_end_clean(); echo json_encode(['ok' => false, 'error' => 'not found or already promoted']); exit; }
   $newId = (string)(time() + rand(0, 9));
   $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
   $entry = ['id' => $newId, 'name' => $eName, 'stage' => 'built', 'last_touched' => date('Y-m-d'), 'date_start' => date('Y-m-d')];
@@ -529,7 +538,18 @@ if ($authed && ($_POST['action'] ?? '') === 'promote_planned') {
   if ($eRecipes) $entry['recipes'] = $eRecipes;
   $bench[] = $entry;
   benchSort($bench);
-  file_put_contents(BENCH_FILE, json_encode(array_values($bench), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  $benchJson = json_encode(array_values($bench), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  if ($benchJson === false || file_put_contents(BENCH_FILE, $benchJson, LOCK_EX) === false) {
+    ob_end_clean();
+    echo json_encode(['ok' => false, 'error' => 'bench write failed: ' . json_last_error_msg()]);
+    exit;
+  }
+  foreach ($all as &$p) {
+    if ($p['id'] === $pid) { $p['promoted_to'] = 'bench'; break; }
+  }
+  unset($p);
+  file_put_contents(PLANNED_FILE, json_encode(array_values($all), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  ob_end_clean();
   echo json_encode(['ok' => true]);
   exit;
 }
@@ -1345,9 +1365,6 @@ if ($authed && ($_POST['action'] ?? '') === 'set_supply_condition') {
   }
   exit;
 }
-
-const BENCH_STAGES = ['built', 'primed', 'basecoated', 'washed', 'highlighted', 'based', 'varnished', 'done'];
-const BENCH_MAX_IMAGES = 8;
 
 function benchSort(array &$arr): void
 {
