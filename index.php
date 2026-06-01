@@ -1499,21 +1499,21 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               <div class="ci-sub" style="margin-top:6px">Duration tracking activates as you cycle stages in admin.</div>
             <?php else: ?><div class="ci-sub">No active bench projects.</div><?php endif; ?>
             <?php
-              $_stageShort = ['built'=>'Blt','primed'=>'Pri','basecoated'=>'Bc','washed'=>'Wa','highlighted'=>'Hi','based'=>'Ba','varnished'=>'Vn'];
+              $_stageShort = ['built'=>'Blt','primed'=>'Pri','basecoated'=>'Bsc','washed'=>'Wsh','highlighted'=>'Hlt','based'=>'Bsd','varnished'=>'Vrn'];
               $_barStages = array_keys($_stageShort);
               $_barAvgs = array_filter(array_intersect_key($ciBottleneck['stage_avgs'] ?? [], array_flip($_barStages)), fn($v) => $v !== null);
               $_maxBar = !empty($_barAvgs) ? max($_barAvgs) : 0;
               $_pipeTotal = array_sum($_barAvgs);
             ?>
             <?php if ($_maxBar > 0): ?>
-            <div class="ci-dow-chart" style="height:60px;margin:12px 0 4px">
+            <div class="ci-dow-chart" style="margin:12px 0 4px">
               <?php foreach ($_barStages as $_sb):
                 $bav = $ciBottleneck['stage_avgs'][$_sb] ?? null;
-                $bpct = $bav !== null ? max(6,(int)round($bav / $_maxBar * 100)) : 0;
+                $bpx = $bav !== null ? max(4,(int)round($bav / $_maxBar * 44)) : 2;
                 $bisWorst = $_sb === $ciBottleneck['worst_stage'];
               ?>
               <div class="ci-dow-bar-wrap" title="<?= ucfirst($_sb) ?>: <?= $bav !== null ? $bav.'d avg' : 'no data' ?>">
-                <div class="ci-dow-bar <?= $bisWorst ? 'best' : ($bav !== null ? '' : '') ?>" style="height:<?= $bpct ?>%;<?= $bav === null ? 'opacity:.2' : '' ?>"></div>
+                <div class="ci-dow-bar <?= $bisWorst ? 'best' : '' ?>" style="height:<?= $bpx ?>px;<?= $bav === null ? 'opacity:.15' : '' ?>"></div>
                 <div class="ci-dow-lbl"><?= $_stageShort[$_sb] ?></div>
               </div>
               <?php endforeach; ?>
