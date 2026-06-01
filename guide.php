@@ -256,6 +256,7 @@ if (empty($_SESSION['admin'])) {
 
     <h3>The Commissar tab</h3>
     <p>A personalised tactical intelligence briefing drawn from all your data at once. Always visible in the sidebar under <strong>Your Armies</strong>.</p>
+    <p>Below the hero banner, a <strong>Campaign Honours</strong> strip displays your earned milestones as colour-coded badges across 11 categories: gold for models painted, amber for bench sessions, green for completed bench projects, orange for rescues, muted red for Pile of Shame, purple for recipes, crimson for battles, dark green for forces, warm gold for scrap notes, blue for codices, and teal for paints owned. Each unlocked badge shows its name and a short flavour line. Locked milestones appear dim so you can see what's still to earn. The strip header shows how many you've unlocked out of the full 37.</p>
     <ul>
       <li><strong>Next Orders</strong> - your top 5 highest-priority painting tasks, scored automatically by how close to done each bench project or planned scheme is, whether all paints are in stock, and how long since you last touched it. Reason pills explain each score: "final stage," "fully stocked," "neglected 42d," etc.</li>
       <li><strong>Shame Debt</strong> - the pile-of-shame acquisition rate vs completion rate, net velocity (growing or shrinking), and estimated months to clear (when the pile is shrinking). Status breakdown across sealed / opened / partial boxes.</li>

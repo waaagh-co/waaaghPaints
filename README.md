@@ -54,6 +54,7 @@ collapsible left-rail sidebar grouped into four sections.
 - **Forces & Rosters** - group painted schemes into named game rosters with readiness progress
 - **Battle Honours** - log every game played with result, opponent, army, mission, and notes; W/L/D record shown on force cards
 - **The Commissar's Dossier** - tactical intelligence briefing mined from all your data: next painting orders scored by stage and readiness, shame pile velocity, best painting day-of-week, stage bottleneck analysis, force completion forecasts, battle win rates per army, and supply risk flagging for high-use paints running low
+- **Campaign Honours** - 37 milestones unlocked from your own data across 11 categories: models painted, bench sessions, bench completions, battles, forces, recipes, paints owned, shame pile, rescues, scrap notes, and codices. Colour-coded medal strip on The Commissar tab between the hero and the intelligence grid. Locked milestones shown dim so you always know what to aim for next
 - **Pile of Shame** - track unbuilt boxes; promote to Planned or Bench when ready
 - **Rescue Tracker** - track eBay finds and second-hand minis through bidding, shipping, receiving, stripping, and prep before they hit the bench; before-photos capture condition on arrival; model counts feed into total ownership stats; promote to Bench or Shame when ready
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit

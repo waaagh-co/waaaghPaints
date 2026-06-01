@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=96">
+  <link rel="stylesheet" href="styles.css?v=97">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -783,6 +783,72 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       $cnt_hex      = count(array_filter($paints, fn($p) => !empty($p['hex'])));
       $cnt_eq       = count($conversionsData);
 
+      // === MILESTONES ===
+      $_msTotalSessions = 0;
+      if ($hasBench) { foreach ($benchData as $_msb) { $_msTotalSessions += count($_msb['sessions'] ?? []); } }
+      $_msShameAll   = $hasShame   ? count($shameData)   : 0;
+      $_msBattleAll  = $hasBattles ? count($battlesData) : 0;
+      $_msRecipeAll  = $hasRecipes ? count($recipesData) : 0;
+      $_msBenchDone  = $hasBench   ? count(array_filter($benchData, fn($b) => ($b['stage'] ?? '') === 'done' || !empty($b['promoted_to']))) : 0;
+      $_msForceAll   = $hasForces  ? count($forcesData)  : 0;
+      $_msJournalAll = $hasJournal ? count($journalData) : 0;
+      $_msBookAll    = $hasBooks   ? count($booksData)   : 0;
+      $_msRescueAll  = isset($rescuesData) ? count($rescuesData) : 0;
+      $_msDefs = [
+        // Models painted
+        ['cat'=>'brush',   'name'=>'First Coat',            'req'=>$cnt_models_painted, 'val'=>1,   'flavor'=>'Every legend begins with a single brushstroke.'],
+        ['cat'=>'brush',   'name'=>'Squad Ready',            'req'=>$cnt_models_painted, 'val'=>10,  'flavor'=>'A fire team, blooded and ready.'],
+        ['cat'=>'brush',   'name'=>'Platoon Strength',       'req'=>$cnt_models_painted, 'val'=>25,  'flavor'=>"They've started calling you Sergeant."],
+        ['cat'=>'brush',   'name'=>'Full Company',           'req'=>$cnt_models_painted, 'val'=>50,  'flavor'=>'The muster rolls grow longer. Good.'],
+        ['cat'=>'brush',   'name'=>'Crusade Force',          'req'=>$cnt_models_painted, 'val'=>100, 'flavor'=>"The Emperor's work is never done."],
+        ['cat'=>'brush',   'name'=>'Legionary',              'req'=>$cnt_models_painted, 'val'=>250, 'flavor'=>'Numbers that would make a Space Marine jealous.'],
+        ['cat'=>'brush',   'name'=>'Daemon Prince',          'req'=>$cnt_models_painted, 'val'=>500, 'flavor'=>'You have ascended beyond mortal patience.'],
+        // Bench sessions
+        ['cat'=>'time',    'name'=>'First Blood',            'req'=>$_msTotalSessions,   'val'=>1,   'flavor'=>'The brushes are wet. Begin.'],
+        ['cat'=>'time',    'name'=>'On Campaign',            'req'=>$_msTotalSessions,   'val'=>10,  'flavor'=>"You don't just talk about painting."],
+        ['cat'=>'time',    'name'=>'Veteran Painter',        'req'=>$_msTotalSessions,   'val'=>25,  'flavor'=>'Your palms have permanent paint stains. Worthy.'],
+        ['cat'=>'time',    'name'=>'Iron Will',              'req'=>$_msTotalSessions,   'val'=>50,  'flavor'=>'Fifty sessions. No excuses. No quarter.'],
+        ['cat'=>'time',    'name'=>'Legendary Hobbyist',     'req'=>$_msTotalSessions,   'val'=>100, 'flavor'=>'A hundred sessions. The hobby gods have noticed.'],
+        // Bench completions
+        ['cat'=>'done',    'name'=>'First Done',             'req'=>$_msBenchDone,       'val'=>1,   'flavor'=>'One project sees the table. The rest watch jealously.'],
+        ['cat'=>'done',    'name'=>'Workshop Foreman',       'req'=>$_msBenchDone,       'val'=>5,   'flavor'=>'Five finished. The bench respects you now.'],
+        ['cat'=>'done',    'name'=>'Relentless',             'req'=>$_msBenchDone,       'val'=>10,  'flavor'=>'Ten projects to the table. The pile fears you.'],
+        ['cat'=>'done',    'name'=>'Obsessed',               'req'=>$_msBenchDone,       'val'=>25,  'flavor'=>'Twenty-five done. There is no cure.'],
+        // Pile of Shame
+        ['cat'=>'shame',   'name'=>'Acquired Targets',       'req'=>$_msShameAll,        'val'=>1,   'flavor'=>"It'll get painted. Eventually."],
+        ['cat'=>'shame',   'name'=>'Notorious Collector',    'req'=>$_msShameAll,        'val'=>10,  'flavor'=>"The pile has developed its own personality."],
+        ['cat'=>'shame',   'name'=>'Hoarder Extraordinaire', 'req'=>$_msShameAll,        'val'=>25,  'flavor'=>"Your wallet has filed a formal complaint."],
+        // Rescues
+        ['cat'=>'rescue',  'name'=>'First Rescue',           'req'=>$_msRescueAll,       'val'=>1,   'flavor'=>'Saved from eBay. Honour restored.'],
+        ['cat'=>'rescue',  'name'=>'Salvage Expert',         'req'=>$_msRescueAll,       'val'=>5,   'flavor'=>'Five rescues. The recycling continues.'],
+        // Recipes
+        ['cat'=>'recipe',  'name'=>'Codified Doctrine',      'req'=>$_msRecipeAll,       'val'=>1,   'flavor'=>"If it isn't written down, it didn't happen."],
+        ['cat'=>'recipe',  'name'=>'Artisan',                'req'=>$_msRecipeAll,       'val'=>5,   'flavor'=>'Five recipes. Method over madness.'],
+        ['cat'=>'recipe',  'name'=>'Master Artificer',       'req'=>$_msRecipeAll,       'val'=>10,  'flavor'=>'Your methods are legend. Teach them to no one.'],
+        // Battles
+        ['cat'=>'battle',  'name'=>'Deployed',               'req'=>$_msBattleAll,       'val'=>1,   'flavor'=>'The dice have been cast. No retreat.'],
+        ['cat'=>'battle',  'name'=>'Blooded',                'req'=>$_msBattleAll,       'val'=>10,  'flavor'=>"Ten engagements. You're not new anymore."],
+        ['cat'=>'battle',  'name'=>'Field Commander',        'req'=>$_msBattleAll,       'val'=>25,  'flavor'=>'Twenty-five battles. Tactics forged in blood.'],
+        // Forces
+        ['cat'=>'force',   'name'=>'First Muster',           'req'=>$_msForceAll,        'val'=>1,   'flavor'=>'The roster is open. Fill it.'],
+        ['cat'=>'force',   'name'=>'Fully Deployed',         'req'=>$_msForceAll,        'val'=>3,   'flavor'=>'Three forces ready to take the field.'],
+        // Scrap Notes
+        ['cat'=>'journal', 'name'=>'Field Notes',            'req'=>$_msJournalAll,      'val'=>1,   'flavor'=>'The campaign log begins.'],
+        ['cat'=>'journal', 'name'=>'War Chronicler',         'req'=>$_msJournalAll,      'val'=>25,  'flavor'=>"Twenty-five entries. The lore grows."],
+        // Codices
+        ['cat'=>'book',    'name'=>'Scholar',                'req'=>$_msBookAll,         'val'=>1,   'flavor'=>'Knowledge is power. Guard it well.'],
+        ['cat'=>'book',    'name'=>'Librarian',              'req'=>$_msBookAll,         'val'=>5,   'flavor'=>'Five volumes. A proper collection.'],
+        // Paints owned
+        ['cat'=>'paint',   'name'=>'Well Stocked',           'req'=>$cnt_owned,          'val'=>50,  'flavor'=>'A respectable armoury.'],
+        ['cat'=>'paint',   'name'=>'Paint Addict',           'req'=>$cnt_owned,          'val'=>100, 'flavor'=>'You tell yourself you have enough. You are wrong.'],
+        ['cat'=>'paint',   'name'=>'Full Armoury',           'req'=>$cnt_owned,          'val'=>200, 'flavor'=>'Your pigment collection rivals a manufactorum.'],
+        ['cat'=>'paint',   'name'=>'Impossible Standard',    'req'=>$cnt_owned,          'val'=>300, 'flavor'=>'No one needs this many yellows. No one.'],
+      ];
+      $milestones   = array_map(fn($d) => $d + ['unlocked' => $d['req'] >= $d['val']], $_msDefs);
+      $_msUnlocked  = count(array_filter($milestones, fn($m) => $m['unlocked']));
+      unset($_msDefs, $_msb, $_msTotalSessions, $_msShameAll, $_msBattleAll, $_msRecipeAll,
+            $_msBenchDone, $_msForceAll, $_msJournalAll, $_msBookAll, $_msRescueAll);
+
       // Ready-to-start planned schemes (every paint owned and not out)
       $ownedKeys = [];
       foreach ($paints as $_p) {
@@ -871,8 +937,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <?php endif; ?>
 
-      <?php
-      ?>
       <div class="pipeline-notes-row">
         <div class="pipeline-band">
           <?php if ($curYearGoal > 0): ?>
@@ -1434,6 +1498,21 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         </div>
         <div class="ci-hero-portrait"><img src="img/models/1777377286_1.jpg" alt="The Commissar" loading="lazy"></div>
       </div>
+
+      <?php if (!empty($milestones)): ?>
+      <div class="ms-strip ms-commissar">
+        <div class="ms-strip-hd">Campaign Honours &mdash; <?= $_msUnlocked ?> of <?= count($milestones) ?> earned</div>
+        <div class="ms-badges">
+          <?php foreach ($milestones as $_ms): ?>
+          <div class="ms-badge<?= $_ms['unlocked'] ? ' ms-unlocked ms-cat-' . $_ms['cat'] : ' ms-locked' ?>">
+            <span class="ms-name"><?= htmlspecialchars($_ms['name']) ?></span>
+            <?php if ($_ms['unlocked']): ?><span class="ms-flavor"><?= htmlspecialchars($_ms['flavor']) ?></span><?php endif; ?>
+          </div>
+          <?php endforeach; unset($_ms); ?>
+        </div>
+      </div>
+      <?php endif; ?>
+
       <div class="ci-grid">
         <div class="ci-card ci-full">
           <div class="ci-card-hd">&#9876; Next Orders</div>

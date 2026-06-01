@@ -6357,3 +6357,37 @@
 .restock-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 290; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .15s; }
 .restock-overlay.open { opacity: 1; pointer-events: all; }
 .shop-wanted { color: #4a8ab8; border-color: #1a3a5a; }
+
+/* ── Campaign Honours / Milestones ──────────────────────────── */
+.ms-strip { padding: 8px 14px 10px; border-bottom: 1px solid #1a1408; background: #08070504; }
+.ms-strip-hd { font-family: var(--font-heading); font-size: .5rem; letter-spacing: .2em; color: #4a3a18; text-transform: uppercase; margin-bottom: 7px; text-align: center; }
+.ms-badges { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.ms-badge { padding: 5px 9px; border: 1px solid #1a1408; border-radius: 2px; display: flex; flex-direction: column; min-width: 90px; max-width: 160px; }
+.ms-badge.ms-locked { opacity: .2; filter: grayscale(1); }
+.ms-name { font-family: var(--font-heading); font-size: .58rem; letter-spacing: .04em; color: #4a3a18; line-height: 1.2; }
+.ms-flavor { font-size: .53rem; color: #4a3a18; font-style: italic; margin-top: 3px; line-height: 1.35; }
+.ms-badge.ms-unlocked { border-color: #4a3a10; background: #0e0b06; }
+.ms-badge.ms-unlocked .ms-name { color: #c9a227; }
+.ms-badge.ms-unlocked .ms-flavor { color: #6a5828; }
+.ms-cat-brush.ms-unlocked  { border-color: #5a4010; }
+.ms-cat-time.ms-unlocked   { border-color: #4a4010; }
+.ms-cat-time.ms-unlocked   .ms-name { color: #d4b840; }
+.ms-cat-shame.ms-unlocked  { border-color: #5a2010; }
+.ms-cat-shame.ms-unlocked  .ms-name { color: #c07878; }
+.ms-cat-recipe.ms-unlocked { border-color: #3a1a5a; }
+.ms-cat-recipe.ms-unlocked .ms-name { color: #a888d8; }
+.ms-cat-battle.ms-unlocked { border-color: #6a1010; }
+.ms-cat-battle.ms-unlocked .ms-name { color: #d05858; }
+.ms-cat-paint.ms-unlocked  { border-color: #1a4a4a; }
+.ms-cat-paint.ms-unlocked  .ms-name { color: #60c0c0; }
+.ms-cat-done.ms-unlocked   { border-color: #1a4a20; }
+.ms-cat-done.ms-unlocked   .ms-name { color: #60c880; }
+.ms-cat-force.ms-unlocked  { border-color: #1a3a10; }
+.ms-cat-force.ms-unlocked  .ms-name { color: #80b840; }
+.ms-cat-journal.ms-unlocked { border-color: #4a3a10; }
+.ms-cat-journal.ms-unlocked .ms-name { color: #c8a060; }
+.ms-cat-book.ms-unlocked   { border-color: #1a2a5a; }
+.ms-cat-book.ms-unlocked   .ms-name { color: #7898e0; }
+.ms-cat-rescue.ms-unlocked { border-color: #5a3010; }
+.ms-cat-rescue.ms-unlocked .ms-name { color: #d08040; }
+.ms-commissar { border-bottom: none; border-top: 1px solid #2a1e08; background: transparent; padding: 12px 14px 8px; }
