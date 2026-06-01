@@ -437,8 +437,28 @@ if ($hasBench) {
   $_sAvg = []; foreach ($_sDL as $st2 => $dl) $_sAvg[$st2] = count($dl) > 0 ? round(array_sum($dl)/count($dl),1) : null;
   $_sAvgF = array_filter($_sAvg, fn($v) => $v !== null); arsort($_sAvgF);
   $_worst = !empty($_sAvgF) ? array_key_first($_sAvgF) : null;
-  $ciBottleneck = ['stage_avgs'=>$_sAvg,'worst_stage'=>$_worst,'worst_days'=>$_worst ? ($_sAvgF[$_worst] ?? null) : null,'current_counts'=>$_sCurr];
-  unset($_stOrd,$_sDL,$_sCurr,$_bsb,$stg,$hist2,$pd,$ps,$_hh,$dys,$_sAvg,$st2,$dl,$_sAvgF,$_worst);
+  // Implied: avg days since date_start for projects currently at each stage (useful when no history)
+  $_sImpl = array_fill_keys(['built','primed','basecoated','washed','highlighted','based','varnished','done'], []);
+  $_tod = date('Y-m-d');
+  foreach ($benchData as $_bib) {
+    $stg2 = $_bib['stage'] ?? 'built'; $ds2 = $_bib['date_start'] ?? null;
+    if ($ds2 && isset($_sImpl[$stg2])) { $di = max(0,(int)round((strtotime($_tod)-strtotime($ds2))/86400)); if ($di < 730) $_sImpl[$stg2][] = $di; }
+  }
+  $_sImplAvg = []; foreach ($_sImpl as $si => $dli) $_sImplAvg[$si] = count($dli) > 0 ? (int)round(array_sum($dli)/count($dli)) : null;
+  $_sCurrActive = array_diff_key($_sCurr, ['done' => true]);
+  arsort($_sCurrActive); $_modeStage = !empty($_sCurrActive) && max($_sCurrActive) > 0 ? array_key_first($_sCurrActive) : null;
+  // Stalled: non-done projects untouched >= 7 days
+  $_stalled = [];
+  foreach ($benchData as $_bst) {
+    if (($_bst['stage'] ?? 'built') === 'done' || !empty($_bst['promoted_to'])) continue;
+    $lt2 = $_bst['last_touched'] ?? null;
+    if (!$lt2) continue;
+    $dstall = max(0,(int)round((strtotime($_tod)-strtotime($lt2))/86400));
+    if ($dstall >= 7) $_stalled[] = ['name'=>$_bst['name'],'stage'=>$_bst['stage']??'built','days'=>$dstall];
+  }
+  usort($_stalled, fn($a,$b) => $b['days']-$a['days']);
+  $ciBottleneck = ['stage_avgs'=>$_sAvg,'worst_stage'=>$_worst,'worst_days'=>$_worst ? ($_sAvgF[$_worst] ?? null) : null,'current_counts'=>$_sCurr,'implied_avgs'=>$_sImplAvg,'mode_stage'=>$_modeStage,'stalled'=>array_slice($_stalled,0,4)];
+  unset($_stOrd,$_sDL,$_sCurr,$_bsb,$stg,$hist2,$pd,$ps,$_hh,$dys,$_sAvg,$st2,$dl,$_sAvgF,$_worst,$_sImpl,$_tod,$_bib,$stg2,$ds2,$di,$_sImplAvg,$si,$dli,$_sCurrActive,$_modeStage,$_stalled,$_bst,$lt2,$dstall);
 }
 
 if ($hasBattles && !empty($battlesData)) {
@@ -1471,13 +1491,54 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             <div class="ci-card-hd">Stage Bottleneck</div>
             <?php if ($ciBottleneck['worst_stage']): ?>
               <div class="ci-big" style="font-size:1.1rem;text-transform:uppercase;"><?= htmlspecialchars($ciBottleneck['worst_stage']) ?></div>
-              <div class="ci-label">avg <?= $ciBottleneck['worst_days'] ?> days &middot; longest stage</div>
-            <?php else: ?><div class="ci-sub">Not enough stage history yet.</div><?php endif; ?>
+              <div class="ci-label">avg <?= $ciBottleneck['worst_days'] ?> days &middot; longest stage (from transition history)</div>
+            <?php elseif ($ciBottleneck['mode_stage']): ?>
+              <?php $mStg = $ciBottleneck['mode_stage']; $mCnt = $ciBottleneck['current_counts'][$mStg] ?? 0; $mDays = $ciBottleneck['implied_avgs'][$mStg] ?? null; ?>
+              <div class="ci-big" style="font-size:1.1rem;text-transform:uppercase;"><?= htmlspecialchars(ucfirst($mStg)) ?></div>
+              <div class="ci-label"><?= $mCnt ?> project<?= $mCnt !== 1 ? 's' : '' ?> currently here<?= $mDays !== null ? ' &middot; avg ' . $mDays . ' days since start' : '' ?></div>
+              <div class="ci-sub" style="margin-top:6px">Duration tracking activates as you cycle stages in admin.</div>
+            <?php else: ?><div class="ci-sub">No active bench projects.</div><?php endif; ?>
+            <?php
+              $_stageShort = ['built'=>'Blt','primed'=>'Pri','basecoated'=>'Bc','washed'=>'Wa','highlighted'=>'Hi','based'=>'Ba','varnished'=>'Vn'];
+              $_barStages = array_keys($_stageShort);
+              $_barAvgs = array_filter(array_intersect_key($ciBottleneck['stage_avgs'] ?? [], array_flip($_barStages)), fn($v) => $v !== null);
+              $_maxBar = !empty($_barAvgs) ? max($_barAvgs) : 0;
+              $_pipeTotal = array_sum($_barAvgs);
+            ?>
+            <?php if ($_maxBar > 0): ?>
+            <div class="ci-dow-chart" style="height:60px;margin:12px 0 4px">
+              <?php foreach ($_barStages as $_sb):
+                $bav = $ciBottleneck['stage_avgs'][$_sb] ?? null;
+                $bpct = $bav !== null ? max(6,(int)round($bav / $_maxBar * 100)) : 0;
+                $bisWorst = $_sb === $ciBottleneck['worst_stage'];
+              ?>
+              <div class="ci-dow-bar-wrap" title="<?= ucfirst($_sb) ?>: <?= $bav !== null ? $bav.'d avg' : 'no data' ?>">
+                <div class="ci-dow-bar <?= $bisWorst ? 'best' : ($bav !== null ? '' : '') ?>" style="height:<?= $bpct ?>%;<?= $bav === null ? 'opacity:.2' : '' ?>"></div>
+                <div class="ci-dow-lbl"><?= $_stageShort[$_sb] ?></div>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <?php if ($_pipeTotal > 0): ?>
+            <div class="ci-sub" style="margin-bottom:10px">Est. <?= (int)$_pipeTotal ?>d built &rarr; varnished based on history</div>
+            <?php endif; ?>
+            <?php endif; ?>
             <div class="ci-stage-dist">
               <?php foreach (['built','primed','basecoated','washed','highlighted','based','varnished','done'] as $_stpip): $cnt3 = $ciBottleneck['current_counts'][$_stpip] ?? 0; ?>
                 <span class="ci-stage-pip <?= $cnt3 > 0 ? 'has-models' : '' ?>"><?= ucfirst($_stpip) ?><?= $cnt3 > 0 ? ' <strong>'.$cnt3.'</strong>' : '' ?></span>
               <?php endforeach; ?>
             </div>
+            <?php if (!empty($ciBottleneck['stalled'])): ?>
+            <div style="margin-top:10px;border-top:1px solid #1a1408;padding-top:8px">
+              <div style="font-size:.58rem;letter-spacing:.1em;color:#5a4020;text-transform:uppercase;margin-bottom:6px">Untouched Projects</div>
+              <?php foreach ($ciBottleneck['stalled'] as $_stl): ?>
+              <div class="ci-risk-item">
+                <span style="flex:1;font-size:.68rem"><?= htmlspecialchars($_stl['name']) ?></span>
+                <span style="font-size:.6rem;color:#4a3a18;margin-right:6px"><?= htmlspecialchars(ucfirst($_stl['stage'])) ?></span>
+                <span class="<?= $_stl['days'] >= 30 ? 'ci-risk-out' : 'ci-risk-low' ?>"><?= $_stl['days'] ?>d</span>
+              </div>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
           </div>
         <?php else: ?>
           <div class="ci-card"><div class="ci-card-hd">Stage Bottleneck</div><p class="ci-sub">No bench data.</p></div>
