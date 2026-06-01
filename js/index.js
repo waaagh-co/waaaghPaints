@@ -993,115 +993,109 @@
       }).join('');
     }
 
-    function openWarpaint(mId) {
-      const m = MODELS.find(function(x) { return x.id === mId; });
-      if (!m) return;
-      _wpId = mId;
-      _wpImgIdx = 0;
+    const _WP_TECH = {basecoat:'Basecoat',wash:'Wash',shade:'Shade',layer:'Layer',edge:'Edge',highlight:'Highlight',glaze:'Glaze',drybrush:'Drybrush',stipple:'Stipple',blend:'Blend',special:'Special'};
 
-      const imgs = m.images || [];
+    function _wpSetImages(imgs) {
       const mainImg = document.getElementById('wp-main-img');
-      const noImg = document.getElementById('wp-no-img');
-      const thumbsEl = document.getElementById('wp-thumbs');
-
+      const noImg   = document.getElementById('wp-no-img');
+      const thumbs  = document.getElementById('wp-thumbs');
       if (imgs.length) {
-        mainImg.src = imgs[0];
-        mainImg.style.display = '';
-        noImg.style.display = 'none';
-        thumbsEl.innerHTML = imgs.length > 1 ? imgs.map(function(src, i) { return `<img class="wp-thumb${i === 0 ? ' active' : ''}" src="${esc(src)}" data-src="${esc(src)}" data-idx="${i}" alt="">`; }).join('') : '';
-        thumbsEl.style.display = imgs.length > 1 ? '' : 'none';
+        mainImg.src = imgs[0]; mainImg.style.display = ''; noImg.style.display = 'none';
+        thumbs.innerHTML = imgs.length > 1 ? imgs.map(function(src,i){ return `<img class="wp-thumb${i===0?' active':''}" src="${esc(src)}" data-src="${esc(src)}" data-idx="${i}" alt="">`; }).join('') : '';
+        thumbs.style.display = imgs.length > 1 ? '' : 'none';
       } else {
-        mainImg.src = '';
-        mainImg.style.display = 'none';
-        noImg.style.display = 'flex';
-        thumbsEl.innerHTML = '';
-        thumbsEl.style.display = 'none';
+        mainImg.src = ''; mainImg.style.display = 'none'; noImg.style.display = 'flex';
+        thumbs.innerHTML = ''; thumbs.style.display = 'none';
       }
+    }
 
-      document.getElementById('wp-scheme-name').textContent = m.name;
-      let badges = '';
-      if (m.system && typeof SYS_COLORS !== 'undefined') badges += `<span class="sys-game-badge" style="background:${SYS_COLORS[m.system] || '#2a2a2a'}">${esc(m.system)}</span>`;
-      if (m.faction) badges += ` <span class="faction-tag">${esc(m.faction)}</span>`;
-      document.getElementById('wp-badges').innerHTML = badges;
-
-      const TECH = {basecoat:'Basecoat',wash:'Wash',shade:'Shade',layer:'Layer',edge:'Edge',highlight:'Highlight',glaze:'Glaze',drybrush:'Drybrush',stipple:'Stipple',blend:'Blend',special:'Special'};
-      let html = '';
-
-      if (m.summary) {
-        const rows = [['Finish', m.summary.finish], ['Primary', m.summary.primary], ['Contrast', m.summary.contrast], ['Technique', m.summary.technique]].filter(function(r) { return r[1]; });
-        if (rows.length) html += `<div class="wp-summary">${rows.map(function(r) { return `<span class="wp-sum-lbl">${esc(r[0])}</span><span class="wp-sum-val">${esc(r[1])}</span>`; }).join('')}</div>`;
-      }
-
-      if (m.description) html += `<div class="wp-desc">${formatWPDesc(m.description)}</div>`;
-
-      const recipes = m.recipes && window._RECIPE_BY_ID ? m.recipes.map(function(id) { return window._RECIPE_BY_ID.get(id); }).filter(Boolean) : [];
+    function _wpRecipePalette(recipeIds, colors, paletteLabel) {
+      const recipes = (recipeIds && window._RECIPE_BY_ID) ? recipeIds.map(function(id){ return window._RECIPE_BY_ID.get(id); }).filter(Boolean) : [];
       const recipePaintKeys = new Set();
+      let html = '';
       recipes.forEach(function(r) {
-        html += `<div class="wp-recipe">`;
-        html += `<div class="wp-recipe-hd"><span class="wp-recipe-name">${esc(r.name)}${r.category ? ` <span class="wp-recipe-cat">(${esc(r.category)})</span>` : ''}</span>`;
+        html += `<div class="wp-recipe"><div class="wp-recipe-hd"><span class="wp-recipe-name">${esc(r.name)}${r.category ? ` <span class="wp-recipe-cat">(${esc(r.category)})</span>` : ''}</span>`;
         if (r.steps && r.steps.length) html += `<button class="wp-guide-btn" onclick="openRecipeGuide('${esc(r.id)}')">&#9654; Guide</button>`;
         html += `</div>`;
         if (r.description) html += `<div class="wp-recipe-desc">${esc(r.description)}</div>`;
         if (r.steps && r.steps.length) {
           html += `<ol class="wp-steps">`;
           r.steps.forEach(function(s, i) {
-            const parts = (s.paint || '').split('|');
-            const name = parts[1] || s.paint || '';
-            const brand = parts[0] || '';
-            const layer = parts[2] || '';
-            const key = upgradeKey(s.paint || '');
-            recipePaintKeys.add((s.paint || '').toLowerCase());
-            const stock = paintStock.get(key) || '';
-            const owned = paintOwned.has(key);
-            const dotCls = !owned ? 'missing' : (stock === 'out' ? 'out' : (stock === 'low' ? 'low' : 'owned'));
-            const hex = _wpHex(s.paint || '');
-            const swatch = hex ? `<span class="wp-swatch" style="background:${hex}"></span>` : '';
-            const tech = s.technique || 'special';
-            const techLabel = TECH[tech] || tech;
-            const note = s.note ? `<div class="wp-step-note">${esc(s.note)}</div>` : '';
-            const ratio = s.ratio ? ` <span class="wp-step-meta">${esc(s.ratio)}</span>` : '';
-            let mixHtml = '';
-            if (s.mix_paint) {
-              const mp = s.mix_paint.split('|'); const mName = mp[1] || s.mix_paint;
-              const mKey = upgradeKey(s.mix_paint);
-              const mDotCls = !paintOwned.has(mKey) ? 'missing' : (paintStock.get(mKey) === 'out' ? 'out' : paintStock.get(mKey) === 'low' ? 'low' : 'owned');
-              const mHex = _wpHex(s.mix_paint);
-              mixHtml = ` <span class="wp-step-mix"><span class="wp-mix-sep">+</span>${mHex ? `<span class="wp-swatch" style="background:${mHex}"></span>` : ''}<span class="wp-stock-dot wp-dot-${mDotCls}"></span>${esc(mName)}</span>`;
-            }
-            let brushHtml = '';
-            if (s.brush && typeof BRUSHES_DATA !== 'undefined' && BRUSHES_DATA) {
-              const bEntry = BRUSHES_DATA.find(function(x) { return x.id === s.brush; });
-              if (bEntry) brushHtml = `<div class="wp-step-brush">${esc([bEntry.brand, bEntry.series, bEntry.size].filter(Boolean).join(' \xb7 '))}</div>`;
-            }
-            const wpNear = dotCls === 'missing' ? nearestHintHtml(s.paint || '') : '';
-            html += `<li class="wp-step-row"><span class="wp-step-num">${i + 1}</span><span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(techLabel)}</span><div class="wp-step-body"><div class="wp-step-paint"><span class="wp-stock-dot wp-dot-${dotCls}"></span>${swatch}<strong>${esc(name)}</strong><span class="wp-step-brand">${esc(brand)}${layer ? ' \xb7 ' + esc(layer) : ''}</span>${ratio}${mixHtml}</div>${brushHtml}${note}${wpNear}</div></li>`;
+            const parts = (s.paint||'').split('|'); const name=parts[1]||s.paint||''; const brand=parts[0]||''; const layer=parts[2]||'';
+            const key = upgradeKey(s.paint||''); recipePaintKeys.add((s.paint||'').toLowerCase());
+            const stock=paintStock.get(key)||''; const owned=paintOwned.has(key);
+            const dotCls = !owned?'missing':(stock==='out'?'out':stock==='low'?'low':'owned');
+            const hex=_wpHex(s.paint||''); const swatch=hex?`<span class="wp-swatch" style="background:${hex}"></span>`:'';
+            const tech=s.technique||'special'; const techLabel=_WP_TECH[tech]||tech;
+            const note=s.note?`<div class="wp-step-note">${esc(s.note)}</div>`:'';
+            const ratio=s.ratio?` <span class="wp-step-meta">${esc(s.ratio)}</span>`:'';
+            let mixHtml='';
+            if (s.mix_paint) { const mp=s.mix_paint.split('|'); const mName=mp[1]||s.mix_paint; const mKey=upgradeKey(s.mix_paint); const mDotCls=!paintOwned.has(mKey)?'missing':paintStock.get(mKey)==='out'?'out':paintStock.get(mKey)==='low'?'low':'owned'; const mHex=_wpHex(s.mix_paint); mixHtml=` <span class="wp-step-mix"><span class="wp-mix-sep">+</span>${mHex?`<span class="wp-swatch" style="background:${mHex}"></span>`:''}<span class="wp-stock-dot wp-dot-${mDotCls}"></span>${esc(mName)}</span>`; }
+            let brushHtml='';
+            if (s.brush&&typeof BRUSHES_DATA!=='undefined'&&BRUSHES_DATA) { const bE=BRUSHES_DATA.find(function(x){return x.id===s.brush;}); if(bE) brushHtml=`<div class="wp-step-brush">${esc([bE.brand,bE.series,bE.size].filter(Boolean).join(' \xb7 '))}</div>`; }
+            const wpNear=dotCls==='missing'?nearestHintHtml(s.paint||''):'';
+            html += `<li class="wp-step-row"><span class="wp-step-num">${i+1}</span><span class="recipe-step-tech recipe-tech-${esc(tech)}">${esc(techLabel)}</span><div class="wp-step-body"><div class="wp-step-paint"><span class="wp-stock-dot wp-dot-${dotCls}"></span>${swatch}<strong>${esc(name)}</strong><span class="wp-step-brand">${esc(brand)}${layer?' \xb7 '+esc(layer):''}</span>${ratio}${mixHtml}</div>${brushHtml}${note}${wpNear}</div></li>`;
           });
           html += `</ol>`;
         }
         html += `</div>`;
       });
-
-      const palette = (m.colors || []).filter(function(c) { return !recipePaintKeys.has(c.toLowerCase()); });
+      const palette = (colors||[]).filter(function(c){ return !recipePaintKeys.has(c.toLowerCase()); });
       if (palette.length) {
-        html += `<div class="wp-palette-hd">Paint Palette</div><div class="wp-palette">`;
+        html += `<div class="wp-palette-hd">${paletteLabel||'Paint Palette'}</div><div class="wp-palette">`;
         palette.forEach(function(c) {
-          const parts = c.split('|');
-          const name = parts[1] || c;
-          const brand = parts[0] || '';
-          const key = upgradeKey(c);
-          const stock = paintStock.get(key) || '';
-          const owned = paintOwned.has(key);
-          const dotCls = !owned ? 'missing' : (stock === 'out' ? 'out' : (stock === 'low' ? 'low' : 'owned'));
-          const hex = _wpHex(c);
-          const swatch = `<span class="wp-palette-swatch" style="background:${hex || '#2a1e08'}"></span>`;
+          const parts=c.split('|'); const name=parts[1]||c; const brand=parts[0]||''; const key=upgradeKey(c);
+          const stock=paintStock.get(key)||''; const owned=paintOwned.has(key);
+          const dotCls=!owned?'missing':stock==='out'?'out':stock==='low'?'low':'owned';
+          const hex=_wpHex(c); const swatch=`<span class="wp-palette-swatch" style="background:${hex||'#2a1e08'}"></span>`;
           html += `<span class="wp-palette-pill">${swatch}<span class="wp-stock-dot wp-dot-${dotCls}"></span>${esc(name)}<span class="wp-palette-brand">${esc(brand)}</span></span>`;
         });
         html += `</div>`;
       }
+      return html;
+    }
 
+    function openWarpaint(mId) {
+      const m = MODELS.find(function(x) { return x.id === mId; });
+      if (!m) return;
+      _wpId = mId; _wpImgIdx = 0;
+      _wpSetImages(m.images || []);
+      document.getElementById('wp-scheme-name').textContent = m.name;
+      let badges = '';
+      if (m.system && typeof SYS_COLORS !== 'undefined') badges += `<span class="sys-game-badge" style="background:${SYS_COLORS[m.system]||'#2a2a2a'}">${esc(m.system)}</span>`;
+      if (m.faction) badges += ` <span class="faction-tag">${esc(m.faction)}</span>`;
+      document.getElementById('wp-badges').innerHTML = badges;
+      let html = '';
+      if (m.summary) {
+        const rows = [['Finish',m.summary.finish],['Primary',m.summary.primary],['Contrast',m.summary.contrast],['Technique',m.summary.technique]].filter(function(r){return r[1];});
+        if (rows.length) html += `<div class="wp-summary">${rows.map(function(r){return `<span class="wp-sum-lbl">${esc(r[0])}</span><span class="wp-sum-val">${esc(r[1])}</span>`;}).join('')}</div>`;
+      }
+      if (m.description) html += `<div class="wp-desc">${formatWPDesc(m.description)}</div>`;
+      html += _wpRecipePalette(m.recipes, m.colors);
       document.getElementById('wp-content-body').innerHTML = html;
       document.getElementById('wp-pull-btn').onclick = function() { openPull(mId); };
+      document.getElementById('warpaint-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
+    function openBenchWarpaint(bid) {
+      if (typeof BENCH_DATA === 'undefined' || !BENCH_DATA) return;
+      const b = BENCH_DATA.find(function(x) { return x.id === bid; });
+      if (!b) return;
+      _wpId = bid; _wpImgIdx = 0;
+      _wpSetImages(b.wip_images || []);
+      document.getElementById('wp-scheme-name').textContent = b.name;
+      let badges = '';
+      if (b.system && typeof SYS_COLORS !== 'undefined') badges += `<span class="sys-game-badge" style="background:${SYS_COLORS[b.system]||'#2a2a2a'}">${esc(b.system)}</span>`;
+      if (b.faction) badges += ` <span class="faction-tag">${esc(b.faction)}</span>`;
+      const _SLBL = {built:'Built',primed:'Primed',basecoated:'Basecoated',washed:'Washed',highlighted:'Highlighted',based:'Based',varnished:'Varnished',done:'Done'};
+      badges += ` <span class="bench-stage-label stage-${esc(b.stage||'built')}" style="font-size:11px">${esc(_SLBL[b.stage||'built']||b.stage||'built')}</span>`;
+      document.getElementById('wp-badges').innerHTML = badges;
+      let html = '';
+      if (b.notes) html += `<div class="wp-desc">${formatWPDesc(b.notes)}</div>`;
+      html += _wpRecipePalette(b.recipes, b.colors, 'Paint Queue');
+      document.getElementById('wp-content-body').innerHTML = html;
+      document.getElementById('wp-pull-btn').onclick = function() { if (window.openBenchPull) window.openBenchPull(bid); };
       document.getElementById('warpaint-overlay').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -2260,6 +2254,7 @@
             ${brushHtml}
             <div class="card-footer">
               <span class="planned-card-summary">${colors.length} paint${colors.length !== 1 ? 's' : ''}${statusParts.length ? ' - ' + statusParts.join(', ') : ''}</span>
+              <button class="warpaint-btn" onclick="openBenchWarpaint('${esc(b.id || '')}')">&#9876; Warpaint</button>
               ${colors.length ? `<button class="pull-btn planned-pull-btn" onclick="openBenchPull('${esc(b.id || '')}')">Pull list${missing > 0 ? ` <span class="pull-issue-badge">${missing} issue${missing !== 1 ? 's' : ''}</span>` : ''}</button>` : ''}
             </div>
             ${(b.history && b.history.length) ? `<button class="bench-hist-toggle" onclick="const n=this.nextElementSibling;const o=n.classList.toggle('bench-hist-open');this.textContent=o?'Timeline ↑':'Timeline ↓'">Timeline ↓</button><div class="bench-hist-list">${[...b.history].reverse().map(h=>`<div class="bench-hist-row"><span>${esc(STAGE_LABEL[h.from]||h.from)}</span><span class="bench-hist-arrow">→</span><span>${esc(STAGE_LABEL[h.to]||h.to)}</span><span class="bench-hist-when">${esc(daysAgoStr(h.date)||h.date)}</span></div>`).join('')}</div>` : ''}
