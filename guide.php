@@ -306,6 +306,7 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Notes / Stars button</strong> - a pencil icon appears on any paint with notes; a gold ★ appears on any paint with a quality rating. Click either to open a drawer showing the paint's notes and star rating. Both are read-only here - set them in Admin</li>
       <li><strong>Flagged filter</strong> - click the <em>Flagged</em> button in the controls bar to show only paints marked low, out, or wanted. The button turns gold when active - useful for a quick restock check before sitting down to paint. Click again or hit Reset to clear it</li>
       <li><strong>Restock List</strong> - click the <em>Restock List</em> button for a full-screen shopping list of every flagged paint, split into three sections: Out, Low, and Wanted, each grouped by brand. Print or Copy to take it to the hobby shop. The same list is also one tap away from the landing page - the flagged count on the Paint Inventory entry opens it directly</li>
+      <li><strong>Colour Wheel</strong> - click the <em>&#11044; Wheel</em> button to switch from the table to an SVG hue wheel plotting every chromatic paint you own as a coloured dot at its hue position. Gaps in the ring are hues you don't have covered. All active filters (brand, colour, layer, search) apply to the wheel in real time. Hover a dot for a tooltip; click a dot to jump to that paint in the list view. Achromatic paints (metallics, washes, shades, primers, greyscale) appear in grouped swatches below the wheel sorted by hue then lightness. A <em>&#128279; Copy link</em> button lets you share a direct URL that opens straight to the wheel view</li>
     </ul>
     <div class="badge-row">
       <span class="sbadge low">low</span>
@@ -489,6 +490,7 @@ if (empty($_SESSION['admin'])) {
 
     <h3>Installing as an App</h3>
     <p>On Android/Chrome, a banner will offer to install Waaagh! Paint to your home screen as a standalone app - tap <strong>Install</strong>. On iPhone: open in Safari &rarr; Share &rarr; Add to Home Screen.</p>
+    <p><strong>Android home screen widget</strong> - a companion native widget (<a href="https://github.com/waaagh-co/waaaghWidget" target="_blank">WaaaghWidget</a>) shows this week's hobby minutes on your home screen and updates automatically every 30 minutes. Tap the widget to open the web app. Built with Kotlin and WorkManager; sideloaded as an APK. The data comes from <code>widget.php</code> on your server - enter that URL when the widget's config screen appears on first placement.</p>
   </div>
 
   <div class="divider"></div>
@@ -534,6 +536,16 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Delete</strong> - removes the entry with confirmation</li>
     </ul>
     <div class="tip">The annual goal on the Stats page is driven by session logs (+ Baseline seed), not by the entry date or the "Models Painted" count. Log a session each time you finish a batch of models to keep your progress accurate.</div>
+
+    <h3>Paint Catalog</h3>
+    <p>A browse-and-import catalog of every paint in the bundled brand CSV files - ideal for new users who want to quickly populate their inventory without typing every paint manually. Accessible at <code>catalog.php</code> (same admin password) and linked from the admin quicknav under Tools.</p>
+    <ul>
+      <li><strong>Filter bar</strong> - narrow by brand, colour category, layer type, or free-text search across name and hue</li>
+      <li><strong>Hex swatches</strong> - pre-populated from the bundled <code>inventory/paint_hex.json</code> reference; paints without a known hex show a category-colour fallback swatch</li>
+      <li><strong>Owned indicator</strong> - paints already in your inventory are greyed out and pre-checked (but can't be re-imported). Toggle <em>Hide owned</em> to focus on what you still need to add</li>
+      <li><strong>Select visible / Deselect all</strong> - bulk-select all paints matching the current filters, then hit <strong>Import Selected</strong> to add them to your inventory in one go. Hex values are carried through on import so your Colour Wheel works immediately</li>
+      <li><strong>Sortable columns</strong> - click Brand, Name, Colour, or Layer headers to sort</li>
+    </ul>
 
     <h3>Paint Inventory</h3>
     <p>Manage your full paint list.</p>

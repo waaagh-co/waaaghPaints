@@ -33,11 +33,18 @@ collapsible left-rail sidebar grouped into four sections.
 
 ## What it does
 
+- **Paint Catalog** - browse the full catalog of all supported paint brands, filter by brand /
+  colour / layer, and import the paints you own in one click - hex color values pre-populated
+  from the bundled `inventory/paint_hex.json` reference so your colour wheel works from day one.
+  Already-owned paints are greyed out so you can see what you still need to add. Accessible via
+  `catalog.php` (same admin password); linked from the admin quicknav
 - **Paint Inventory** - track every paint you own with stock level (normal/low/out/wanted), hex
   color swatch, quality rating, and freeform notes; **Flagged filter** instantly shows only
   low/out/wanted paints so you know what to restock before sitting down to paint; **Restock List**
   opens a full-screen shopping list (Out / Low / Wanted, grouped by brand) with Print and Copy -
-  also accessible in one tap from the landing page flagged count
+  also accessible in one tap from the landing page flagged count; **Colour Wheel** plots every
+  chromatic paint you own as a dot on a hue wheel so you can see coverage gaps at a glance -
+  toggle via the Wheel button in the controls bar or share a direct `?tab=inventory&wheel=1` link
 - **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
   checklist for repainting (missing paints show a nearest-owned color suggestion via RGB
   hex distance), and **Warpaint Mode** - a full-screen focused reference overlay with large
@@ -205,6 +212,15 @@ All data lives in flat JSON files under `data/`. These are **not** included in t
 | `data/battles.json` | Start Battle Honours button |
 | `data/supplies.json` | Start Supplies Inventory button |
 | `data/rescues.json` | Start Rescue Tracker button |
+
+`inventory/paint_hex.json` ships with the app and contains pre-seeded hex values for all bundled
+paint brands. It is used by `catalog.php` to populate swatches during import and can also be
+used as a hex seed (Admin → Paint Inventory → Apply Hex Seed). Update it by running the
+extraction script after adding new paints with known hex values.
+
+`widget.php` is a lightweight public endpoint returning `{"minutes": N, "updated": "HH:MM"}` -
+the rolling 7-day bench session minute total. Used by the companion Android widget
+([WaaaghWidget](https://github.com/waaagh-co/waaaghWidget)).
 
 Model photos go in `img/models/`; bench WIP photos go in `img/bench/`; rescue before-photos go in `img/rescues/`. All are excluded from git and created automatically on first use.
 

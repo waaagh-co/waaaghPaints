@@ -2550,6 +2550,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <a href="#section-stats" class="as-link">Hobby Stats</a>
         <a href="#section-checker" class="as-link">Paint Checker</a>
         <a href="#section-conversions" class="as-link">Equivalency</a>
+        <a href="catalog.php" target="_blank" class="as-link">Paint Catalog &#8599;</a>
         <a href="guide.php" target="_blank" class="as-link">User Guide &#8599;</a>
       </div>
       <div class="asnav-fade" id="asnav-fade"></div>

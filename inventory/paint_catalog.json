@@ -1,0 +1,2688 @@
+[
+    {
+        "brand": "Army Painter",
+        "name": "Absolution Green",
+        "color": "Green",
+        "hue": "Muted Green",
+        "layer": "Speedpaint",
+        "hex": "#5a7a4a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Air Metallics Night Scales",
+        "color": "Metallic",
+        "hue": "Dark Metallic",
+        "layer": "Airbrush Metallic",
+        "hex": "#3a3a42"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Algae Green",
+        "color": "Green",
+        "hue": "Dark Green",
+        "layer": "Speedpaint",
+        "hex": "#2a4a2a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Ancient Honey",
+        "color": "Yellow",
+        "hue": "Warm Yellow",
+        "layer": "Speedpaint",
+        "hex": "#c89a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Aztec Gold",
+        "color": "Metallic",
+        "hue": "Rich Gold",
+        "layer": "Speedpaint Metallic",
+        "hex": "#b88a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Beowulf Blue",
+        "color": "Blue",
+        "hue": "Deep Blue",
+        "layer": "Speedpaint",
+        "hex": "#2a3a8a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Binding Light",
+        "color": "White",
+        "hue": "Bright White",
+        "layer": "Speedpaint",
+        "hex": "#f0f0e8"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Blood Red",
+        "color": "Red",
+        "hue": "Mid Red",
+        "layer": "Speedpaint",
+        "hex": "#b81a1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Bony Matter",
+        "color": "Brown",
+        "hue": "Bone Beige",
+        "layer": "Speedpaint",
+        "hex": "#cab87e"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Brazen Copper",
+        "color": "Metallic",
+        "hue": "Copper",
+        "layer": "Speedpaint Metallic",
+        "hex": "#a86840"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Bright Red",
+        "color": "Red",
+        "hue": "Bright Red",
+        "layer": "Speedpaint",
+        "hex": "#d62020"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Broadsword Silver",
+        "color": "Metallic",
+        "hue": "Steel Silver",
+        "layer": "Speedpaint Metallic",
+        "hex": "#a8a8a8"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Camo Cloak",
+        "color": "Green",
+        "hue": "Military Green",
+        "layer": "Speedpaint",
+        "hex": "#4a5a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Caribbean Ocean",
+        "color": "Blue",
+        "hue": "Teal Blue",
+        "layer": "Speedpaint",
+        "hex": "#2a8a9a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Carmine Dragon Red",
+        "color": "Red",
+        "hue": "Deep Red",
+        "layer": "Speedpaint",
+        "hex": "#7a1414"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Charming Chartreuse",
+        "color": "Green",
+        "hue": "Yellow-Green",
+        "layer": "Speedpaint",
+        "hex": "#b8c850"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Cloudburst Blue",
+        "color": "Blue",
+        "hue": "Light Blue",
+        "layer": "Speedpaint",
+        "hex": "#6a9ad5"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Crusader Skin",
+        "color": "Flesh",
+        "hue": "Mid Skin",
+        "layer": "Speedpaint",
+        "hex": "#c89a7a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Dark Wood",
+        "color": "Brown",
+        "hue": "Dark Brown",
+        "layer": "Speedpaint",
+        "hex": "#3a2a1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Desolate Brown",
+        "color": "Brown",
+        "hue": "Muted Brown",
+        "layer": "Speedpaint",
+        "hex": "#6a4a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Dry Rust",
+        "color": "Effect",
+        "hue": "Rust",
+        "layer": "Weathering",
+        "hex": "#7a3a1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Enchanted Steel",
+        "color": "Metallic",
+        "hue": "Magic Steel",
+        "layer": "Speedpaint Metallic",
+        "hex": "#8aa8b8"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Familiar Pink",
+        "color": "Pink",
+        "hue": "Light Pink",
+        "layer": "Speedpaint",
+        "hex": "#d59ab8"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Fire Giant Orange",
+        "color": "Orange",
+        "hue": "Deep Orange",
+        "layer": "Speedpaint",
+        "hex": "#d54a14"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Forest Sprite",
+        "color": "Green",
+        "hue": "Natural Green",
+        "layer": "Speedpaint",
+        "hex": "#5a8a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Ghille Dew Green",
+        "color": "Green",
+        "hue": "Cool Green",
+        "layer": "Speedpaint",
+        "hex": "#4a7a5a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Ghoul Green",
+        "color": "Green",
+        "hue": "Pale Green",
+        "layer": "Speedpaint",
+        "hex": "#b8c89a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Glittering Loot",
+        "color": "Metallic",
+        "hue": "Shiny Gold",
+        "layer": "Speedpaint Metallic",
+        "hex": "#d5a830"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Golden Armor",
+        "color": "Metallic",
+        "hue": "Bright Gold",
+        "layer": "Speedpaint Metallic",
+        "hex": "#d5a83a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Gravelord Grey",
+        "color": "Grey",
+        "hue": "Mid Grey",
+        "layer": "Speedpaint",
+        "hex": "#7a7a7a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Grimm Black",
+        "color": "Black",
+        "hue": "Pure Black",
+        "layer": "Speedpaint",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Hardened Leather",
+        "color": "Brown",
+        "hue": "Dark Leather",
+        "layer": "Speedpaint",
+        "hex": "#4a2e1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Highlord Blue",
+        "color": "Blue",
+        "hue": "Royal Blue",
+        "layer": "Speedpaint",
+        "hex": "#2a3a8a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Hoard Bronze",
+        "color": "Metallic",
+        "hue": "Dark Bronze",
+        "layer": "Speedpaint Metallic",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Holy White",
+        "color": "White",
+        "hue": "Pure White",
+        "layer": "Speedpaint",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Hoplite Gold",
+        "color": "Metallic",
+        "hue": "Gold",
+        "layer": "Speedpaint Metallic",
+        "hex": "#c8a040"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Howling Sand",
+        "color": "Brown",
+        "hue": "Light Sand",
+        "layer": "Speedpaint",
+        "hex": "#c8b88a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Maggot Skin",
+        "color": "Green",
+        "hue": "Sickly Green",
+        "layer": "Speedpaint",
+        "hex": "#9aa86a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Magic Blue",
+        "color": "Blue",
+        "hue": "Mid Blue",
+        "layer": "Speedpaint",
+        "hex": "#2a5ad5"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Malignant Green",
+        "color": "Green",
+        "hue": "Dark Toxic Green",
+        "layer": "Speedpaint",
+        "hex": "#2a4a2a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Murder Scene",
+        "color": "Red",
+        "hue": "Very Dark Red",
+        "layer": "Speedpaint",
+        "hex": "#5a0a14"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Noble Skin",
+        "color": "Flesh",
+        "hue": "Light Skin",
+        "layer": "Speedpaint",
+        "hex": "#d5b89a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Nuclear Sunrise",
+        "color": "Orange",
+        "hue": "Neon Orange",
+        "layer": "Speedpaint",
+        "hex": "#ff6a14"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Occultist Cloak",
+        "color": "Black",
+        "hue": "Soft Black",
+        "layer": "Speedpaint",
+        "hex": "#2a2a2a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Ochre Clay",
+        "color": "Brown",
+        "hue": "Yellow Earth",
+        "layer": "Speedpaint",
+        "hex": "#b88a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Orc Skin Green",
+        "color": "Green",
+        "hue": "Orc Flesh",
+        "layer": "Speedpaint",
+        "hex": "#5a7a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Pallid Bone",
+        "color": "Brown",
+        "hue": "Bone Off-White",
+        "layer": "Speedpaint",
+        "hex": "#d5c89a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Peachy Flesh",
+        "color": "Flesh",
+        "hue": "Warm Skin",
+        "layer": "Speedpaint",
+        "hex": "#d59a7a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Plasmatic Bolt",
+        "color": "Blue",
+        "hue": "Neon Blue",
+        "layer": "Speedpaint",
+        "hex": "#14b8e0"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Polished Silver",
+        "color": "Metallic",
+        "hue": "Silver",
+        "layer": "Speedpaint Metallic",
+        "hex": "#b8b8b8"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Purple Swarm",
+        "color": "Purple",
+        "hue": "Mid Purple",
+        "layer": "Speedpaint",
+        "hex": "#6a3a8a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Rigor Mortis",
+        "color": "Purple",
+        "hue": "Muted Purple",
+        "layer": "Speedpaint",
+        "hex": "#6a4a6a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Royal Robes",
+        "color": "Blue",
+        "hue": "Purple-Blue",
+        "layer": "Speedpaint",
+        "hex": "#3a3a8a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Runic Grey",
+        "color": "Grey",
+        "hue": "Light Grey",
+        "layer": "Speedpaint",
+        "hex": "#aaaaaa"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Sand Golem",
+        "color": "Brown",
+        "hue": "Warm Sand",
+        "layer": "Speedpaint",
+        "hex": "#c89a5a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Satchel Brown",
+        "color": "Brown",
+        "hue": "Leather Brown",
+        "layer": "Speedpaint",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Shamrock Green",
+        "color": "Green",
+        "hue": "Bright Green",
+        "layer": "Speedpaint",
+        "hex": "#2a8a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Slaughter Red",
+        "color": "Red",
+        "hue": "Dark Red",
+        "layer": "Speedpaint",
+        "hex": "#7a1414"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Speedpaint Medium",
+        "color": "Medium",
+        "hue": "Acrylic Medium",
+        "layer": "Medium"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Talos Bronze",
+        "color": "Metallic",
+        "hue": "Bronze",
+        "layer": "Speedpaint Metallic",
+        "hex": "#8a6a3a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Tidal Navy",
+        "color": "Blue",
+        "hue": "Dark Navy",
+        "layer": "Speedpaint",
+        "hex": "#1a2a5a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Wet Mud",
+        "color": "Effect",
+        "hue": "Mud",
+        "layer": "Texture",
+        "hex": "#3a2a1a"
+    },
+    {
+        "brand": "Army Painter",
+        "name": "Zealot Yellow",
+        "color": "Yellow",
+        "hue": "Bright Yellow",
+        "layer": "Speedpaint",
+        "hex": "#e8c820"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Abaddon Black",
+        "color": "Black",
+        "hue": "Pure Black",
+        "layer": "Base",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Agrax Earthshade",
+        "color": "Shade",
+        "hue": "Brown Shade",
+        "layer": "Shade",
+        "hex": "#5a573f"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Agrellan Badland Texture",
+        "color": "Texture",
+        "hue": "Dry Earth",
+        "layer": "Technical",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Agrellan Earth Texture",
+        "color": "Texture",
+        "hue": "Crackle Earth",
+        "layer": "Technical",
+        "hex": "#5a3a2a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Apothecary White",
+        "color": "Contrast",
+        "hue": "White",
+        "layer": "Contrast",
+        "hex": "#e8e8e0"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Ardcoat",
+        "color": "Medium",
+        "hue": "Gloss Varnish",
+        "layer": "Technical",
+        "hex": "#e2dedf"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Athonian Camoshade",
+        "color": "Shade",
+        "hue": "Green-Brown",
+        "layer": "Shade",
+        "hex": "#6d8e44"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Auric Armour Gold",
+        "color": "Metallic",
+        "hue": "Bright Gold",
+        "layer": "Base",
+        "hex": "#e8bc6d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Baal Red",
+        "color": "Red",
+        "hue": "Contrast Red",
+        "layer": "Contrast",
+        "hex": "#6a1414"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Baharroth Blue",
+        "color": "Blue",
+        "hue": "Light Cyan Blue",
+        "layer": "Base",
+        "hex": "#6acce8"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Biel-Tan Green",
+        "color": "Shade",
+        "hue": "Green Shade",
+        "layer": "Shade",
+        "hex": "#1ba169"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Black Legion",
+        "color": "Contrast",
+        "hue": "Black",
+        "layer": "Contrast",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Black Templar",
+        "color": "Contrast",
+        "hue": "Black",
+        "layer": "Contrast",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Bugman’s Glow",
+        "color": "Flesh",
+        "hue": "Base Skin",
+        "layer": "Base",
+        "hex": "#8c5144"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Calgar Blue",
+        "color": "Blue",
+        "hue": "Light Blue",
+        "layer": "Base",
+        "hex": "#4272b8"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Carroburg Crimson",
+        "color": "Shade",
+        "hue": "Crimson Shade",
+        "layer": "Shade",
+        "hex": "#a82a70"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Contrast Medium",
+        "color": "Medium",
+        "hue": "Contrast Thinner",
+        "layer": "Technical"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Corvus Black",
+        "color": "Black",
+        "hue": "Soft Black",
+        "layer": "Base",
+        "hex": "#2a2a2a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Death Guard Green",
+        "color": "Green",
+        "hue": "Muted Green",
+        "layer": "Base",
+        "hex": "#848a66"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Deathworld Forest",
+        "color": "Green",
+        "hue": "Dark Green",
+        "layer": "Base",
+        "hex": "#666c2d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Doombull Brown",
+        "color": "Brown",
+        "hue": "Red Brown",
+        "layer": "Base",
+        "hex": "#5d0009"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Dryad Bark",
+        "color": "Brown",
+        "hue": "Very Dark Brown",
+        "layer": "Base",
+        "hex": "#3b342e"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Elysian Green",
+        "color": "Green",
+        "hue": "Natural Green",
+        "layer": "Base",
+        "hex": "#748f39"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Evil Sunz Scarlet",
+        "color": "Red",
+        "hue": "Mid Bright Red",
+        "layer": "Base",
+        "hex": "#c00b0c"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Fire Dragon Bright",
+        "color": "Orange",
+        "hue": "Bright Orange",
+        "layer": "Base",
+        "hex": "#f1844a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Flesh Tearers",
+        "color": "Contrast",
+        "hue": "Deep Red",
+        "layer": "Contrast",
+        "hex": "#4a0a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Flesh Tearers Red",
+        "color": "Red",
+        "hue": "Dark Contrast Red",
+        "layer": "Contrast",
+        "hex": "#4a0a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Fuegan Orange",
+        "color": "Shade",
+        "hue": "Orange Shade",
+        "layer": "Shade",
+        "hex": "#c77e4d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Garaghak’s Sewer",
+        "color": "Brown",
+        "hue": "Dirty Brown",
+        "layer": "Contrast",
+        "hex": "#4a3a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Gauss Blaster Green",
+        "color": "Green",
+        "hue": "Neon Green",
+        "layer": "Base",
+        "hex": "#84c3aa"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Grey Knights Steel",
+        "color": "Metallic",
+        "hue": "Bright Steel",
+        "layer": "Base",
+        "hex": "#8a8aa8"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Grey Seer",
+        "color": "Grey",
+        "hue": "Light Grey",
+        "layer": "Base",
+        "hex": "#c8c8c8"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Imperial Fist",
+        "color": "Yellow",
+        "hue": "Contrast Yellow",
+        "layer": "Contrast",
+        "hex": "#c8a020"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Incubi Darkness",
+        "color": "Blue",
+        "hue": "Dark Teal",
+        "layer": "Base",
+        "hex": "#094345"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Iron Hands Steel",
+        "color": "Metallic",
+        "hue": "Dark Steel",
+        "layer": "Base",
+        "hex": "#4a4a52"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Jokaero Orange",
+        "color": "Orange",
+        "hue": "Mid Orange",
+        "layer": "Base",
+        "hex": "#ee3823"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Kantor Blue",
+        "color": "Blue",
+        "hue": "Dark Blue",
+        "layer": "Base",
+        "hex": "#06234f"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Khorne Red",
+        "color": "Red",
+        "hue": "Dark Red",
+        "layer": "Base",
+        "hex": "#6a1a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Krieg Khaki",
+        "color": "Brown",
+        "hue": "Military Tan",
+        "layer": "Base",
+        "hex": "#c0bd81"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Lahmian Medium",
+        "color": "Medium",
+        "hue": "Glaze Medium",
+        "layer": "Technical",
+        "hex": "#f5ede2"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Lahmian Medium (Layer Fix Entry)",
+        "color": "Medium",
+        "hue": "Glaze Medium",
+        "layer": "Technical"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Leadbelcher",
+        "color": "Metallic",
+        "hue": "Steel",
+        "layer": "Base",
+        "hex": "#6a6e72"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Macragge Blue",
+        "color": "Blue",
+        "hue": "Mid Blue",
+        "layer": "Base"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Macragge Blue (Air)",
+        "color": "Blue",
+        "hue": "Airbrush Blue",
+        "layer": "Air",
+        "hex": "#14397a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Magmadroth Flame",
+        "color": "Orange",
+        "hue": "Bright Flame",
+        "layer": "Contrast",
+        "hex": "#d63a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Martian Ironcrust",
+        "color": "Texture",
+        "hue": "Crackle Red Earth",
+        "layer": "Technical",
+        "hex": "#6a3a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Martian Ironearth",
+        "color": "Texture",
+        "hue": "Red Earth",
+        "layer": "Technical",
+        "hex": "#8a4a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Mechanicus Standard Grey",
+        "color": "Grey",
+        "hue": "Neutral Grey",
+        "layer": "Base",
+        "hex": "#3d4b4d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Mephiston Red",
+        "color": "Red",
+        "hue": "Base Red",
+        "layer": "Base",
+        "hex": "#a02020"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Moot Green",
+        "color": "Green",
+        "hue": "Bright Neon Green",
+        "layer": "Base",
+        "hex": "#57aa2d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Necron Compound",
+        "color": "Effect",
+        "hue": "Drybrush Metal",
+        "layer": "Technical",
+        "hex": "#828b8e"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Nihilakh Oxide",
+        "color": "Effect",
+        "hue": "Verdigris",
+        "layer": "Technical",
+        "hex": "#6acca0"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Nuln Oil",
+        "color": "Shade",
+        "hue": "Black Shade",
+        "layer": "Shade",
+        "hex": "#0a0a0a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Nurgle’s Rot",
+        "color": "Effect",
+        "hue": "Toxic Slime",
+        "layer": "Technical",
+        "hex": "#9b8f22"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Nurgling Green",
+        "color": "Green",
+        "hue": "Pale Green",
+        "layer": "Base",
+        "hex": "#849c63"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Ogryn Camo",
+        "color": "Green",
+        "hue": "Earth Olive",
+        "layer": "Base",
+        "hex": "#9da94b"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Ork Flesh",
+        "color": "Green",
+        "hue": "Light Green",
+        "layer": "Base",
+        "hex": "#5a8a3a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Praxeti White",
+        "color": "Effect",
+        "hue": "Highlight",
+        "layer": "Technical",
+        "hex": "#e8e8e8"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Pylar Glacier",
+        "color": "Blue",
+        "hue": "Contrast Blue",
+        "layer": "Contrast",
+        "hex": "#6a8acc"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Rakarth Flesh",
+        "color": "Flesh",
+        "hue": "Bone Flesh",
+        "layer": "Base",
+        "hex": "#b8a890"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Reikland Fleshshade",
+        "color": "Shade",
+        "hue": "Flesh Shade",
+        "layer": "Shade",
+        "hex": "#ca6c4d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Retributor Armour",
+        "color": "Metallic",
+        "hue": "Gold",
+        "layer": "Base",
+        "hex": "#c89030"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Rhinox Hide",
+        "color": "Brown",
+        "hue": "Dark Brown",
+        "layer": "Base",
+        "hex": "#4e3433"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Runelord Brass",
+        "color": "Metallic",
+        "hue": "Brass",
+        "layer": "Base",
+        "hex": "#b6a89a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Scar White",
+        "color": "White",
+        "hue": "Warm White",
+        "layer": "Base"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Screamers Pink",
+        "color": "Pink",
+        "hue": "Bright Pink",
+        "layer": "Base",
+        "hex": "#831740"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Screaming Bell",
+        "color": "Metallic",
+        "hue": "Copper",
+        "layer": "Base",
+        "hex": "#c16f45"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Skarsnik Green",
+        "color": "Green",
+        "hue": "Pale Green",
+        "layer": "Base",
+        "hex": "#5f9370"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Skeleton Horde",
+        "color": "Brown",
+        "hue": "Bone",
+        "layer": "Contrast",
+        "hex": "#b89a6a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Skrag Brown",
+        "color": "Brown",
+        "hue": "Mid Brown",
+        "layer": "Base",
+        "hex": "#8a4a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Snakebite Leather",
+        "color": "Brown",
+        "hue": "Leather",
+        "layer": "Contrast",
+        "hex": "#a06030"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Sotek Green",
+        "color": "Blue",
+        "hue": "Teal Blue",
+        "layer": "Base",
+        "hex": "#056976"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Stinking Scorpion Green",
+        "color": "Green",
+        "hue": "Contrast Toxic Green",
+        "layer": "Contrast"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Stormshield",
+        "color": "Medium",
+        "hue": "Protective Varnish",
+        "layer": "Technical"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Sybarite Green",
+        "color": "Green",
+        "hue": "Teal Green",
+        "layer": "Base",
+        "hex": "#30a56c"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Tau Light Ochre",
+        "color": "Brown",
+        "hue": "Ochre",
+        "layer": "Base",
+        "hex": "#bf6e1d"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Temple Guard Blue",
+        "color": "Blue",
+        "hue": "Teal Blue",
+        "layer": "Base",
+        "hex": "#35998e"
+    },
+    {
+        "brand": "Citadel",
+        "name": "The Fang",
+        "color": "Blue",
+        "hue": "Grey Blue",
+        "layer": "Base",
+        "hex": "#4a5a6a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Tuskgor Fur",
+        "color": "Pink",
+        "hue": "Muted Pink",
+        "layer": "Base",
+        "hex": "#8e3734"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Typhus Corrosion",
+        "color": "Effect",
+        "hue": "Rust",
+        "layer": "Technical",
+        "hex": "#2a1a14"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Waaagh! Flesh",
+        "color": "Green",
+        "hue": "Mid Green",
+        "layer": "Base",
+        "hex": "#275627"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Warpstone Green",
+        "color": "Green",
+        "hue": "Bright Toxic Green",
+        "layer": "Base"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Wild Rider Red",
+        "color": "Red",
+        "hue": "Bright Red",
+        "layer": "Base",
+        "hex": "#e21516"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Wraithbone",
+        "color": "White",
+        "hue": "Bone White",
+        "layer": "Base",
+        "hex": "#d8c8a0"
+    },
+    {
+        "brand": "Citadel",
+        "name": "XV-88",
+        "color": "Brown",
+        "hue": "Deep Ochre",
+        "layer": "Base",
+        "hex": "#6a4a1a"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Yriel Yellow",
+        "color": "Yellow",
+        "hue": "Bright Yellow",
+        "layer": "Base",
+        "hex": "#ffda00"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Zamesi Desert",
+        "color": "Yellow",
+        "hue": "Earth Yellow",
+        "layer": "Base",
+        "hex": "#e0a503"
+    },
+    {
+        "brand": "Citadel",
+        "name": "Zandri Dust",
+        "color": "Brown",
+        "hue": "Light Tan",
+        "layer": "Base",
+        "hex": "#a89758"
+    },
+    {
+        "brand": "Gamblin Artist Oils",
+        "name": "Burnt Umber",
+        "color": "Brown",
+        "hue": "Warm Dark Brown",
+        "layer": "Oil",
+        "hex": "#4a2a14"
+    },
+    {
+        "brand": "Gamblin Artist Oils",
+        "name": "Ivory Black",
+        "color": "Black",
+        "hue": "Black",
+        "layer": "Oil",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Gamblin Artist Oils",
+        "name": "Titanium White",
+        "color": "White",
+        "hue": "Pure White",
+        "layer": "Oil",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Antique Gold",
+        "color": "Metallic",
+        "hue": "Antique Gold",
+        "layer": "Metallic"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bismuth Yellow",
+        "color": "Yellow",
+        "hue": "Neon Yellow",
+        "layer": "Base",
+        "hex": "#ffec44"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Blue",
+        "color": "Blue",
+        "hue": "Primary Blue",
+        "layer": "Base",
+        "hex": "#1a4ad5"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bold Titanium White",
+        "color": "White",
+        "hue": "Pure White",
+        "layer": "Base",
+        "hex": "#fafafa"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bright Gold",
+        "color": "Metallic",
+        "hue": "Bright Gold",
+        "layer": "Metallic",
+        "hex": "#d5a830"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bright Silver",
+        "color": "Metallic",
+        "hue": "Bright Silver",
+        "layer": "Metallic",
+        "hex": "#c8c8c8"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bright Yellow",
+        "color": "Yellow",
+        "hue": "High Saturation Yellow",
+        "layer": "Base",
+        "hex": "#f5d020"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bright Yellow Green",
+        "color": "Green",
+        "hue": "Neon Green",
+        "layer": "Base",
+        "hex": "#b8d520"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Bronze",
+        "color": "Metallic",
+        "hue": "Bronze",
+        "layer": "Metallic",
+        "hex": "#8a6a3a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Burnt Red",
+        "color": "Red",
+        "hue": "Oxide Red",
+        "layer": "Base",
+        "hex": "#8a2a14"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Burnt Sienna",
+        "color": "Brown",
+        "hue": "Orange Brown",
+        "layer": "Base",
+        "hex": "#a0512a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Camo Green",
+        "color": "Green",
+        "hue": "Military Green",
+        "layer": "Base",
+        "hex": "#5a6a3a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Charcoal Black",
+        "color": "Black",
+        "hue": "Black",
+        "layer": "Base",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Chestnut",
+        "color": "Brown",
+        "hue": "Leather Dark",
+        "layer": "Base",
+        "hex": "#5a2e1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Copper",
+        "color": "Metallic",
+        "hue": "Copper",
+        "layer": "Metallic",
+        "hex": "#a8602a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Cyan",
+        "color": "Blue",
+        "hue": "Cyan",
+        "layer": "Base",
+        "hex": "#1ab5d5"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Blue",
+        "color": "Blue",
+        "hue": "Deep Blue",
+        "layer": "Base",
+        "hex": "#1a2a6a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Camo Green",
+        "color": "Green",
+        "hue": "Deep Military",
+        "layer": "Base",
+        "hex": "#3a4a2a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Green",
+        "color": "Green",
+        "hue": "Deep Green",
+        "layer": "Base",
+        "hex": "#1a4a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Hot Pink",
+        "color": "Pink",
+        "hue": "Deep Pink",
+        "layer": "Base",
+        "hex": "#c83080"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Silver Metallic",
+        "color": "Metallic",
+        "hue": "Dark Silver",
+        "layer": "Metallic",
+        "hex": "#6a6a72"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Dark Umber",
+        "color": "Brown",
+        "hue": "Deep Shadow Brown",
+        "layer": "Base",
+        "hex": "#2a1a0a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Deep Red",
+        "color": "Red",
+        "hue": "Dark Red",
+        "layer": "Base",
+        "hex": "#6a1414"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Fluorescent Blue",
+        "color": "Blue",
+        "hue": "Neon Blue",
+        "layer": "Fluorescent",
+        "hex": "#14b8e0"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Fluorescent Magenta",
+        "color": "Pink",
+        "hue": "Neon",
+        "layer": "Fluorescent",
+        "hex": "#f51080"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Gold",
+        "color": "Metallic",
+        "hue": "Gold",
+        "layer": "Metallic",
+        "hex": "#c89040"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Golden Brown",
+        "color": "Brown",
+        "hue": "Warm Earth",
+        "layer": "Base",
+        "hex": "#8a5a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Golden Yellow",
+        "color": "Yellow",
+        "hue": "Warm Yellow",
+        "layer": "Base",
+        "hex": "#e0a830"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Green",
+        "color": "Green",
+        "hue": "Mid Green",
+        "layer": "Base",
+        "hex": "#2a8a3a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Ice Yellow",
+        "color": "Yellow",
+        "hue": "Pale Yellow",
+        "layer": "Base",
+        "hex": "#e8e0a0"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Ivory",
+        "color": "Brown",
+        "hue": "Bone Light",
+        "layer": "Base",
+        "hex": "#e0d8b0"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Jade",
+        "color": "Green",
+        "hue": "Blue-Green",
+        "layer": "Base",
+        "hex": "#2a8a8a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Khaki",
+        "color": "Brown",
+        "hue": "Earth Tan",
+        "layer": "Base",
+        "hex": "#a08a5a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Lavender",
+        "color": "Purple",
+        "hue": "Light Purple",
+        "layer": "Base",
+        "hex": "#b8a0c8"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Light Green",
+        "color": "Green",
+        "hue": "Light Green",
+        "layer": "Base",
+        "hex": "#5acc6a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Magenta",
+        "color": "Pink",
+        "hue": "Magenta",
+        "layer": "Base",
+        "hex": "#c8208a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Neutral Leather",
+        "color": "Brown",
+        "hue": "Leather Mid",
+        "layer": "Base",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Ochre",
+        "color": "Yellow",
+        "hue": "Muted Yellow",
+        "layer": "Base",
+        "hex": "#c89030"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Off White",
+        "color": "White",
+        "hue": "Warm White",
+        "layer": "Base",
+        "hex": "#f0e8d0"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Olive Green",
+        "color": "Green",
+        "hue": "Earth Green",
+        "layer": "Base",
+        "hex": "#4a5a2a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Orange",
+        "color": "Orange",
+        "hue": "Primary Orange",
+        "layer": "Base",
+        "hex": "#e85a14"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Purple",
+        "color": "Purple",
+        "hue": "Mid Purple",
+        "layer": "Base",
+        "hex": "#6a2a8a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Red",
+        "color": "Red",
+        "hue": "Primary Red",
+        "layer": "Base",
+        "hex": "#d62020"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Red Brown",
+        "color": "Brown",
+        "hue": "Warm Brown",
+        "layer": "Base",
+        "hex": "#6a3a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Red Orange",
+        "color": "Orange",
+        "hue": "Orange Red",
+        "layer": "Base",
+        "hex": "#e83a14"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Rich Copper",
+        "color": "Metallic",
+        "hue": "Deep Copper",
+        "layer": "Metallic",
+        "hex": "#8a4a2a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Sand",
+        "color": "Brown",
+        "hue": "Light Earth",
+        "layer": "Base",
+        "hex": "#c8a868"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Signature Orange Red",
+        "color": "Orange",
+        "hue": "Red-Orange",
+        "layer": "Base",
+        "hex": "#e8401a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Silver Metallic",
+        "color": "Metallic",
+        "hue": "Silver",
+        "layer": "Metallic",
+        "hex": "#b8b8b8"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Sky Blue",
+        "color": "Blue",
+        "hue": "Light Blue",
+        "layer": "Base",
+        "hex": "#6acce8"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Blue",
+        "color": "Blue",
+        "hue": "Glaze Blue",
+        "layer": "Transparent",
+        "hex": "#1a4ad5"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Brown",
+        "color": "Brown",
+        "hue": "Glaze Brown",
+        "layer": "Transparent",
+        "hex": "#6a3a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Burnt Umber",
+        "color": "Brown",
+        "hue": "Shadow Glaze",
+        "layer": "Transparent",
+        "hex": "#3a1a0a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Green",
+        "color": "Green",
+        "hue": "Glaze Green",
+        "layer": "Transparent",
+        "hex": "#2a8a3a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Red Oxide",
+        "color": "Red",
+        "hue": "Glaze Red",
+        "layer": "Transparent",
+        "hex": "#8a2a1a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent White",
+        "color": "White",
+        "hue": "Glaze White",
+        "layer": "Transparent",
+        "hex": "#f0f0f0"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Transparent Yellow",
+        "color": "Yellow",
+        "hue": "Glaze Yellow",
+        "layer": "Transparent",
+        "hex": "#e8c020"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Ultramarine",
+        "color": "Blue",
+        "hue": "Warm Blue",
+        "layer": "Base",
+        "hex": "#2a3a9a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "White",
+        "color": "White",
+        "hue": "Neutral White",
+        "layer": "Base",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #1",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #2",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #3",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #4",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #5",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Wizard's Butt #6",
+        "color": "Special",
+        "hue": "Unknown",
+        "layer": "Special"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Yellow",
+        "color": "Yellow",
+        "hue": "Primary Yellow",
+        "layer": "Base",
+        "hex": "#f0c020"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Yellow Green",
+        "color": "Green",
+        "hue": "Bright Green",
+        "layer": "Base",
+        "hex": "#b8c83a"
+    },
+    {
+        "brand": "Pro Acryl",
+        "name": "Yellow Ochre",
+        "color": "Yellow",
+        "hue": "Earth Yellow",
+        "layer": "Base",
+        "hex": "#c19448"
+    },
+    {
+        "brand": "Two Thin Coats",
+        "name": "Trooper White",
+        "color": "White",
+        "hue": "Bright White",
+        "layer": "Base",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Beastly Brown (72.043)",
+        "color": "Brown",
+        "hue": "Dark Brown",
+        "layer": "Base",
+        "hex": "#55432d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black (72.051)",
+        "color": "Black",
+        "hue": "Pure Black",
+        "layer": "Base",
+        "hex": "#0a0a0a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black Green Ink (72.090)",
+        "color": "Ink",
+        "hue": "Dark Green",
+        "layer": "Ink",
+        "hex": "#0a1a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black Grey (70.862)",
+        "color": "Black",
+        "hue": "Soft Black",
+        "layer": "Base",
+        "hex": "#2d373a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black Ink (72.094)",
+        "color": "Ink",
+        "hue": "Black",
+        "layer": "Ink",
+        "hex": "#0a0a0a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black Lava (26.214)",
+        "color": "Effect",
+        "hue": "Lava",
+        "layer": "Texture",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Black Smoke Pigment",
+        "color": "Pigment",
+        "hue": "Soot",
+        "layer": "Weathering",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Bloody Red (72.010)",
+        "color": "Red",
+        "hue": "Bright Red",
+        "layer": "Base",
+        "hex": "#bf282e"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Blue Ink (72.088)",
+        "color": "Ink",
+        "hue": "Blue",
+        "layer": "Ink",
+        "hex": "#1a3a8a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Blue Violet (70.811)",
+        "color": "Purple",
+        "hue": "Cool Blue-Purple",
+        "layer": "Base",
+        "hex": "#2a1a8a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Brassy Brass (72.058)",
+        "color": "Metallic",
+        "hue": "Brass",
+        "layer": "Base",
+        "hex": "#a8802a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Bright Bronze (72.057)",
+        "color": "Metallic",
+        "hue": "Bronze",
+        "layer": "Base",
+        "hex": "#8a6a3a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Bronze Flesh Tone (72.036)",
+        "color": "Flesh",
+        "hue": "Tanned Flesh",
+        "layer": "Base",
+        "hex": "#db945c"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Brown Earth (26.219)",
+        "color": "Effect",
+        "hue": "Earth",
+        "layer": "Mud",
+        "hex": "#4a2a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Burnt Umber Pigment",
+        "color": "Pigment",
+        "hue": "Earth Brown",
+        "layer": "Weathering",
+        "hex": "#4a2a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Cadmium Skin (72.099)",
+        "color": "Flesh",
+        "hue": "Mid Flesh",
+        "layer": "Base",
+        "hex": "#fab78a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Cayman Green (72.067)",
+        "color": "Green",
+        "hue": "Tropical Green",
+        "layer": "Base",
+        "hex": "#285648"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Charred Brown (72.045)",
+        "color": "Brown",
+        "hue": "Very Dark Brown",
+        "layer": "Base",
+        "hex": "#2b1f19"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Chipping Medium",
+        "color": "Fluid",
+        "hue": "Paint Wear",
+        "layer": "Weathering"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Cleaner",
+        "color": "Utility",
+        "hue": "Cleaner",
+        "layer": "Tool"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Cold Grey (72.050)",
+        "color": "Grey",
+        "hue": "Cool Grey",
+        "layer": "Base",
+        "hex": "#54646d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Crackle Medium",
+        "color": "Texture",
+        "hue": "Dry Crackle",
+        "layer": "Effect"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Earth (26.218)",
+        "color": "Effect",
+        "hue": "Earth",
+        "layer": "Mud",
+        "hex": "#2a1a0a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Flesh Tone (72.044)",
+        "color": "Flesh",
+        "hue": "Deep Flesh",
+        "layer": "Base",
+        "hex": "#4f2b26"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Green (72.028)",
+        "color": "Green",
+        "hue": "Deep Forest",
+        "layer": "Base",
+        "hex": "#083c2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Sea Blue (70.898)",
+        "color": "Blue",
+        "hue": "Deep Teal Blue",
+        "layer": "Base",
+        "hex": "#2a4048"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Sea Green (70.868)",
+        "color": "Green",
+        "hue": "WWII Grey-Green",
+        "layer": "Base",
+        "hex": "#4a5a4a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dark Steel Pigment",
+        "color": "Pigment",
+        "hue": "Metallic Dust",
+        "layer": "Weathering",
+        "hex": "#4a4a52"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dead Flesh (72.035)",
+        "color": "Green",
+        "hue": "Sickly Green",
+        "layer": "Base",
+        "hex": "#bcb686"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dead White (72.001)",
+        "color": "White",
+        "hue": "Pure White",
+        "layer": "Base",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Deck Tan (70.986)",
+        "color": "White",
+        "hue": "Beige White",
+        "layer": "Base",
+        "hex": "#d5c8a8"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Desert Sand (26.217)",
+        "color": "Effect",
+        "hue": "Sand",
+        "layer": "Texture",
+        "hex": "#c8a878"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Desert Yellow (72.063)",
+        "color": "Brown",
+        "hue": "Earth Yellow",
+        "layer": "Base",
+        "hex": "#8e7845"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Dry Mud Texture",
+        "color": "Texture",
+        "hue": "Cracked Earth",
+        "layer": "Terrain",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Earth (72.062)",
+        "color": "Brown",
+        "hue": "Dirt Brown",
+        "layer": "Base",
+        "hex": "#6f563d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Earth Texture Paste",
+        "color": "Texture",
+        "hue": "General Earth",
+        "layer": "Terrain",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Electric Blue (72.023)",
+        "color": "Blue",
+        "hue": "Bright Blue",
+        "layer": "Base",
+        "hex": "#008cbf"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Elf Skin Tone (72.004)",
+        "color": "Flesh",
+        "hue": "Pink Flesh",
+        "layer": "Base",
+        "hex": "#f8a070"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Elysian Green (72.031)",
+        "color": "Green",
+        "hue": "Natural Green",
+        "layer": "Base",
+        "hex": "#5a8a4a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Engine Grime Effect",
+        "color": "Fluid",
+        "hue": "Mechanical Dirt",
+        "layer": "Weathering",
+        "hex": "#2a1a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Escorpena Green (72.032)",
+        "color": "Green",
+        "hue": "Deep Green",
+        "layer": "Base",
+        "hex": "#48b851"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "European Dust Pigment",
+        "color": "Pigment",
+        "hue": "Urban Dust",
+        "layer": "Weathering",
+        "hex": "#a08a6a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Field Blue (70.964)",
+        "color": "Blue",
+        "hue": "Military Blue",
+        "layer": "Base",
+        "hex": "#436872"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Fluorescent Blue (70.736)",
+        "color": "Fluorescent",
+        "hue": "Blue",
+        "layer": "Effect",
+        "hex": "#14b8e0"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Fluorescent Green (70.737)",
+        "color": "Fluorescent",
+        "hue": "Green",
+        "layer": "Effect",
+        "hex": "#9dcd64"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Fluorescent Orange (70.733)",
+        "color": "Fluorescent",
+        "hue": "Orange",
+        "layer": "Effect",
+        "hex": "#ff5a1a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "German Field Grey (70.830)",
+        "color": "Green",
+        "hue": "WWII Grey-Green",
+        "layer": "Base",
+        "hex": "#6a7a5a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "German Uniform (70.920)",
+        "color": "Green",
+        "hue": "Krieg Green",
+        "layer": "Base",
+        "hex": "#5a6a4a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Glaze Medium (70.596)",
+        "color": "Medium",
+        "hue": "Glaze",
+        "layer": "Medium"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Glorious Gold (72.056)",
+        "color": "Metallic",
+        "hue": "Bright Gold",
+        "layer": "Base",
+        "hex": "#d5a83a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Gloss Varnish (70.510)",
+        "color": "Medium",
+        "hue": "Gloss",
+        "layer": "Varnish"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Goblin Green (72.030)",
+        "color": "Green",
+        "hue": "Classic Green",
+        "layer": "Base",
+        "hex": "#23743c"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Gory Red (72.011)",
+        "color": "Red",
+        "hue": "Mid Red",
+        "layer": "Base",
+        "hex": "#810504"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Green Ink (72.089)",
+        "color": "Ink",
+        "hue": "Green",
+        "layer": "Ink",
+        "hex": "#1a8a3a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Gunmetal (70.863)",
+        "color": "Metallic",
+        "hue": "Gunmetal",
+        "layer": "Model Color",
+        "hex": "#6a6e72"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Gunmetal (72.054)",
+        "color": "Metallic",
+        "hue": "Dark Gunmetal",
+        "layer": "Base",
+        "hex": "#4a4e52"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Hammered Copper (72.059)",
+        "color": "Metallic",
+        "hue": "Copper",
+        "layer": "Base",
+        "hex": "#8a4a2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Heavy Blackgreen (72.147)",
+        "color": "Green",
+        "hue": "Very Dark Green",
+        "layer": "X-Opaque",
+        "hex": "#18433d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Hexed Lichen (72.015)",
+        "color": "Purple",
+        "hue": "Muted Purple",
+        "layer": "Base",
+        "hex": "#5a005a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Ice Texture Gel",
+        "color": "Texture",
+        "hue": "Frozen Surface",
+        "layer": "Effect"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Ice Yellow (70.858)",
+        "color": "Yellow",
+        "hue": "Pale Yellow",
+        "layer": "Base",
+        "hex": "#e8e0a0"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Jade Green (72.026)",
+        "color": "Green",
+        "hue": "Teal Green",
+        "layer": "Base",
+        "hex": "#128379"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Japanese Uniform (70.923)",
+        "color": "Brown",
+        "hue": "Military Tan",
+        "layer": "Base",
+        "hex": "#8a7a5a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Khaki (72.061)",
+        "color": "Brown",
+        "hue": "Light Tan",
+        "layer": "Base",
+        "hex": "#8c806d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Leather Brown (72.040)",
+        "color": "Brown",
+        "hue": "Leather",
+        "layer": "Base",
+        "hex": "#4a4639"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Light Sienna Pigment",
+        "color": "Pigment",
+        "hue": "Light Earth",
+        "layer": "Weathering",
+        "hex": "#a0603a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Lime Green (70.827)",
+        "color": "Green",
+        "hue": "Bright Green",
+        "layer": "Base",
+        "hex": "#6fae4e"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Magic Blue (72.021)",
+        "color": "Blue",
+        "hue": "Mid Blue",
+        "layer": "Base",
+        "hex": "#024381"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Matt Varnish (70.520)",
+        "color": "Medium",
+        "hue": "Matte",
+        "layer": "Varnish"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Moon Yellow (72.005)",
+        "color": "Yellow",
+        "hue": "Mid Yellow",
+        "layer": "Base",
+        "hex": "#fff103"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Natural Umber Pigment",
+        "color": "Pigment",
+        "hue": "Mid Earth",
+        "layer": "Weathering",
+        "hex": "#6a4a2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Night Blue (72.019)",
+        "color": "Blue",
+        "hue": "Dark Blue",
+        "layer": "Base",
+        "hex": "#19183f"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Off White (71.270)",
+        "color": "White",
+        "hue": "Warm Off White",
+        "layer": "Model Air",
+        "hex": "#f5f4da"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Oil Stain Effect",
+        "color": "Fluid",
+        "hue": "Grease",
+        "layer": "Weathering",
+        "hex": "#2a1a0a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Olive Grey (70.888)",
+        "color": "Green",
+        "hue": "Muted Olive",
+        "layer": "Base",
+        "hex": "#6a6a3a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Orange Fire (72.008)",
+        "color": "Orange",
+        "hue": "Bright Orange",
+        "layer": "Base",
+        "hex": "#f1652e"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Pale Flesh (72.003)",
+        "color": "Flesh",
+        "hue": "Light Flesh",
+        "layer": "Base",
+        "hex": "#f6bdb3"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Panel Line Wash (Enamel-style)",
+        "color": "Fluid",
+        "hue": "Detail Wash",
+        "layer": "Weathering",
+        "hex": "#2a1a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Pigment Binder (26.233)",
+        "color": "Effect",
+        "hue": "Binder",
+        "layer": "Medium"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Plague Brown (72.039)",
+        "color": "Yellow",
+        "hue": "Dirty Yellow",
+        "layer": "Base",
+        "hex": "#cc9b34"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Polished Gold (72.055)",
+        "color": "Metallic",
+        "hue": "Gold",
+        "layer": "Base",
+        "hex": "#c89040"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Red Earth Pigment",
+        "color": "Pigment",
+        "hue": "Oxide Earth",
+        "layer": "Weathering",
+        "hex": "#8a4a2a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Red Ink (72.086)",
+        "color": "Ink",
+        "hue": "Red",
+        "layer": "Ink",
+        "hex": "#c81a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Royal Purple (70.810)",
+        "color": "Purple",
+        "hue": "Deep Shadow Purple",
+        "layer": "Base",
+        "hex": "#562f7e"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Royal Purple (72.016)",
+        "color": "Purple",
+        "hue": "Mid Purple",
+        "layer": "Base",
+        "hex": "#562f7e"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Rust Streaking Effect",
+        "color": "Fluid",
+        "hue": "Rust",
+        "layer": "Weathering",
+        "hex": "#6a3a1a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sand Texture Paste",
+        "color": "Texture",
+        "hue": "Fine Sand",
+        "layer": "Terrain",
+        "hex": "#c8a878"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sand Yellow Pigment",
+        "color": "Pigment",
+        "hue": "Desert Sand",
+        "layer": "Weathering",
+        "hex": "#c8a878"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Scarlett Red (72.012)",
+        "color": "Red",
+        "hue": "Light Red",
+        "layer": "Base",
+        "hex": "#741330"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sick Green (72.029)",
+        "color": "Green",
+        "hue": "Toxic Green",
+        "layer": "Base",
+        "hex": "#096638"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Silver (72.052)",
+        "color": "Metallic",
+        "hue": "Bright Silver",
+        "layer": "Base",
+        "hex": "#c8c8c8"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Skin Wash Ink (72.093)",
+        "color": "Ink",
+        "hue": "Skin Tone",
+        "layer": "Ink",
+        "hex": "#6a3014"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Smokey Ink (72.068)",
+        "color": "Green",
+        "hue": "Ink Utility",
+        "layer": "Ink",
+        "hex": "#2b2325"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Snow (26.820)",
+        "color": "Effect",
+        "hue": "Snow",
+        "layer": "Texture",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Snow Texture Paste",
+        "color": "Texture",
+        "hue": "Snow Build",
+        "layer": "Terrain"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Stonewall Grey (72.049)",
+        "color": "Grey",
+        "hue": "Neutral Mid Grey",
+        "layer": "Base",
+        "hex": "#828e95"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sun Yellow (72.006)",
+        "color": "Yellow",
+        "hue": "Primary Yellow",
+        "layer": "Base",
+        "hex": "#ffcf07"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sunny Skin Tone (70.845)",
+        "color": "Flesh",
+        "hue": "Warm Flesh",
+        "layer": "Base",
+        "hex": "#d5a06a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Sunrise Blue (72.118)",
+        "color": "Blue",
+        "hue": "Light Blue",
+        "layer": "Base",
+        "hex": "#6acce8"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Surface Black",
+        "color": "Primer",
+        "hue": "Black",
+        "layer": "Primer",
+        "hex": "#1a1a1a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Surface Grey",
+        "color": "Primer",
+        "hue": "Grey",
+        "layer": "Primer",
+        "hex": "#828282"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Surface White",
+        "color": "Primer",
+        "hue": "White",
+        "layer": "Primer",
+        "hex": "#f5f5f5"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Tan (72.066)",
+        "color": "Brown",
+        "hue": "Neutral Tan",
+        "layer": "Base",
+        "hex": "#a98768"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Terracotta (72.065)",
+        "color": "Brown",
+        "hue": "Red Earth",
+        "layer": "Base",
+        "hex": "#a0522d"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Thick Mud Texture",
+        "color": "Texture",
+        "hue": "Wet Mud",
+        "layer": "Terrain",
+        "hex": "#4a2a14"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Thinner",
+        "color": "Utility",
+        "hue": "Thinner",
+        "layer": "Tool"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Tinny Tin (72.060)",
+        "color": "Metallic",
+        "hue": "Dark Metal",
+        "layer": "Base",
+        "hex": "#555555"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Turquoise (72.024)",
+        "color": "Blue",
+        "hue": "Teal Blue",
+        "layer": "Base",
+        "hex": "#03676f"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Ultramarine Blue (72.022)",
+        "color": "Blue",
+        "hue": "Primary Blue",
+        "layer": "Base",
+        "hex": "#373592"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Violet Ink (72.087)",
+        "color": "Ink",
+        "hue": "Purple",
+        "layer": "Ink",
+        "hex": "#6a2a8a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Violet Red (70.812)",
+        "color": "Purple",
+        "hue": "Warm Red-Purple Bridge",
+        "layer": "Base",
+        "hex": "#8a3a6a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Water Texture Gel",
+        "color": "Texture",
+        "hue": "Still Water",
+        "layer": "Effect"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Wolf Grey (72.047)",
+        "color": "Grey",
+        "hue": "Light Cool Grey",
+        "layer": "Base",
+        "hex": "#90a2bc"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Yellow Green (70.954)",
+        "color": "Green",
+        "hue": "Yellow-Green",
+        "layer": "Base",
+        "hex": "#c8d52a"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Yellow Ink (72.085)",
+        "color": "Ink",
+        "hue": "Yellow",
+        "layer": "Ink",
+        "hex": "#f0c020"
+    },
+    {
+        "brand": "Vallejo",
+        "name": "Yellow Olive (72.064)",
+        "color": "Green",
+        "hue": "Earth Olive",
+        "layer": "Base",
+        "hex": "#5c6132"
+    }
+]

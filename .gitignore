@@ -13,6 +13,7 @@ img/tipz.png
 inventory/*.csv
 !inventory/ttc.csv
 !inventory/conversions.csv
+!inventory/paint_hex.csv
 
 # Local dev session files
 .claude/
