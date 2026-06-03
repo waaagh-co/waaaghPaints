@@ -4380,6 +4380,7 @@
         const role = paintRole(ph, ps, pl);
         const positions = harmonyPositions(hue, hType);
         const picks = positions.map(pos => { const matches = paintsNearHue(pos.hue, 30, paintKey(paint)); const owned = matches.filter(m => paintOwned.has(paintKey(m))); return {pos, paint: owned[0] || matches[0] || null}; });
+        if (!picks.some(({paint: mp}) => mp !== null)) return;
         function buildDCTWheelSvg() {
           const CX=120,CY=120,R1=78,R2=96,SEGS=24,DEG=15,ARC=20;
           let bg=''; for (let i=0;i<SEGS;i++) { const hd=i*DEG,aS=(hd-90-DEG/2)*Math.PI/180,aE=(hd-90+DEG/2)*Math.PI/180; const x1=CX+R1*Math.cos(aS),y1=CY+R1*Math.sin(aS),x2=CX+R2*Math.cos(aS),y2=CY+R2*Math.sin(aS),x3=CX+R2*Math.cos(aE),y3=CY+R2*Math.sin(aE),x4=CX+R1*Math.cos(aE),y4=CY+R1*Math.sin(aE); bg+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z" fill="hsl(${hd},70%,55%)" opacity=".2"/>`; }

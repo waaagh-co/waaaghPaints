@@ -3299,7 +3299,17 @@
     .dct-strip-desc { font-size: .7rem; color: #5a4a38; font-style: italic; border-left: 1px solid #2a1e30; padding: 0 16px; flex: 1 1 160px; line-height: 1.4; }
     .dct-strip-wheel { flex-shrink: 0; border-left: 1px solid #2a1e30; padding-left: 14px; margin-left: auto; }
     .dct-strip-wheel svg { width: 90px; height: 90px; display: block; }
-    @media (max-width: 700px) { .dct-strip { gap: 10px; } .dct-strip-label,.dct-strip-primary,.dct-strip-matches,.dct-strip-desc,.dct-strip-wheel { border-left: none; padding-left: 0; } .dct-strip-wheel { margin-left: 0; } }
+    @media (max-width: 700px) {
+      .dct-strip { flex-wrap: wrap; gap: 0; row-gap: 10px; }
+      .dct-strip-label { flex: 0 0 auto; padding-right: 12px; min-width: 0; border-left: none; padding-left: 0; }
+      .dct-strip-primary { border-left: none; padding-left: 0; flex: 1 1 auto; }
+      .dct-strip-matches { flex: 0 0 100%; border-left: none; border-top: 1px solid #2a1e18; padding: 10px 0 0; gap: 12px; flex-wrap: nowrap; overflow-x: auto; }
+      .dct-strip-match .dct-pot-wrap { width: 32px; height: 42px; }
+      .dct-strip-match { gap: 6px; }
+      .dct-match-name { font-size: .65rem; max-width: 64px; }
+      .dct-strip-desc { display: none; }
+      .dct-strip-wheel { display: none; }
+    }
     /* Rescue Tracker */
     .rescues-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 960px; margin: 0 auto; padding: 16px; }
     .rescue-card { position: relative; background: var(--bg-base); border: 1px solid var(--border); border-left-width: 3px; padding: 14px 16px 14px 38px; border-radius: 4px; }
