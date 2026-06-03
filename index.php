@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=113">
+  <link rel="stylesheet" href="styles.css?v=116">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1325,9 +1325,11 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     <div id="wheel-view" style="display:none">
       <div class="wheel-harmony-wrap">
         <div id="wheel-svg-wrap" class="wheel-svg-wrap"></div>
-        <div id="harmony-panel" class="harmony-panel" style="display:none"></div>
+        <div class="wheel-right-col">
+          <div id="harmony-panel" class="harmony-panel" style="display:none"></div>
+          <div id="wheel-achromatic" class="wheel-achromatic"></div>
+        </div>
       </div>
-      <div id="wheel-achromatic" class="wheel-achromatic"></div>
     </div>
     <div id="wheel-tooltip"></div>
 
