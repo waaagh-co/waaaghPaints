@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=100">
+  <link rel="stylesheet" href="styles.css?v=104">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1091,6 +1091,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <?php endif; ?>
 
+      <div class="dct-panel" id="daily-colour-card" style="display:none"></div>
+
       <div class="contents-grid">
         <div class="armies-workbench-row">
           <?php if ($hasFactions || $hasForces || $hasBattles): ?>
@@ -1305,6 +1307,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <button id="filter-flagged" class="inv-flagged-btn" title="Show low / out / wanted paints only">Flagged</button>
       <button class="inv-restock-btn" onclick="openRestockList()" title="Open full restock shopping list">Restock List</button>
       <button class="inv-wheel-btn" id="inv-wheel-btn" title="Colour wheel view">&#11044; Wheel</button>
+      <button class="inv-harmony-btn" id="inv-harmony-btn" title="Colour harmony advisor">&#9678; Harmony</button>
       <button class="inv-wheel-copy" id="inv-wheel-copy" title="Copy link to wheel view">&#128279; Copy link</button>
       <span id="count"></span>
     </div>
@@ -1328,7 +1331,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
 
     <div id="wheel-view" style="display:none">
-      <div id="wheel-svg-wrap" class="wheel-svg-wrap"></div>
+      <div class="wheel-harmony-wrap">
+        <div id="wheel-svg-wrap" class="wheel-svg-wrap"></div>
+        <div id="harmony-panel" class="harmony-panel" style="display:none"></div>
+      </div>
       <div id="wheel-achromatic" class="wheel-achromatic"></div>
     </div>
     <div id="wheel-tooltip"></div>
@@ -1845,6 +1851,16 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     </div>
   </div>
 
+  <div class="pull-overlay" id="scheme-doctor-modal" style="display:none" onclick="if(event.target===this)closeSchemeDoctor()">
+    <div class="pull-sheet sd-modal">
+      <div class="pull-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:'Cinzel',serif;letter-spacing:.08em">&#9678; Colour Harmony</span>
+        <button class="pull-close" onclick="closeSchemeDoctor()">&#x2715;</button>
+      </div>
+      <div id="sd-content" style="overflow-y:auto;max-height:calc(90vh - 60px)"></div>
+    </div>
+  </div>
+
   <div class="pull-overlay" id="pull-overlay">
     <div class="pull-sheet">
       <div class="pull-title" id="pull-title"></div>
@@ -1961,7 +1977,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=12"></script>
+  <script src="js/index.js?v=16"></script>
 
   <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
   <script>

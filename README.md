@@ -44,10 +44,17 @@ collapsible left-rail sidebar grouped into four sections.
   opens a full-screen shopping list (Out / Low / Wanted, grouped by brand) with Print and Copy -
   also accessible in one tap from the landing page flagged count; **Colour Wheel** plots every
   chromatic paint you own as a dot on a hue wheel so you can see coverage gaps at a glance -
-  toggle via the Wheel button in the controls bar or share a direct `?tab=inventory&wheel=1` link
+  toggle via the Wheel button in the controls bar or share a direct `?tab=inventory&wheel=1` link;
+  **Colour Harmony Advisor** - activate Harmony mode on the wheel, click any paint, and see all
+  five harmony types (Complementary, Triadic, Split, Analogous, Tetradic) with coloured arcs on
+  the ring and a side panel listing the best owned paints for each harmony position, temperature
+  analysis (warm/cool/neutral), and role suggestion (Shadow/Foundation/Highlight/Transition);
+  click any suggestion swatch to pivot the analysis to that paint
 - **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
   checklist for repainting (missing paints show a nearest-owned color suggestion via RGB
-  hex distance), and **Warpaint Mode** - a full-screen focused reference overlay with large
+  hex distance), **Scheme Doctor** (◎ Harmony button on each card) analyses the scheme's
+  colour harmony type, temperature distribution, shadow/highlight temperature checks, and
+  missing harmony roles with owned paint suggestions, and **Warpaint Mode** - a full-screen focused reference overlay with large
   imagery, full recipe step detail (technique badge, swatch, stock dot, mix paint with its
   own swatch and stock indicator, ratio, brush recommendation), nearest-owned suggestions
   for missing paints, and a stock-aware paint palette - designed for use at arm's length
@@ -67,6 +74,7 @@ collapsible left-rail sidebar grouped into four sections.
 - **Hobby Wishlist** - paints, models, brushes, and books to buy; mark ordered/in transit
 - **Brush Inventory** - track brush condition (Prime / Workhorse / Retired)
 - **Supplies Inventory** - track hobby supplies (palettes, wet palettes, mats, lamps, etc.) with condition cycling
+- **Colour Theory of the Day** - daily-seeded landing page card that picks a random paint from your inventory and analyses it through a randomly chosen harmony type. A mini colour wheel shows the selected paint (gold arc) alongside the harmony positions (coloured arcs) and best owned matches as dots. Refreshes each calendar day; stable throughout the day
 - **Waaagh! Index** - momentum gauge in the Admin Stats section scoring your rolling 7-day activity across sessions, bench work, and journal entries; five states from DOZIN' to FULL WAAAGH!! with a "Dis Week" activity summary beneath it
 - **Equivalency Search** - Citadel vs Vallejo vs Pro Acryl conversion table with owned-paint dots
 - **Codex Library** - optional army book and supplement tracker

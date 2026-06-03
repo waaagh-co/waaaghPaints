@@ -28,6 +28,9 @@
     let sortDir = 1; // 1=asc, -1=desc
     let stockFilter = false;
     let wheelActive = false;
+    let harmonyActive = false;
+    let harmonySelectedKey = null;
+    let harmonyType = 'complementary';
 
     const searchEl = document.getElementById('search');
     const filterBrand = document.getElementById('filter-brand');
@@ -45,6 +48,8 @@
     const wheelSvgWrap = document.getElementById('wheel-svg-wrap');
     const wheelAchEl  = document.getElementById('wheel-achromatic');
     const wheelTip    = document.getElementById('wheel-tooltip');
+    const harmonyBtn  = document.getElementById('inv-harmony-btn');
+    const harmonyPanel = document.getElementById('harmony-panel');
 
     function render() {
       const q = searchEl.value.toLowerCase();
@@ -282,7 +287,8 @@
           const dot = e.target.closest('.paint-dot');
           if (!dot) return;
           const p = _paintByKey.get(dot.dataset.key);
-          if (p) _wheelJumpToPaint(p);
+          if (!p) return;
+          if (harmonyActive) selectHarmonyPaint(p); else _wheelJumpToPaint(p);
         });
       }
       if (wheelAchEl) {
@@ -313,6 +319,103 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function harmonyPositions(baseHue, type) {
+      const h = ((baseHue % 360) + 360) % 360;
+      const n = x => ((x % 360) + 360) % 360;
+      if (type === 'complementary') return [{hue: n(h+180), label:'Complement', role:'Accent'}];
+      if (type === 'triadic')       return [{hue: n(h+120), label:'Second', role:'Secondary'}, {hue: n(h+240), label:'Third', role:'Secondary'}];
+      if (type === 'split')         return [{hue: n(h+150), label:'Split A', role:'Secondary'}, {hue: n(h+210), label:'Split B', role:'Secondary'}];
+      if (type === 'analogous')     return [{hue: n(h-30),  label:'Warm Analog', role:'Transition'}, {hue: n(h+30), label:'Cool Analog', role:'Transition'}];
+      if (type === 'tetradic')      return [{hue: n(h+90),  label:'Second', role:'Secondary'}, {hue: n(h+180), label:'Third', role:'Accent'}, {hue: n(h+270), label:'Fourth', role:'Secondary'}];
+      return [];
+    }
+
+    function paintsNearHue(targetHue, tolerance, excludeKey) {
+      const t = ((targetHue % 360) + 360) % 360;
+      return PAINTS.filter(p => {
+        if (excludeKey && paintKey(p) === excludeKey) return false;
+        const h = getHue(p);
+        if (h === null) return false;
+        return Math.min(Math.abs(h - t), 360 - Math.abs(h - t)) <= tolerance;
+      }).sort((a, b) => {
+        const da = Math.min(Math.abs(getHue(a) - t), 360 - Math.abs(getHue(a) - t));
+        const db = Math.min(Math.abs(getHue(b) - t), 360 - Math.abs(getHue(b) - t));
+        return da - db;
+      });
+    }
+
+    function paintTemperature(hue) {
+      const h = ((hue % 360) + 360) % 360;
+      if ((h >= 0 && h < 60) || h >= 300) return 'warm';
+      if (h >= 120 && h < 270) return 'cool';
+      return 'neutral';
+    }
+
+    function paintRole(h, s, l) {
+      if (l < 28) return 'Shadow';
+      if (l > 72) return 'Highlight';
+      if (s > 50) return 'Foundation';
+      return 'Transition';
+    }
+
+    function clearHarmonyArcs() {
+      const svg = document.getElementById('wheel-svg');
+      if (!svg) return;
+      svg.querySelectorAll('.harmony-arc').forEach(el => el.remove());
+      svg.querySelectorAll('.paint-dot').forEach(dot => dot.classList.remove('harmony-match','harmony-selected'));
+    }
+
+    function drawHarmonyArcs(selectedHue, type) {
+      clearHarmonyArcs();
+      const svg = document.getElementById('wheel-svg');
+      if (!svg) return;
+      const CX=450, CY=450, R1=240, R2=292, ARC=20;
+      const firstDot = svg.querySelector('.paint-dot');
+      harmonyPositions(selectedHue, type).forEach(pos => {
+        const aS=(pos.hue-90-ARC)*Math.PI/180, aE=(pos.hue-90+ARC)*Math.PI/180;
+        const x1=CX+R1*Math.cos(aS),y1=CY+R1*Math.sin(aS),x2=CX+R2*Math.cos(aS),y2=CY+R2*Math.sin(aS);
+        const x3=CX+R2*Math.cos(aE),y3=CY+R2*Math.sin(aE),x4=CX+R1*Math.cos(aE),y4=CY+R1*Math.sin(aE);
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('class','harmony-arc');
+        path.setAttribute('d',`M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z`);
+        path.setAttribute('fill',`hsl(${pos.hue.toFixed(0)},80%,60%)`);
+        path.setAttribute('opacity','0.4');
+        if (firstDot) svg.insertBefore(path, firstDot); else svg.appendChild(path);
+        PAINTS.forEach(p => { const h=getHue(p); if (h===null) return; if (Math.min(Math.abs(h-pos.hue),360-Math.abs(h-pos.hue)) <= 22) { const d=svg.querySelector(`.paint-dot[data-key="${CSS.escape(paintKey(p))}"]`); if (d) d.classList.add('harmony-match'); } });
+      });
+      const selDot = harmonySelectedKey && svg.querySelector(`.paint-dot[data-key="${CSS.escape(harmonySelectedKey)}"]`);
+      if (selDot) selDot.classList.add('harmony-selected');
+    }
+
+    function renderHarmonyPanel(p) {
+      if (!harmonyPanel) return;
+      const hue = getHue(p);
+      if (hue === null) { harmonyPanel.innerHTML = '<div class="hp-hint">This paint has no chromatic hue — try a coloured paint on the wheel.</div>'; harmonyPanel.style.display='block'; return; }
+      const hsl = p.hex ? hexToHsl(p.hex) : [hue,60,45];
+      const temp = paintTemperature(hue);
+      const role = paintRole(hsl[0],hsl[1],hsl[2]);
+      const fill = p.hex || `hsl(${hue},60%,45%)`;
+      const types = [{id:'complementary',label:'Complement'},{id:'triadic',label:'Triadic'},{id:'split',label:'Split'},{id:'analogous',label:'Analogous'},{id:'tetradic',label:'Tetradic'}];
+      const tabs = types.map(t => `<button class="hp-tab${harmonyType===t.id?' active':''}" data-htype="${t.id}">${t.label}</button>`).join('');
+      const advice = role==='Shadow' ? (temp==='cool'?'✓ Cool shadows create depth':'⚠ Warm shadows flatten — try cooler alternatives') : role==='Highlight' ? (temp==='warm'?'✓ Warm highlights pop naturally':'⚠ Cool highlights feel flat — try warmer tones') : `${temp.charAt(0).toUpperCase()+temp.slice(1)}-toned ${role.toLowerCase()}`;
+      const posHtml = harmonyPositions(hue, harmonyType).map(pos => {
+        const matches = paintsNearHue(pos.hue, 22, paintKey(p));
+        const ownedCount = matches.filter(m => paintOwned.has(paintKey(m))).length;
+        const swatches = matches.slice(0,7).map(m => { const mf=m.hex||`hsl(${getHue(m)},60%,45%)`; const own=paintOwned.has(paintKey(m)); const sc=m.stock==='out'?' hp-sw-out':m.stock==='low'?' hp-sw-low':''; return `<span class="hp-sw${sc}${own?'':' hp-sw-miss'}" style="background:${mf}" title="${esc(m.name)} (${esc(m.brand)})${own?'':' — not owned'}" data-key="${esc(paintKey(m))}"></span>`; }).join('');
+        return `<div class="hp-position"><div class="hp-pos-hd"><span class="hp-pos-dot" style="background:hsl(${pos.hue.toFixed(0)},75%,58%)"></span><span class="hp-pos-label">${esc(pos.label)}</span><span class="hp-pos-role">${esc(pos.role)}</span><span class="hp-pos-count">${ownedCount} owned</span></div><div class="hp-swatches">${swatches||'<span class="hp-no-match">No matches in collection</span>'}</div></div>`;
+      }).join('');
+      harmonyPanel.style.display = 'block';
+      harmonyPanel.innerHTML = `<div class="hp-header"><span class="hp-swatch-lg" style="background:${fill}"></span><div class="hp-paint-info"><div class="hp-paint-name">${esc(p.name)}</div><div class="hp-paint-meta">${esc(p.brand)} · ${esc(p.layer||'')}</div><div class="hp-badges"><span class="hp-temp hp-temp-${temp}">${temp}</span><span class="hp-role-badge">${role}</span></div></div></div><div class="hp-advice">${esc(advice)}</div><div class="hp-tabs">${tabs}</div><div class="hp-positions">${posHtml}</div>`;
+      harmonyPanel.querySelectorAll('.hp-tab').forEach(tab => { tab.addEventListener('click', () => { harmonyType=tab.dataset.htype; drawHarmonyArcs(hue,harmonyType); renderHarmonyPanel(p); }); });
+      harmonyPanel.querySelectorAll('.hp-sw[data-key]').forEach(sw => { sw.style.cursor='pointer'; sw.addEventListener('click', () => { const mp=_paintByKey.get(sw.dataset.key); if (mp) selectHarmonyPaint(mp); }); });
+    }
+
+    function selectHarmonyPaint(p) {
+      harmonySelectedKey = paintKey(p);
+      drawHarmonyArcs(getHue(p), harmonyType);
+      renderHarmonyPanel(p);
     }
 
     function collectAllPaints(direct, recipeIds) {
@@ -411,17 +514,35 @@
       if (wheelCopyBtn) wheelCopyBtn.style.display = on ? '' : 'none';
     }
 
+    if (harmonyBtn) {
+      harmonyBtn.style.display = 'none';
+      harmonyBtn.addEventListener('click', () => {
+        if (!wheelActive) return;
+        harmonyActive = !harmonyActive;
+        harmonyBtn.classList.toggle('active', harmonyActive);
+        if (!harmonyActive) {
+          clearHarmonyArcs();
+          harmonySelectedKey = null;
+          if (harmonyPanel) { harmonyPanel.style.display='none'; harmonyPanel.innerHTML=''; }
+        } else {
+          if (harmonyPanel) { harmonyPanel.innerHTML='<div class="hp-hint">◎ Click any paint on the wheel to analyse its harmony</div>'; harmonyPanel.style.display='block'; }
+        }
+      });
+    }
+
     if (wheelBtn) {
       wheelBtn.addEventListener('click', () => {
         wheelActive = !wheelActive;
         wheelBtn.classList.toggle('active', wheelActive);
         _setWheelUrlState(wheelActive);
+        if (harmonyBtn) harmonyBtn.style.display = wheelActive ? '' : 'none';
         if (wheelActive) {
           table.style.display = 'none';
           emptyEl.style.display = 'none';
           if (wheelView) wheelView.style.display = 'block';
           renderWheel();
         } else {
+          if (harmonyActive) { harmonyActive=false; harmonySelectedKey=null; if (harmonyBtn) harmonyBtn.classList.remove('active'); clearHarmonyArcs(); if (harmonyPanel) { harmonyPanel.style.display='none'; harmonyPanel.innerHTML=''; } }
           if (wheelView)  wheelView.style.display = 'none';
           if (wheelTip)   wheelTip.style.display  = 'none';
           render();
@@ -701,7 +822,7 @@
             return !paintOwned.has(uk) || paintStock.get(uk);
           }).length;
           const badge = issues > 0 ? `<span class="pull-issue-badge">${issues} issue${issues > 1 ? 's' : ''}</span>` : '';
-          return `<div class="model-colors">${colors}</div><div class="model-card-btns"><button class="warpaint-btn" onclick="openWarpaint('${esc(m.id)}')">&#9876; Warpaint</button><button class="pull-btn" onclick="openPull('${esc(m.id)}')">Pull list${badge}</button></div>`;
+          return `<div class="model-colors">${colors}</div><div class="model-card-btns"><button class="warpaint-btn" onclick="openWarpaint('${esc(m.id)}')">&#9876; Warpaint</button><button class="pull-btn" onclick="openPull('${esc(m.id)}')">Pull list${badge}</button><button class="harmony-btn" onclick="openSchemeDoctor('${esc(m.id)}','gallery')">&#9678; Harmony</button></div>`;
         })() : '';
         const bodyHtml = hasBodyExt || codexBadge || summaryHtml ? `<div class="model-info">${summaryHtml}${descHtml}${codexBadge}${recipeRefs}${colorsHtml}</div>` : '';
         const stripeHtml = m.theme_hex ? `<div class="model-theme-stripe" style="background:linear-gradient(to right,${esc(m.theme_hex)} 0%,transparent 100%)"></div>` : '';
@@ -778,6 +899,7 @@
       if (typeof gtag !== 'undefined') gtag('event', 'tab_view', { tab_name: tabName });
       const _tabUrl = new URL(location.href);
       if (tabName === 'contents') { _tabUrl.searchParams.delete('tab'); } else { _tabUrl.searchParams.set('tab', tabName); }
+      if (tabName !== 'inventory') { _tabUrl.searchParams.delete('wheel'); if (wheelActive) { wheelActive=false; if (wheelBtn) wheelBtn.classList.remove('active'); if (harmonyActive) { harmonyActive=false; harmonySelectedKey=null; if (harmonyBtn) { harmonyBtn.classList.remove('active'); harmonyBtn.style.display='none'; } clearHarmonyArcs(); if (harmonyPanel) { harmonyPanel.style.display='none'; harmonyPanel.innerHTML=''; } } if (wheelView) wheelView.style.display='none'; if (wheelTip) wheelTip.style.display='none'; if (wheelCopyBtn) wheelCopyBtn.style.display='none'; } }
       history.replaceState(null, '', _tabUrl.toString());
       return true;
     }
@@ -1554,7 +1676,7 @@
             ${colors.length  ? `<div class="planned-colors">${pillsHtml}</div>` : ''}
             <div class="planned-card-footer">
               <span class="planned-card-summary">${colors.length} paint${colors.length !== 1 ? 's' : ''}${statusParts.length ? ' - ' + statusParts.join(', ') : ''}</span>
-              ${colors.length ? `<button class="pull-btn planned-pull-btn" onclick="openPlannedPull('${esc(pl.id || '')}')">Pull list${missing > 0 ? ` <span class="pull-issue-badge">${missing} issue${missing !== 1 ? 's' : ''}</span>` : ''}</button>` : ''}
+              ${colors.length ? `<button class="pull-btn planned-pull-btn" onclick="openPlannedPull('${esc(pl.id || '')}')">Pull list${missing > 0 ? ` <span class="pull-issue-badge">${missing} issue${missing !== 1 ? 's' : ''}</span>` : ''}</button><button class="harmony-btn" onclick="openSchemeDoctor('${esc(pl.id || '')}','planned')">&#9678; Harmony</button>` : ''}
             </div>
           </div>
         </div>`;
@@ -1566,6 +1688,74 @@
       if (!pl) return;
       const subtitle = [pl.faction, pl.model].filter(Boolean).join(' — ');
       populatePullSheet(pl.name, subtitle, pl.colors || [], pl.recipes);
+    };
+
+    function schemeHues(colors) {
+      return (colors || []).map(c => { const key=upgradeKey(c); const p=_paintByKey.get(key); if (!p) return null; const h=getHue(p); if (h===null) return null; const hsl=p.hex?hexToHsl(p.hex):[h,60,45]; return {key,p,hue:h,hsl}; }).filter(Boolean);
+    }
+
+    function detectHarmonyType(hues) {
+      if (!hues.length) return 'Unknown';
+      if (hues.length === 1) return 'Monochromatic';
+      const norm = hues.map(h => ((h%360)+360)%360).sort((a,b)=>a-b);
+      const gaps = norm.map((h,i) => i<norm.length-1 ? norm[i+1]-h : 360-h+norm[0]);
+      const spread = 360 - Math.max(...gaps);
+      if (spread <= 30) return 'Monochromatic';
+      if (spread <= 70) return 'Analogous';
+      const clusters = [];
+      norm.forEach(h => { const ex=clusters.find(c=>Math.min(Math.abs(c-h),360-Math.abs(c-h))<=30); if (!ex) clusters.push(h); });
+      if (clusters.length === 2) { const d=Math.min(Math.abs(clusters[0]-clusters[1]),360-Math.abs(clusters[0]-clusters[1])); if (Math.abs(d-180)<35) return 'Complementary'; if (Math.abs(d-150)<30||Math.abs(d-210)<30) return 'Split-Complementary'; }
+      if (clusters.length === 3) { const s=clusters.slice().sort((a,b)=>a-b); const diffs=[s[1]-s[0],s[2]-s[1],360-s[2]+s[0]]; if (diffs.every(d=>Math.abs(d-120)<35)) return 'Triadic'; }
+      if (clusters.length >= 4) return 'Tetradic';
+      return 'Mixed';
+    }
+
+    function buildMiniWheelSvg(hueData) {
+      const CX=150,CY=150,R1=100,R2=118,SEGS=24,DEG=15;
+      let bg='';
+      for (let i=0;i<SEGS;i++) { const hd=i*DEG,aS=(hd-90-DEG/2)*Math.PI/180,aE=(hd-90+DEG/2)*Math.PI/180; const x1=CX+R1*Math.cos(aS),y1=CY+R1*Math.sin(aS),x2=CX+R2*Math.cos(aS),y2=CY+R2*Math.sin(aS),x3=CX+R2*Math.cos(aE),y3=CY+R2*Math.sin(aE),x4=CX+R1*Math.cos(aE),y4=CY+R1*Math.sin(aE); bg+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z" fill="hsl(${hd},70%,55%)" opacity=".18"/>`; }
+      const bkts=Array.from({length:SEGS},()=>[]);
+      hueData.forEach(d => { const seg=Math.floor(((d.hue%360)+360)%360/DEG)%SEGS; bkts[seg].push(d); });
+      let dots='';
+      bkts.forEach(bkt => { bkt.forEach((d,ring) => { const angle=(d.hue-90)*Math.PI/180,r=55+ring*11,x=CX+r*Math.cos(angle),y=CY+r*Math.sin(angle); const fill=d.p.hex||`hsl(${d.hue},60%,45%)`; dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${fill}" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>`; }); });
+      return `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">${bg}<circle cx="${CX}" cy="${CY}" r="42" fill="#0a0806" opacity=".95"/>${dots}</svg>`;
+    }
+
+    window.openSchemeDoctor = function(id, source) {
+      const scheme = source==='planned' ? PLANNED.find(x=>x.id===id) : MODELS.find(x=>x.id===id);
+      if (!scheme) return;
+      const modal = document.getElementById('scheme-doctor-modal');
+      if (!modal) return;
+      const allColors = collectAllPaints(scheme.colors, scheme.recipes);
+      const hueData = schemeHues(allColors);
+      const hues = hueData.map(d=>d.hue);
+      const harmType = detectHarmonyType(hues);
+      const typeColors = {Complementary:'#6a2020',Triadic:'#1a4a18',Analogous:'#1a2a4a','Split-Complementary':'#4a2a10',Tetradic:'#3a1a4a',Monochromatic:'#3a3010',Mixed:'#2a2a2a',Unknown:'#1a1a1a'};
+      const typeBg = typeColors[harmType]||'#2a2a2a';
+      const miniSvg = buildMiniWheelSvg(hueData);
+      const warm=hueData.filter(d=>paintTemperature(d.hue)==='warm').length, cool=hueData.filter(d=>paintTemperature(d.hue)==='cool').length, tot=hueData.length||1, neutral=tot-warm-cool;
+      const warmPct=Math.round(warm/tot*100), coolPct=Math.round(cool/tot*100), neutralPct=100-warmPct-coolPct;
+      const shadows=hueData.filter(d=>d.hsl[2]<28), highlights=hueData.filter(d=>d.hsl[2]>72);
+      const shadowTemp=shadows.length?(shadows.filter(d=>paintTemperature(d.hue)==='cool').length>=shadows.length/2?'cool':'warm'):null;
+      const highlightTemp=highlights.length?(highlights.filter(d=>paintTemperature(d.hue)==='warm').length>=highlights.length/2?'warm':'cool'):null;
+      const tempRowHtml=(shadowTemp?`<span class="sd-temp-tag ${shadowTemp==='cool'?'sd-ok':'sd-warn'}">Shadows: ${shadowTemp}${shadowTemp==='cool'?' ✓':' ⚠'}</span>`:'')+( highlightTemp?`<span class="sd-temp-tag ${highlightTemp==='warm'?'sd-ok':'sd-warn'}">Highlights: ${highlightTemp}${highlightTemp==='warm'?' ✓':' ⚠'}</span>`:'');
+      const primaryData = hueData.length ? hueData.reduce((best,d)=>d.hsl[1]>best.hsl[1]?d:best, hueData[0]) : null;
+      const typeKey = harmType.toLowerCase().replace(/ |-/g,'').replace('splitcomplementary','split');
+      const expectedPos = primaryData ? harmonyPositions(primaryData.hue, typeKey) : [];
+      const missingPos = expectedPos.filter(pos => !hueData.some(d=>Math.min(Math.abs(d.hue-pos.hue),360-Math.abs(d.hue-pos.hue))<=30));
+      const missingHtml = missingPos.length ? `<div class="sd-section">Missing Harmony Roles</div>${missingPos.map(pos => { const sug=paintsNearHue(pos.hue,22,null).slice(0,5); const sugHtml=sug.map(m=>{const fill=m.hex||`hsl(${getHue(m)},60%,45%)`;const own=paintOwned.has(paintKey(m));return `<span class="hp-sw${own?'':' hp-sw-miss'}" style="background:${fill}" title="${esc(m.name)} (${esc(m.brand)})${own?'':' — not owned'}"></span>`;}).join(''); return `<div class="sd-missing"><span class="hp-pos-dot" style="background:hsl(${pos.hue.toFixed(0)},75%,58%)"></span><span class="sd-miss-label">${esc(pos.label)} — ${esc(pos.role)}</span><div class="hp-swatches">${sugHtml}</div></div>`; }).join('')}` : '<div class="sd-complete">✓ All harmony roles are covered</div>';
+      const palHtml = hueData.map(d=>{ const fill=d.p.hex||`hsl(${d.hue},60%,45%)`;const role=paintRole(d.hsl[0],d.hsl[1],d.hsl[2]); return `<div class="sd-pal-item"><span class="hp-swatch-lg" style="background:${fill}" title="${esc(d.p.name)}"></span><span class="sd-pal-role">${role}</span></div>`; }).join('');
+      const achromatic = allColors.map(c=>{const p=_paintByKey.get(upgradeKey(c));return p&&getHue(p)===null?p:null;}).filter(Boolean);
+      const achHtml = achromatic.length ? `<div class="sd-section">Achromatic Paints</div><div class="hp-swatches">${achromatic.map(p=>`<span class="hp-sw" style="background:${p.hex||'#5a5a5a'}" title="${esc(p.name)} — ${esc(p.color)}"></span>`).join('')}</div>` : '';
+      document.getElementById('sd-content').innerHTML = `<div class="sd-header"><div class="sd-name">${esc(scheme.name)}</div><span class="sd-type" style="background:${typeBg}">${esc(harmType)}</span></div><div class="sd-body"><div class="sd-mini-wheel">${miniSvg}</div><div class="sd-right"><div class="sd-temp-row">${tempRowHtml}</div><div class="sd-section">Temperature Distribution</div><div class="sd-prop-bar"><div class="sd-prop-warm" style="width:${warmPct}%"></div><div class="sd-prop-neutral" style="width:${neutralPct}%"></div><div class="sd-prop-cool" style="width:${coolPct}%"></div></div><div class="sd-prop-labels"><span>Warm ${warmPct}%</span><span>Neutral ${neutralPct}%</span><span>Cool ${coolPct}%</span></div>${missingHtml}${palHtml?`<div class="sd-section">Scheme Palette</div><div class="sd-palette">${palHtml}</div>`:''}${achHtml}</div></div>`;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeSchemeDoctor = function() {
+      const modal = document.getElementById('scheme-doctor-modal');
+      if (modal) modal.style.display = 'none';
+      document.body.style.overflow = '';
     };
 
     document.querySelectorAll('.planned-rp').forEach(pill => {
@@ -4162,6 +4352,44 @@
           installBanner.classList.remove('visible');
           deferredInstallPrompt = null;
         });
+      })();
+
+      (function() {
+        const dctEl = document.getElementById('daily-colour-card');
+        if (!dctEl || typeof PAINTS === 'undefined') return;
+        const chromatic = PAINTS.filter(p => { if (!p.hex || !/^#[0-9a-f]{6}$/i.test(p.hex)) return false; const [,s] = hexToHsl(p.hex); return s >= 8 && !_ACHROMATIC_CATS.has(p.color); });
+        if (!chromatic.length) return;
+        const dateStr = new Date().toDateString();
+        let seed = 0;
+        for (const c of dateStr) seed = ((seed << 5) - seed) + c.charCodeAt(0) | 0;
+        seed = Math.abs(seed);
+        const hTypes = ['complementary','triadic','split','analogous'];
+        const hLabels = {complementary:'Complementary',triadic:'Triadic',split:'Split-Complementary',analogous:'Analogous'};
+        const hDescs = {complementary:'Maximum contrast — opposite on the wheel. The accent colour that makes the primary pop.',triadic:'Three equally-spaced hues — vibrant, balanced, and full of energy.',split:'Two near-complements flanking the opposite — softer tension than pure complementary.',analogous:'Adjacent hues — harmonious, naturalistic, and satisfying to look at.'};
+        const paint = chromatic[seed % chromatic.length];
+        const hType = hTypes[(seed >> 6) % hTypes.length];
+        const hue = getHue(paint);
+        if (hue === null) return;
+        const [ph, ps, pl] = hexToHsl(paint.hex);
+        const temp = paintTemperature(hue);
+        const role = paintRole(ph, ps, pl);
+        const positions = harmonyPositions(hue, hType);
+        const picks = positions.map(pos => { const matches = paintsNearHue(pos.hue, 30, paintKey(paint)); const owned = matches.filter(m => paintOwned.has(paintKey(m))); return {pos, paint: owned[0] || matches[0] || null}; });
+        function buildDCTWheelSvg() {
+          const CX=120,CY=120,R1=78,R2=96,SEGS=24,DEG=15,ARC=20;
+          let bg=''; for (let i=0;i<SEGS;i++) { const hd=i*DEG,aS=(hd-90-DEG/2)*Math.PI/180,aE=(hd-90+DEG/2)*Math.PI/180; const x1=CX+R1*Math.cos(aS),y1=CY+R1*Math.sin(aS),x2=CX+R2*Math.cos(aS),y2=CY+R2*Math.sin(aS),x3=CX+R2*Math.cos(aE),y3=CY+R2*Math.sin(aE),x4=CX+R1*Math.cos(aE),y4=CY+R1*Math.sin(aE); bg+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z" fill="hsl(${hd},70%,55%)" opacity=".2"/>`; }
+          const paS=(hue-90-ARC)*Math.PI/180,paE=(hue-90+ARC)*Math.PI/180;
+          const px1=CX+R1*Math.cos(paS),py1=CY+R1*Math.sin(paS),px2=CX+R2*Math.cos(paS),py2=CY+R2*Math.sin(paS),px3=CX+R2*Math.cos(paE),py3=CY+R2*Math.sin(paE),px4=CX+R1*Math.cos(paE),py4=CY+R1*Math.sin(paE);
+          const primaryArc=`<path d="M${px1.toFixed(1)},${py1.toFixed(1)} L${px2.toFixed(1)},${py2.toFixed(1)} A${R2},${R2} 0 0,1 ${px3.toFixed(1)},${py3.toFixed(1)} L${px4.toFixed(1)},${py4.toFixed(1)} A${R1},${R1} 0 0,0 ${px1.toFixed(1)},${py1.toFixed(1)}Z" fill="#c9a227" opacity=".75"/>`;
+          let harmArcs=''; positions.forEach(pos => { const aS=(pos.hue-90-ARC)*Math.PI/180,aE=(pos.hue-90+ARC)*Math.PI/180; const x1=CX+R1*Math.cos(aS),y1=CY+R1*Math.sin(aS),x2=CX+R2*Math.cos(aS),y2=CY+R2*Math.sin(aS),x3=CX+R2*Math.cos(aE),y3=CY+R2*Math.sin(aE),x4=CX+R1*Math.cos(aE),y4=CY+R1*Math.sin(aE); harmArcs+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} A${R2},${R2} 0 0,1 ${x3.toFixed(1)},${y3.toFixed(1)} L${x4.toFixed(1)},${y4.toFixed(1)} A${R1},${R1} 0 0,0 ${x1.toFixed(1)},${y1.toFixed(1)}Z" fill="hsl(${pos.hue.toFixed(0)},80%,62%)" opacity=".55"/>`; });
+          const pAngle=(hue-90)*Math.PI/180, dr=54;
+          let dots=`<circle cx="${(CX+dr*Math.cos(pAngle)).toFixed(1)}" cy="${(CY+dr*Math.sin(pAngle)).toFixed(1)}" r="10" fill="${paint.hex}" stroke="#c9a227" stroke-width="2.5"/>`;
+          picks.forEach(({pos,paint:mp}) => { if (!mp) return; const mh=getHue(mp); if (mh===null) return; const mAngle=(mh-90)*Math.PI/180; const mFill=mp.hex||`hsl(${mh},60%,45%)`; dots+=`<circle cx="${(CX+dr*Math.cos(mAngle)).toFixed(1)}" cy="${(CY+dr*Math.sin(mAngle)).toFixed(1)}" r="7" fill="${mFill}" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>`; });
+          return `<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">${bg}${primaryArc}${harmArcs}${dots}</svg>`;
+        }
+        const picksHtml = picks.map(({pos,paint:mp}) => { if (!mp) return ''; const fill=mp.hex||`hsl(${getHue(mp)||0},60%,45%)`; const own=paintOwned.has(paintKey(mp)); return `<div class="dct-strip-match"><span class="dct-match-role">${pos.label}</span><span class="dct-match-swatch" style="background:${fill}${own?'':';opacity:.4'}" title="${esc(mp.name)} (${esc(mp.brand)})${own?'':' · not owned'}"></span><span class="dct-match-name">${esc(mp.name)}</span></div>`; }).join('');
+        dctEl.innerHTML = `<div class="dct-strip"><div class="dct-strip-label"><div class="dct-eyebrow">Colour Theory of the Day</div><div class="dct-type-label">${hLabels[hType]}</div></div><div class="dct-strip-primary"><span class="dct-primary-swatch" style="background:${paint.hex}" title="${esc(paint.name)}"></span><div><div class="dct-primary-name">${esc(paint.name)}</div><div class="dct-primary-meta">${esc(paint.brand)} · <span class="hp-temp hp-temp-${temp}">${temp}</span></div></div></div><div class="dct-strip-matches">${picksHtml}</div><div class="dct-strip-desc">${esc(hDescs[hType])}</div><div class="dct-strip-wheel">${buildDCTWheelSvg()}</div></div>`;
+        dctEl.style.display = '';
       })();
 
       (function() {
