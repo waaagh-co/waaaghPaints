@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=110">
+  <link rel="stylesheet" href="styles.css?v=112">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -929,13 +929,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       }
       ?>
 
-      <?php if (!defined('SHOW_HEATMAP') || SHOW_HEATMAP): ?>
-      <div class="hero-wrap">
-        <div class="hero-bar">
-          <div id="hero-heatmap" class="hero-heatmap"></div>
-        </div>
-      </div>
-      <?php endif; ?>
+      <div class="dct-panel" id="daily-colour-card" style="display:none"></div>
 
       <div class="pipeline-notes-row">
         <div class="pipeline-band">
@@ -1090,8 +1084,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         </div>
       </div>
       <?php endif; ?>
-
-      <div class="dct-panel" id="daily-colour-card" style="display:none"></div>
 
       <div class="contents-grid">
         <div class="armies-workbench-row">
@@ -1512,17 +1504,9 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <div class="ci-hero-portrait"><img src="img/models/1777377286_1.jpg" alt="The Commissar" loading="lazy"></div>
       </div>
 
-      <?php if (!empty($milestones)): ?>
-      <div class="ms-strip ms-commissar">
-        <div class="ms-strip-hd">Campaign Honours &mdash; <?= $_msUnlocked ?> of <?= count($milestones) ?> earned</div>
-        <div class="ms-badges">
-          <?php foreach ($milestones as $_ms): ?>
-          <div class="ms-badge<?= $_ms['unlocked'] ? ' ms-unlocked ms-cat-' . $_ms['cat'] : ' ms-locked' ?>">
-            <span class="ms-name"><?= htmlspecialchars($_ms['name']) ?></span>
-            <?php if ($_ms['unlocked']): ?><span class="ms-flavor"><?= htmlspecialchars($_ms['flavor']) ?></span><?php endif; ?>
-          </div>
-          <?php endforeach; unset($_ms); ?>
-        </div>
+      <?php if (!defined('SHOW_HEATMAP') || SHOW_HEATMAP): ?>
+      <div class="ci-heatmap-section">
+        <div id="hero-heatmap" class="hero-heatmap"></div>
       </div>
       <?php endif; ?>
 
@@ -1699,6 +1683,20 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           </div>
         <?php endif; ?>
       </div>
+
+      <?php if (!empty($milestones)): ?>
+      <div class="ms-strip ms-commissar">
+        <div class="ms-strip-hd">Campaign Honours &mdash; <?= $_msUnlocked ?> of <?= count($milestones) ?> earned</div>
+        <div class="ms-badges">
+          <?php foreach ($milestones as $_ms): ?>
+          <div class="ms-badge<?= $_ms['unlocked'] ? ' ms-unlocked ms-cat-' . $_ms['cat'] : ' ms-locked' ?>">
+            <span class="ms-name"><?= htmlspecialchars($_ms['name']) ?></span>
+            <?php if ($_ms['unlocked']): ?><span class="ms-flavor"><?= htmlspecialchars($_ms['flavor']) ?></span><?php endif; ?>
+          </div>
+          <?php endforeach; unset($_ms); ?>
+        </div>
+      </div>
+      <?php endif; ?>
     </div>
   </div><!-- #tab-commissar -->
   <?php endif; // SHOW_COMMISSAR ?>

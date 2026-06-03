@@ -3280,14 +3280,14 @@
     .wtn-card-prepped { border-left-color: #50a860; }
     .wtn-card-prepped .wtn-type { color: #50a860; }
     /* Daily Colour Theory card — horizontal strip */
-    .dct-panel { background: #0b0a08; border: 1px solid #2a1e30; border-top: 2px solid #5a3a7a; padding: 10px 16px; margin: 0 0 22px; }
+    .dct-panel { background: #0b0a08; border: 1px solid #2a1e18; border-top: 2px solid var(--gold); padding: 12px 18px; margin: 0 0 22px; }
     .dct-strip { display: flex; align-items: center; gap: 0; flex-wrap: wrap; min-height: 64px; }
-    .dct-strip-label { flex-shrink: 0; padding-right: 16px; min-width: 130px; }
-    .dct-eyebrow { font-family: var(--font-heading); font-size: .55rem; letter-spacing: .18em; color: #7a5a9a; text-transform: uppercase; margin-bottom: 2px; }
-    .dct-type-label { font-family: var(--font-heading); font-size: .88rem; color: #c0a8f0; letter-spacing: .05em; }
+    .dct-strip-label { flex-shrink: 0; padding-right: 18px; min-width: 160px; }
+    .dct-eyebrow { font-family: var(--font-heading); font-size: .6rem; letter-spacing: .2em; color: #9a7abа; text-transform: uppercase; margin-bottom: 4px; }
+    .dct-type-label { font-family: var(--font-heading); font-size: 1.15rem; color: #c9a227; letter-spacing: .06em; text-transform: uppercase; }
     .dct-strip-primary { display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-left: 1px solid #2a1e30; padding: 0 16px; }
     .dct-pot-wrap { position: relative; width: 48px; height: 64px; flex-shrink: 0; }
-    .dct-pot-color { position: absolute; top: 38%; left: 18%; width: 68%; bottom: 17%; border-radius: 0 0 35% 35%; }
+    .dct-pot-color { position: absolute; top: 38%; left: 18%; width: 66%; bottom: 17%; border-radius: 0 0 35% 35%; }
     .dct-pot-img { width: 100%; height: 100%; object-fit: fill; position: relative; z-index: 1; display: block; }
     .dct-primary-name { font-family: var(--font-heading); font-size: .78rem; color: #c9a227; letter-spacing: .04em; white-space: nowrap; }
     .dct-primary-meta { font-size: .68rem; color: #5a4a28; margin-top: 1px; }
@@ -6346,6 +6346,8 @@
 .ci-risk-low { color: #c98020; font-size: .6rem; font-weight: 700; }
 .ci-risk-out { color: #8a2020; font-size: .6rem; font-weight: 700; }
 
+.ci-heatmap-section { padding: 18px 14px 8px; }
+.ci-heatmap-section .hero-heatmap { flex: none; }
 .ci-divider { font-family: var(--font-heading); font-size: .58rem; letter-spacing: .22em; color: #4a3010; text-transform: uppercase; text-align: center; padding: 16px 14px 10px; border-top: 1px solid #2a1e08; margin: 4px 14px 0; }
 
 .ci-legacy { padding: 0 14px 32px; }
