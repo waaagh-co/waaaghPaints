@@ -3285,15 +3285,17 @@
     .dct-strip-label { flex-shrink: 0; padding-right: 16px; min-width: 130px; }
     .dct-eyebrow { font-family: var(--font-heading); font-size: .55rem; letter-spacing: .18em; color: #7a5a9a; text-transform: uppercase; margin-bottom: 2px; }
     .dct-type-label { font-family: var(--font-heading); font-size: .88rem; color: #c0a8f0; letter-spacing: .05em; }
-    .dct-strip-primary { display: flex; align-items: center; gap: 8px; flex-shrink: 0; border-left: 1px solid #2a1e30; padding: 0 16px; }
-    .dct-primary-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); flex-shrink: 0; }
+    .dct-strip-primary { display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-left: 1px solid #2a1e30; padding: 0 16px; }
+    .dct-pot-wrap { position: relative; width: 48px; height: 64px; flex-shrink: 0; }
+    .dct-pot-color { position: absolute; top: 38%; left: 18%; width: 68%; bottom: 17%; border-radius: 0 0 35% 35%; }
+    .dct-pot-img { width: 100%; height: 100%; object-fit: fill; position: relative; z-index: 1; display: block; }
     .dct-primary-name { font-family: var(--font-heading); font-size: .78rem; color: #c9a227; letter-spacing: .04em; white-space: nowrap; }
     .dct-primary-meta { font-size: .68rem; color: #5a4a28; margin-top: 1px; }
     .dct-strip-matches { display: flex; align-items: center; gap: 14px; border-left: 1px solid #2a1e30; padding: 0 16px; flex-wrap: wrap; }
-    .dct-strip-match { display: flex; align-items: center; gap: 5px; }
-    .dct-match-role { font-family: var(--font-heading); font-size: .6rem; color: #7a5a9a; letter-spacing: .04em; white-space: nowrap; }
-    .dct-match-swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,.15); flex-shrink: 0; }
-    .dct-match-name { font-size: .75rem; color: #c4b49a; white-space: nowrap; }
+    .dct-strip-match { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+    .dct-match-role { font-family: var(--font-heading); font-size: .55rem; color: #7a5a9a; letter-spacing: .04em; display: block; margin-bottom: 2px; }
+    .dct-match-name { font-size: .72rem; color: #c4b49a; line-height: 1.3; max-width: 80px; }
+    .dct-pot-muted { opacity: .45; }
     .dct-strip-desc { font-size: .7rem; color: #5a4a38; font-style: italic; border-left: 1px solid #2a1e30; padding: 0 16px; flex: 1 1 160px; line-height: 1.4; }
     .dct-strip-wheel { flex-shrink: 0; border-left: 1px solid #2a1e30; padding-left: 14px; margin-left: auto; }
     .dct-strip-wheel svg { width: 90px; height: 90px; display: block; }
