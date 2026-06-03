@@ -431,6 +431,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
   $name        = trim($_POST['pl_name']        ?? '');
   $model        = trim($_POST['pl_model']        ?? '');
   $faction      = trim($_POST['pl_faction']      ?? '');
+  $sub_faction  = trim($_POST['pl_sub_faction']  ?? '');
   $system       = trim($_POST['pl_system']       ?? '');
   $description  = trim($_POST['pl_description']  ?? '');
   $codex_source = trim($_POST['pl_codex_source'] ?? '');
@@ -441,6 +442,7 @@ if ($authed && ($_POST['action'] ?? '') === 'add_planned') {
     $entry = ['id' => (string)time(), 'name' => $name];
     if ($model)        $entry['model']        = $model;
     if ($faction)      $entry['faction']      = $faction;
+    if ($sub_faction)  $entry['sub_faction']  = $sub_faction;
     if ($system)       $entry['system']       = $system;
     if ($description)  $entry['description']  = $description;
     if ($codex_source) $entry['codex_source'] = $codex_source;
@@ -460,6 +462,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_planned') {
   $name         = trim($_POST['pl_name']         ?? '');
   $model        = trim($_POST['pl_model']        ?? '');
   $faction      = trim($_POST['pl_faction']      ?? '');
+  $sub_faction  = trim($_POST['pl_sub_faction']  ?? '');
   $system       = trim($_POST['pl_system']       ?? '');
   $description  = trim($_POST['pl_description']  ?? '');
   $codex_source = trim($_POST['pl_codex_source'] ?? '');
@@ -472,6 +475,7 @@ if ($authed && ($_POST['action'] ?? '') === 'edit_planned') {
         $p = ['id' => $pid, 'name' => $name];
         if ($model)        $p['model']        = $model;
         if ($faction)      $p['faction']      = $faction;
+        if ($sub_faction)  $p['sub_faction']  = $sub_faction;
         if ($system)       $p['system']       = $system;
         if ($description)  $p['description']  = $description;
         if ($codex_source) $p['codex_source'] = $codex_source;
@@ -1403,6 +1407,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
   $bid          = trim($_POST['bench_id']       ?? '');
   $name         = trim($_POST['bn_name']        ?? '');
   $faction      = trim($_POST['bn_faction']     ?? '');
+  $sub_faction  = trim($_POST['bn_sub_faction'] ?? '');
   $system       = trim($_POST['bn_system']      ?? '');
   $stage        = trim($_POST['bn_stage']       ?? 'built');
   $date_start   = trim($_POST['bn_date_start']  ?? '');
@@ -1464,6 +1469,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
       'last_touched' => date('Y-m-d'),
     ];
     if ($faction)      $entry['faction']      = $faction;
+    if ($sub_faction)  $entry['sub_faction']  = $sub_faction;
     if ($system)       $entry['system']       = $system;
     if ($date_start)   $entry['date_start']   = $date_start;
     if ($notes)        $entry['notes']        = $notes;
@@ -1935,6 +1941,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'import_backup') 
 if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
   $name         = trim($_POST['model_name']    ?? '');
   $faction      = trim($_POST['faction']       ?? '');
+  $sub_faction  = trim($_POST['sub_faction']   ?? '');
   $system       = trim($_POST['system']        ?? '');
   $date         = trim($_POST['date']          ?? '');
   $description  = trim($_POST['description']   ?? '');
@@ -1987,6 +1994,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'add_model') {
         'id'           => $id,
         'name'         => $name,
         'faction'      => $faction,
+        'sub_faction'  => $sub_faction,
         'date'         => $date,
         'description'  => $description,
         'codex_source' => $codex_source,
@@ -2042,6 +2050,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
   $editId       = trim($_POST['model_id']      ?? '');
   $name         = trim($_POST['model_name']    ?? '');
   $faction      = trim($_POST['faction']       ?? '');
+  $sub_faction  = trim($_POST['sub_faction']   ?? '');
   $system       = trim($_POST['system']        ?? '');
   $date         = trim($_POST['date']          ?? '');
   $description  = trim($_POST['description']   ?? '');
@@ -2104,6 +2113,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'edit_model') {
       if ($formError === '') {
         $entry = ['id' => $editId, 'name' => $name];
         if ($faction !== '')      $entry['faction']      = $faction;
+        if ($sub_faction !== '')  $entry['sub_faction']  = $sub_faction;
         if ($date !== '')         $entry['date']         = $date;
         if ($description !== '')  $entry['description']  = $description;
         if ($codex_source !== '') $entry['codex_source'] = $codex_source;
@@ -2986,7 +2996,13 @@ if ($authed && isset($_GET['edit_force'])) {
             <label for="faction">Faction / Army</label>
             <input type="text" id="faction" name="faction"
               value="<?= $editModel ? e($editModel['faction'] ?? '') : '' ?>"
-              placeholder="e.g. Space Marines">
+              placeholder="e.g. Blood Angels">
+          </div>
+          <div>
+            <label for="sub_faction">Unit / Sub-faction</label>
+            <input type="text" id="sub_faction" name="sub_faction"
+              value="<?= $editModel ? e($editModel['sub_faction'] ?? '') : '' ?>"
+              placeholder="e.g. Death Company, Shoota Boyz">
           </div>
           <div>
             <label for="sys_game">Game System</label>
@@ -3141,7 +3157,7 @@ if ($authed && isset($_GET['edit_force'])) {
           </form>
         <?php endif; ?>
         <div class="model-list">
-          <?php foreach (array_reverse($models) as $m): ?>
+          <?php $displayModels = $models; usort($displayModels, fn($a, $b) => strcasecmp($a['name'] ?? '', $b['name'] ?? '')); foreach ($displayModels as $m): ?>
             <div class="model-row">
               <?php if (!empty($m['images'][0])): ?>
                 <img class="model-row-thumb" src="<?= e($m['images'][0]) ?>" alt="">
@@ -4252,7 +4268,7 @@ if ($authed && isset($_GET['edit_force'])) {
           <div class="model-list">
             <?php
             $shameSystems = ['40k' => ['#8a2020', '#f08080'], '30k / HH' => ['#4a3a10', '#d4a840'], 'AoS' => ['#1a2a5a', '#7090d8'], 'Kill Team' => ['#0a3a3a', '#70c8d8'], 'Blood Bowl' => ['#2a1a4a', '#9a70d8'], 'Necromunda' => ['#1a3a3a', '#70c8c8'], 'Epic' => ['#1a3a1a', '#70b870'], 'OPR' => ['#1a2a3a', '#708090'], 'Old World' => ['#3a2a0a', '#d4a040'], 'Other' => ['#2a2a2a', '#909090']];
-            foreach ($shameData as $sh):
+            $displayShame = $shameData; usort($displayShame, fn($a, $b) => strcasecmp($a['name'] ?? '', $b['name'] ?? '')); foreach ($displayShame as $sh):
               $shAcq     = $sh['acquired'] ?? '';
               $shPromote = $sh['promoted_to'] ?? '';
               $sysBg     = $shameSystems[$sh['system'] ?? ''] ?? ['#2a2a2a', '#909090'];
@@ -4330,6 +4346,10 @@ if ($authed && isset($_GET['edit_force'])) {
             <div>
               <label for="pl_faction">Faction</label>
               <input type="text" id="pl_faction" name="pl_faction" placeholder="e.g. Blood Angels">
+            </div>
+            <div>
+              <label for="pl_sub_faction">Unit / Sub-faction</label>
+              <input type="text" id="pl_sub_faction" name="pl_sub_faction" placeholder="e.g. Death Company, Shoota Boyz">
             </div>
             <div>
               <label for="pl_system">Game System</label>
@@ -4410,6 +4430,7 @@ if ($authed && isset($_GET['edit_force'])) {
                 data-name="<?= e($pl['name']) ?>"
                 data-model="<?= e($pl['model'] ?? '') ?>"
                 data-faction="<?= e($pl['faction'] ?? '') ?>"
+                data-sub_faction="<?= e($pl['sub_faction'] ?? '') ?>"
                 data-description="<?= e($pl['description'] ?? '') ?>"
                 data-colors="<?= e(json_encode($pl['colors'] ?? [])) ?>"
                 data-recipes="<?= e(json_encode($pl['recipes'] ?? [])) ?>"
@@ -4461,6 +4482,10 @@ if ($authed && isset($_GET['edit_force'])) {
               <div>
                 <label for="bn_faction">Faction</label>
                 <input type="text" id="bn_faction" name="bn_faction" placeholder="e.g. Death Guard">
+              </div>
+              <div>
+                <label for="bn_sub_faction">Unit / Sub-faction</label>
+                <input type="text" id="bn_sub_faction" name="bn_sub_faction" placeholder="e.g. Blightlord Terminators">
               </div>
               <div>
                 <label for="bn_system">Game System</label>
@@ -4613,6 +4638,7 @@ if ($authed && isset($_GET['edit_force'])) {
                   data-id="<?= e($bn['id']) ?>"
                   data-name="<?= e($bn['name']) ?>"
                   data-faction="<?= e($bn['faction'] ?? '') ?>"
+                  data-sub_faction="<?= e($bn['sub_faction'] ?? '') ?>"
                   data-system="<?= e($bn['system'] ?? '') ?>"
                   data-stage="<?= e($st) ?>"
                   data-date_start="<?= e($bn['date_start'] ?? '') ?>"
@@ -5475,7 +5501,7 @@ if ($authed && isset($_GET['edit_force'])) {
       const PRE_SELECTED = <?= json_encode($editModel ? ($editModel['colors'] ?? []) : []) ?>;
       const JN_MENTIONABLES_DATA = <?= json_encode($jnMentionables) ?>;
     </script>
-    <script src="js/admin.js?v=5"></script>
+    <script src="js/admin.js?v=6"></script>
   <?php endif; ?>
 
   <button id="back-to-top" title="Back to top">↑</button>

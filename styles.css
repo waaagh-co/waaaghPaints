@@ -1167,6 +1167,19 @@
       user-select: none;
     }
 
+    .sub-faction-tag {
+      display: inline-block;
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 2px;
+      background: #100e08;
+      color: #6a5a38;
+      border: 1px solid #1e1a08;
+      font-family: var(--font-heading);
+      letter-spacing: .04em;
+      margin-left: 4px;
+    }
+
     .faction-tag:hover,
     .faction-tag.active {
       border-color: var(--gold);

@@ -779,7 +779,7 @@
         })();
 
         const factionHtml = m.faction ?
-          `<span class="faction-tag${factionFilter === m.faction ? ' active' : ''}" data-faction="${esc(m.faction)}">${esc(m.faction)}</span>` :
+          `<span class="faction-tag${factionFilter === m.faction ? ' active' : ''}" data-faction="${esc(m.faction)}">${esc(m.faction)}</span>${m.sub_faction ? `<span class="sub-faction-tag">${esc(m.sub_faction)}</span>` : ''}` :
           '';
         const sysHtml = m.system ?
           `<span class="sys-game-badge sys-${sysSlug(m.system)}">${esc(m.system)}</span>` :
@@ -1149,7 +1149,7 @@
         html = '<div class="used-in-empty">Not used in any documented scheme yet.</div>';
       } else {
         html = schemes.map(m => {
-          const meta = [m.faction, m.date].filter(Boolean).join(' \u2014 ');
+          const meta = [m.faction, m.sub_faction, m.date].filter(Boolean).join(' \u2014 ');
           return `<div class="used-in-item">
             <div>
               <div class="used-in-model-name">${esc(m.name)}</div>
@@ -1290,7 +1290,7 @@
       if (!m || !(m.colors || []).length) return;
       populatePullSheet(
         m.name,
-        [m.faction, m.date].filter(Boolean).join(' \u2014 '),
+        [m.faction, m.sub_faction, m.date].filter(Boolean).join(' \u2014 '),
         m.colors,
         m.recipes
       );
@@ -1664,7 +1664,7 @@
           <div class="planned-card-header">
             <div class="planned-card-name">${esc(pl.name)}</div>
             ${pl.model   ? `<div class="planned-card-kit">${esc(pl.model)}</div>` : ''}
-            ${pl.faction ? `<div class="planned-card-faction">${esc(pl.faction)}</div>` : ''}
+            ${pl.faction ? `<div class="planned-card-faction">${esc(pl.faction)}${pl.sub_faction ? `<span class="sub-faction-tag">${esc(pl.sub_faction)}</span>` : ''}</div>` : ''}
             ${readyBadge}
             ${pl.system ? `<span class="sys-game-badge sys-${sysSlug(pl.system)}">${esc(pl.system)}</span>` : ''}
             ${pl.codex_source ? `<span class="codex-source-badge">${esc(pl.codex_source)}</span>` : ''}
@@ -2624,7 +2624,7 @@
           const countEl = document.getElementById('bench-count');
           const searchEl = document.getElementById('bench-search');
           if (!BENCH_DATA) return;
-          let stageFilter = 'all';
+          let stageFilter = 'active';
 
           function renderBench() {
             const TOTAL = BENCH_DATA.length;
@@ -3227,6 +3227,8 @@
           if (benchCount) summaryParts.push(`<strong>${benchCount}</strong> in progress`);
           if (plannedCount) summaryParts.push(`<strong>${plannedCount}</strong> planned`);
           if (recipeCount) summaryParts.push(`<strong>${recipeCount}</strong> recipe${recipeCount === 1 ? '' : 's'}`);
+          const subFactions = [...new Set([...f.schemes, ...f.bench, ...f.planned].map(x => x.sub_faction).filter(Boolean))];
+          if (subFactions.length) summaryParts.push(subFactions.map(s => `<span class="sub-faction-tag">${esc(s)}</span>`).join(' '));
 
           const schemesBlock = schemeCount ?
             `<div class="faction-section"><div class="faction-section-title">Field Record</div><div class="faction-scheme-grid">${f.schemes.map(schemeThumb).join('')}</div></div>` :
@@ -3525,7 +3527,10 @@
                 (f.notes || '').toLowerCase().includes(q)
               );
             }
-            list.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+            list.sort((a, b) => {
+              const pinDiff = (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+              return pinDiff !== 0 ? pinDiff : (a.name || '').localeCompare(b.name || '');
+            });
 
             countEl.textContent = q ?
               list.length + ' of ' + FORCES_DATA.length + ' force' + (FORCES_DATA.length !== 1 ? 's' : '') :

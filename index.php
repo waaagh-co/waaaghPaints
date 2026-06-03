@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=104">
+  <link rel="stylesheet" href="styles.css?v=105">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1439,8 +1439,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <a class="tab-label" href="#" onclick="copyTabLink(event,'bench')" title="Copy link to this tab">On the Bench</a>
         <input type="search" id="bench-search" class="tab-search" placeholder="Search projects, factions, notes&hellip;" autocomplete="off">
         <div class="bench-filter-pills" id="bench-filter-pills">
-          <button class="bench-filter-pill active" data-stage="all">All</button>
-          <button class="bench-filter-pill" data-stage="active">Active</button>
+          <button class="bench-filter-pill" data-stage="all">All</button>
+          <button class="bench-filter-pill active" data-stage="active">Active</button>
           <button class="bench-filter-pill" data-stage="done">Done</button>
         </div>
         <select id="bench-sys-select" onchange="benchSystemFilter=this.value;window._renderBench&&window._renderBench()" class="mini-select">
@@ -1977,7 +1977,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=16"></script>
+  <script src="js/index.js?v=18"></script>
 
   <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
   <script>

@@ -248,6 +248,7 @@
         document.getElementById('pl_name').value = btn.dataset.name;
         document.getElementById('pl_model').value = btn.dataset.model;
         document.getElementById('pl_faction').value = btn.dataset.faction;
+        document.getElementById('pl_sub_faction').value = btn.dataset.sub_faction || '';
         document.getElementById('pl_system').value = btn.dataset.system || '';
         document.getElementById('pl_description').value = btn.dataset.description;
         document.getElementById('pl_codex_source').value = btn.dataset.codex_source || '';
@@ -1102,6 +1103,7 @@
           document.getElementById('benchId').value = btn.dataset.id;
           document.getElementById('bn_name').value = btn.dataset.name;
           document.getElementById('bn_faction').value = btn.dataset.faction || '';
+          document.getElementById('bn_sub_faction').value = btn.dataset.sub_faction || '';
           document.getElementById('bn_system').value = btn.dataset.system || '';
           document.getElementById('bn_stage').value = btn.dataset.stage || 'built';
           document.getElementById('bn_date_start').value = btn.dataset.date_start || '';
