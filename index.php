@@ -597,7 +597,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=98">
+  <link rel="stylesheet" href="styles.css?v=99">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -1977,13 +1977,13 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         var html = '';
         data.forEach(function(a) {
           var ork = a.ork ? ' wc-ork' : '';
-          var thumbCls = a.image ? 'wc-news-thumb' : 'wc-news-thumb wc-news-thumb-empty';
-          var thumbStyle = a.image ? ' style="background-image:url(\'' + esc(a.image) + '\')"' : '';
           var badge = a.ork ? '<span class="wc-ork-badge">WAAAGH!</span>' : '';
+          var dateStr = a.mod ? new Date(a.mod).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : '';
+          var datePart = dateStr ? '<div class="wc-news-date">' + esc(dateStr) + '</div>' : '';
           html += '<a class="wc-news-card' + ork + '" href="' + esc(a.url) + '" target="_blank" rel="noopener">' +
-            '<div class="' + thumbCls + '"' + thumbStyle + '></div>' +
             badge +
             '<div class="wc-news-title">' + esc(a.title) + '</div>' +
+            datePart +
             '</a>';
         });
         grid.innerHTML = html;
