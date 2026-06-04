@@ -621,7 +621,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=121">
+  <link rel="stylesheet" href="styles.css?v=124">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -943,15 +943,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         'done' => 'Done',
       ];
 
-      $jnSnipFull     = '';
-      $showNotesPanel = false;
-      if ($hasJournal && !empty($journalData)) {
-        $_jnRaw     = preg_replace('/\[swatch:#[0-9a-fA-F]{6}\]\s*/', '', $journalData[0]['body'] ?? '');
-        $_jnRaw     = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $_jnRaw);
-        $jnSnipFull = function_exists('mb_strimwidth') ? mb_strimwidth($_jnRaw, 0, 230, '…') : (strlen($_jnRaw) > 230 ? substr($_jnRaw, 0, 230) . '…' : $_jnRaw);
-        $showNotesPanel = !empty($jnSnipFull);
-        unset($_jnRaw);
-      }
       ?>
 
       <div class="dct-panel" id="daily-colour-card" style="display:none"></div>
@@ -1009,11 +1000,12 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               <a class="pipeline-node pipeline-bench-node" data-jump="bench" title="Jump to On the Bench">
                 <div class="pipeline-node-name">Under da Brush</div>
                 <div class="pipeline-bench-main">
-                  <?php if ($bnImg): ?><div class="pipeline-bench-thumb" style="background-image:url('<?= htmlspecialchars($bnImg, ENT_QUOTES) ?>')"></div><?php endif; ?>
                   <div class="pipeline-bench-info">
                     <div class="pipeline-bench-pname"><?= htmlspecialchars($latestBench['name'], ENT_QUOTES) ?></div>
                     <?php if (!empty($latestBench['faction'])): ?><div class="pipeline-bench-faction"><?= htmlspecialchars($latestBench['faction'], ENT_QUOTES) ?></div><?php endif; ?>
                     <div class="pipeline-bench-meta"><span class="bench-stage-label stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>"><?= htmlspecialchars($benchStageLabels[$bnStage] ?? $bnStage, ENT_QUOTES) ?></span><?php if ($touchedAgo): ?><span class="hero-bench-touched"><?= htmlspecialchars($touchedAgo, ENT_QUOTES) ?></span><?php endif; ?></div>
+                    <?php $bnStageKeys = ['built','primed','basecoated','washed','highlighted','based','varnished','done']; $bnStageIdx = array_search($bnStage, $bnStageKeys); $bnStagePct = $bnStageIdx !== false ? round(($bnStageIdx / (count($bnStageKeys) - 1)) * 100) : 0; ?>
+                    <div class="pipeline-bench-progress"><div class="pipeline-bench-progress-fill stage-<?= htmlspecialchars($bnStage, ENT_QUOTES) ?>" style="width:<?= $bnStagePct ?>%"></div></div>
                   </div>
                 </div>
               </a>
@@ -1032,11 +1024,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             </a>
           <?php endif; ?>
         </div>
-        <?php if ($showNotesPanel): ?>
-          <a class="hero-notes-panel" data-jump="journals" title="Open Scrap Notes">
-            <div class="hero-notes-text"><?= htmlspecialchars($jnSnipFull) ?></div>
-          </a>
-        <?php endif; ?>
       </div>
 
       <?php if ($hasWtn): ?>
@@ -2003,7 +1990,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=26"></script>
+  <script src="js/index.js?v=29"></script>
 
   <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
   <script>

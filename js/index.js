@@ -26,6 +26,45 @@
       return b.toLowerCase().replace(/\s+/g, '');
     }
 
+    function colorDot(ck) {
+      const uk = upgradeKey(ck);
+      const parts = ck.split('|');
+      const name = parts[1] || ck;
+      const brand = parts[0] || '';
+      const p = _paintByKey.get(uk);
+      const hex = p && /^#[0-9a-fA-F]{6}$/.test(p.hex || '') ? p.hex : '#2a1a08';
+      const stock = paintStock.get(uk) || '';
+      const cls = (!paintOwned.has(uk) || stock === 'out') ? 'missing' : stock === 'low' ? 'low' : 'owned';
+      return `<span class="fp-dot ${cls}" style="background:${hex}" data-paint="${esc(ck)}" data-paint-name="${esc(name)}" title="${esc(brand)} · ${esc(name)}"></span>`;
+    }
+
+    function sortColorsByBrandHue(arr) {
+      return arr.slice().sort((a, b) => {
+        const [ab] = a.split('|');
+        const [bb] = b.split('|');
+        if (ab !== bb) return ab.localeCompare(bb);
+        const pa = _paintByKey.get(upgradeKey(a));
+        const pb = _paintByKey.get(upgradeKey(b));
+        const ha = pa ? getHue(pa) : null;
+        const hb = pb ? getHue(pb) : null;
+        if (ha === null && hb === null) return a.localeCompare(b);
+        if (ha === null) return 1;
+        if (hb === null) return -1;
+        return ha - hb;
+      });
+    }
+
+    function brandGroupDots(colors) {
+      const sorted = sortColorsByBrandHue(colors);
+      let lastBrand = '';
+      return sorted.map(ck => {
+        const [brand] = ck.split('|');
+        const label = brand !== lastBrand ? `<span class="pill-brand-label">${esc(brand)}</span>` : '';
+        lastBrand = brand;
+        return label + colorDot(ck);
+      }).join('');
+    }
+
     let sortCol = 'name';
     let sortDir = 1; // 1=asc, -1=desc
     let stockFilter = false;
@@ -763,22 +802,7 @@
           imgs.map((src, i) => `<img src="${esc(src)}" alt="" loading="lazy" data-index="${i}">`).join('') :
           `<div class="model-no-image">No Images</div>`;
 
-        const colors = (() => {
-          const sorted = effectiveColors(m).slice().sort((a, b) => {
-            const [ab, an = ''] = a.split('|');
-            const [bb, bn = ''] = b.split('|');
-            return ab.localeCompare(bb) || an.localeCompare(bn);
-          });
-          let lastBrand = '';
-          return sorted.map(c => {
-            const [brand, paintName = c] = c.split('|');
-            const label = brand !== lastBrand ?
-              `<span class="pill-brand-label">${esc(brand)}</span>` :
-              '';
-            lastBrand = brand;
-            return label + `<span class="color-pill" data-paint="${esc(c)}">${esc(paintName)}</span>`;
-          }).join('');
-        })();
+        const colors = brandGroupDots(effectiveColors(m));
 
         const factionHtml = m.faction ?
           `<span class="faction-tag${factionFilter === m.faction ? ' active' : ''}" data-faction="${esc(m.faction)}">${esc(m.faction)}</span>${m.sub_faction ? `<span class="sub-faction-tag">${esc(m.sub_faction)}</span>` : ''}` :
@@ -851,7 +875,7 @@
         return;
       }
       // Color pill → inventory
-      const pill = e.target.closest('.color-pill');
+      const pill = e.target.closest('[data-paint]');
       if (!pill) return;
       const parts = pill.dataset.paint.split('|');
       const brand = parts[0] || '';
@@ -1639,23 +1663,7 @@
         const shopImpact = (readyLevel === 'almost' && missingNames.length) ?
           `<div class="planned-shop-impact">Buy: ${missingNames.map(n => `<strong>${esc(n)}</strong>`).join(', ')} - then ready</div>` : '';
 
-        const sortedColors = colors.slice().sort((a, b) => {
-          const [ab, an = ''] = a.split('|');
-          const [bb, bn = ''] = b.split('|');
-          return ab.localeCompare(bb) || an.localeCompare(bn);
-        });
-        let lastBrand = '';
-        const pillsHtml = sortedColors.map(c => {
-          const [brand, name = c] = c.split('|');
-          const uk = upgradeKey(c);
-          const stock = paintStock.get(uk) || '';
-          let cls = 'pcol-pill owned';
-          if (!paintOwned.has(uk) || stock === 'out') cls = 'pcol-pill missing';
-          else if (stock === 'low') cls = 'pcol-pill low';
-          const label = brand !== lastBrand ? `<span class="pill-brand-label">${esc(brand)}</span>` : '';
-          lastBrand = brand;
-          return label + `<span class="${cls}" title="${esc(c)}">${esc(name)}</span>`;
-        }).join('');
+        const pillsHtml = brandGroupDots(colors);
 
         const statusParts = [];
         if (missing > 0) statusParts.push(`<span style="color:#c94040">${missing} missing</span>`);
@@ -2666,18 +2674,7 @@
                 if (!paintOwned.has(uk) || stock === 'out') missing++;
                 else if (stock === 'low') low++;
               });
-              const pillsHtml = colors.slice(0, 12).map(c => {
-                const [, name = c] = c.split('|');
-                const uk = upgradeKey(c);
-                const stock = paintStock.get(uk) || '';
-                let cls = 'pcol-pill owned';
-                if (!paintOwned.has(uk) || stock === 'out') cls = 'pcol-pill missing';
-                else if (stock === 'low') cls = 'pcol-pill low';
-                return `<span class="${cls}" title="${esc(c)}">${esc(name)}</span>`;
-              }).join('');
-              const overflow = colors.length > 12 ?
-                `<span class="pcol-pill" style="background:#0a0a0a;border:1px solid #1a1a1a;color:#3a2a10">+${colors.length - 12} more</span>` :
-                '';
+              const pillsHtml = brandGroupDots(colors);
               const statusParts = [];
               if (missing > 0) statusParts.push(`<span style="color:#c94040">${missing} missing</span>`);
               if (low > 0) statusParts.push(`<span style="color:#c97a20">${low} low</span>`);
@@ -2710,7 +2707,7 @@
             <div class="bench-progress"><div class="bench-progress-fill" style="width:${progress}%"></div></div>
             ${imgsHtml}
             ${b.notes ? `<div class="bench-card-notes">${esc(b.notes).replace(/\r?\n/g, '<br>')}</div>` : ''}
-            ${colors.length ? `<div class="bench-colors">${pillsHtml}${overflow}</div>` : ''}
+            ${colors.length ? `<div class="bench-colors">${pillsHtml}</div>` : ''}
             ${brushHtml}
             <div class="card-footer">
               <span class="planned-card-summary">${colors.length} paint${colors.length !== 1 ? 's' : ''}${statusParts.length ? ' - ' + statusParts.join(', ') : ''}</span>
@@ -3204,15 +3201,15 @@
           return `<span class="faction-chip" data-planned-id="${esc(p.id)}"><span class="faction-chip-kind kind-planned">Pending</span>${esc(p.name)}</span>`;
         }
 
-        function palettePill(uk, count) {
+        function paletteDot(uk, count) {
           const parts = uk.split('|');
           const name = parts[1] || uk;
           const brand = parts[0] || '';
           const paint = PAINT_BY_KEY.get(uk);
-          const hex = paint && /^#[0-9a-fA-F]{6}$/.test(paint.hex || '') ? paint.hex : '#1a1408';
+          const hex = paint && /^#[0-9a-fA-F]{6}$/.test(paint.hex || '') ? paint.hex : '#2a1a08';
           const cls = paintStatusCls(uk);
-          const countBadge = count > 1 ? `<span class="faction-palette-count">&times;${count}</span>` : '';
-          return `<span class="faction-palette-pill" data-paint-name="${esc(name)}" title="${esc(brand)} ${esc(name)} - used in ${count} entr${count === 1 ? 'y' : 'ies'}"><span class="faction-palette-swatch" style="background:${esc(hex)}"></span><span class="faction-palette-dot ${cls}"></span>${esc(name)}${countBadge}</span>`;
+          const tip = count > 1 ? `${brand} · ${name} ×${count}` : `${brand} · ${name}`;
+          return `<span class="fp-dot ${cls}" style="background:${hex}" data-paint-name="${esc(name)}" title="${esc(tip)}"></span>`;
         }
 
         function renderFaction(f) {
@@ -3231,8 +3228,9 @@
           const subFactions = [...new Set([...f.schemes, ...f.bench, ...f.planned].map(x => x.sub_faction).filter(Boolean))];
           if (subFactions.length) summaryParts.push(subFactions.map(s => `<span class="sub-faction-tag">${esc(s)}</span>`).join(' '));
 
+          const gridCls = schemeCount >= 5 ? 'faction-scheme-grid faction-scheme-grid--wide' : 'faction-scheme-grid';
           const schemesBlock = schemeCount ?
-            `<div class="faction-section"><div class="faction-section-title">Field Record</div><div class="faction-scheme-grid">${f.schemes.map(schemeThumb).join('')}</div></div>` :
+            `<div class="faction-section"><div class="faction-section-title">Field Record</div><div class="${gridCls}">${f.schemes.map(schemeThumb).join('')}</div></div>` :
             '';
 
           const recipesBlock = recipeCount ?
@@ -3247,8 +3245,8 @@
           let paletteBlock = '';
           if (f.palette.size) {
             const sorted = [...f.palette.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-            const pills = sorted.map(([uk, n]) => palettePill(uk, n)).join('');
-            paletteBlock = `<div class="faction-section"><div class="faction-section-title">Materiel &middot; ${sorted.length}</div><div class="faction-palette">${pills}</div></div>`;
+            const dots = sorted.map(([uk, n]) => paletteDot(uk, n)).join('');
+            paletteBlock = `<div class="faction-section"><div class="faction-section-title">Materiel &middot; ${sorted.length}</div><div class="faction-palette">${dots}</div></div>`;
           }
 
           return `<div class="faction-card" id="faction-${esc(f.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}"><div class="faction-header"><div class="faction-name">${esc(f.name)}</div><div class="faction-summary">${summaryParts.join(' &middot; ')}</div></div><div class="faction-body">${schemesBlock}${recipesBlock}${flightBlock}${paletteBlock}</div></div>`;
