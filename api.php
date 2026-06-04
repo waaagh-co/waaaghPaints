@@ -69,4 +69,28 @@ if ($action === 'log_session') {
     exit;
 }
 
+// ── get_shopping_list ─────────────────────────────────────────────────────────
+if ($action === 'get_shopping_list') {
+    $paints = file_exists(__DIR__ . '/data/paints.json')
+        ? json_decode(file_get_contents(__DIR__ . '/data/paints.json'), true) ?? []
+        : [];
+    $order = ['out' => 0, 'low' => 1, 'wanted' => 2];
+    $list = array_values(array_filter($paints, fn($p) => isset($order[$p['stock'] ?? ''])));
+    usort($list, function($a, $b) use ($order) {
+        $ao = $order[$a['stock']];
+        $bo = $order[$b['stock']];
+        if ($ao !== $bo) return $ao - $bo;
+        $bc = strcmp($a['brand'] ?? '', $b['brand'] ?? '');
+        return $bc !== 0 ? $bc : strcmp($a['name'] ?? '', $b['name'] ?? '');
+    });
+    echo json_encode(['ok' => true, 'paints' => array_map(fn($p) => [
+        'brand' => $p['brand'] ?? '',
+        'name'  => $p['name']  ?? '',
+        'layer' => $p['layer'] ?? '',
+        'hex'   => $p['hex']   ?? '',
+        'stock' => $p['stock'],
+    ], $list)]);
+    exit;
+}
+
 echo json_encode(['ok' => false, 'error' => 'unknown action']);
