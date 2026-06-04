@@ -28,6 +28,6 @@ define('SITE_TAGLINE', "Dis is not a blog. It's a paintin' tool. Use it. Steal f
 
 // ── Feature toggles ───────────────────────────────────────────────────────
 // Set to false to hide a feature entirely. Omitting a constant keeps it visible.
-define('SHOW_HEATMAP',   true);   // Hobby Activity heatmap on the landing page
+define('SHOW_HEATMAP',   true);   // Hobby Activity heatmap on the The Commissar page
 define('SHOW_WC_NEWS',   true);   // Latest from Warhammer Community widget
 define('SHOW_COMMISSAR', true);   // The Commissar's Dossier tab
