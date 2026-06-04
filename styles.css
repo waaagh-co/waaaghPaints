@@ -5607,6 +5607,7 @@
     .supply-card {
       background: #100e08;
       border: 1px solid #1e1810;
+      border-left: 3px solid var(--bg-mid);
       border-radius: 4px;
       padding: 12px 14px;
       display: flex;
