@@ -7,6 +7,8 @@
     const _paintByKey       = new Map(PAINTS.map(p => [paintKey(p), p]));
     const _ACHROMATIC_CATS  = new Set(['White','Grey','Black','Metallic','Wash','Shade','Contrast','Ink','Texture','Primer','Pigment','Medium','Effect','Fluid','Utility','Special','Transparent','Fluorescent']);
     const _CAT_HUE          = {Red:0,Orange:25,Yellow:55,Green:120,Blue:220,Purple:270,Pink:320,Brown:30};
+    const _DCT_PREF_BRANDS  = new Set(['Pro Acryl','Citadel','Vallejo','Two Thin Coats']);
+    const _DCT_PREF_LAYERS  = new Set(['Base','Layer','Metallic','Model Color','X-Opaque']);
 
     // Upgrade legacy 2-part stored keys to 3-part where unambiguous
     const _legacyUpgrade = new Map();
@@ -1917,13 +1919,12 @@
 
           function renderBody(raw) {
             if (!raw) return '';
-            const TOKEN = /@\[(\w+):([^\]|]+)\|([^\]]+)\]/g;
-            let result = '',
-              last = 0,
-              m;
+            const TOKEN = /\[swatch:(#[0-9a-fA-F]{6})\]|@\[(\w+):([^\]|]+)\|([^\]]+)\]/g;
+            let result = '', last = 0, m;
             while ((m = TOKEN.exec(raw)) !== null) {
               result += esc(raw.slice(last, m.index));
-              result += mentionBadge(m[1], m[2], decodeHtml(m[3]));
+              if (m[1]) { result += `<span class="jn-swatch" style="background:${m[1]}"></span>`; }
+              else { result += mentionBadge(m[2], m[3], decodeHtml(m[4])); }
               last = m.index + m[0].length;
             }
             result += esc(raw.slice(last));
@@ -4364,6 +4365,8 @@
         if (!dctEl || typeof PAINTS === 'undefined') return;
         const chromatic = PAINTS.filter(p => { if (!p.hex || !/^#[0-9a-f]{6}$/i.test(p.hex)) return false; const [,s] = hexToHsl(p.hex); return s >= 8 && !_ACHROMATIC_CATS.has(p.color); });
         if (!chromatic.length) return;
+        const chromaticPref = chromatic.filter(p => _DCT_PREF_BRANDS.has(p.brand) && _DCT_PREF_LAYERS.has(p.layer));
+        const dctPool = chromaticPref.length >= 8 ? chromaticPref : chromatic;
         const dateStr = new Date().toDateString();
         let seed = 0;
         for (const c of dateStr) seed = ((seed << 5) - seed) + c.charCodeAt(0) | 0;
@@ -4371,7 +4374,7 @@
         const hTypes = ['complementary','triadic','split','analogous'];
         const hLabels = {complementary:'Complementary',triadic:'Triadic',split:'Split-Complementary',analogous:'Analogous'};
         const hDescs = {complementary:'Maximum contrast — opposite on the wheel. The accent colour that makes the primary pop.',triadic:'Three equally-spaced hues — vibrant, balanced, and full of energy.',split:'Two near-complements flanking the opposite — softer tension than pure complementary.',analogous:'Adjacent hues — harmonious, naturalistic, and satisfying to look at.'};
-        const paint = chromatic[seed % chromatic.length];
+        const paint = dctPool[seed % dctPool.length];
         const hType = hTypes[(seed >> 6) % hTypes.length];
         const hue = getHue(paint);
         if (hue === null) return;
@@ -4379,7 +4382,7 @@
         const temp = paintTemperature(hue);
         const role = paintRole(ph, ps, pl);
         const positions = harmonyPositions(hue, hType);
-        const picks = positions.map(pos => { const matches = paintsNearHue(pos.hue, 30, paintKey(paint)); const owned = matches.filter(m => paintOwned.has(paintKey(m))); return {pos, paint: owned[0] || matches[0] || null}; });
+        const picks = positions.map(pos => { const matches = paintsNearHue(pos.hue, 30, paintKey(paint)); const owned = matches.filter(m => paintOwned.has(paintKey(m))); const ownedPref = owned.filter(m => _DCT_PREF_BRANDS.has(m.brand) && _DCT_PREF_LAYERS.has(m.layer)); return {pos, paint: ownedPref[0] || owned[0] || matches[0] || null}; });
         if (!picks.some(({paint: mp}) => mp !== null)) return;
         function buildDCTWheelSvg() {
           const CX=120,CY=120,R1=78,R2=96,SEGS=24,DEG=15,ARC=20;
@@ -4396,6 +4399,17 @@
         const picksHtml = picks.map(({pos,paint:mp}) => { if (!mp) return ''; const fill=mp.hex||`hsl(${getHue(mp)||0},60%,45%)`; const own=paintOwned.has(paintKey(mp)); return `<div class="dct-strip-match"><div class="dct-pot-wrap${own?'':' dct-pot-muted'}" title="${esc(mp.name)} (${esc(mp.brand)})${own?'':' · not owned'}"><div class="dct-pot-color" style="background:${fill}"></div><img src="img/paint_pot.png" class="dct-pot-img" alt="${esc(mp.name)}"></div><div><span class="dct-match-role">${pos.label}</span><span class="dct-match-name">${esc(mp.name)}</span></div></div>`; }).join('');
         const potHtml = `<div class="dct-pot-wrap"><div class="dct-pot-color" style="background:${paint.hex}"></div><img src="img/paint_pot.png" class="dct-pot-img" alt="${esc(paint.name)}"></div>`;
         dctEl.innerHTML = `<div class="dct-strip"><div class="dct-strip-label"><div class="dct-eyebrow">Colour Theory of the Day</div><div class="dct-type-label">${hLabels[hType]}</div></div><div class="dct-strip-primary">${potHtml}<div><div class="dct-primary-name">${esc(paint.name)}</div><div class="dct-primary-meta">${esc(paint.brand)} · <span class="hp-temp hp-temp-${temp}">${temp}</span></div></div></div><div class="dct-strip-matches">${picksHtml}</div><div class="dct-strip-desc">${esc(hDescs[hType])}</div><div class="dct-strip-wheel">${buildDCTWheelSvg()}</div></div>`;
+        const _dctLines = [`Colour Theory: ${hLabels[hType]}: ${paint.name}`, `Primary: ${paint.name} - ${paint.brand}${paint.hex ? ' ' + paint.hex : ''}`];
+        picks.forEach(({pos, paint: mp}) => { if (mp) _dctLines.push(`${pos.label}: ${mp.name} - ${mp.brand}${mp.hex ? ' ' + mp.hex : ''}`); });
+        const _dctText = _dctLines.join('\n');
+        const _swatches = [paint, ...picks.map(({paint: mp}) => mp).filter(Boolean)].filter(p => p && p.hex).map(p => `[swatch:${p.hex}]`).join(' ');
+        const _dctBody = (_swatches ? _swatches + '\n' : '') + _dctText;
+        const _dctAct = document.createElement('div');
+        _dctAct.className = 'dct-actions';
+        _dctAct.innerHTML = `<button class="dct-act-btn" id="dct-copy-btn">&#9113; Copy</button><button class="dct-act-btn" id="dct-save-btn"${typeof IS_ADMIN !== 'undefined' && !IS_ADMIN ? ' disabled title="Log in to admin first"' : ''}>&#10022; Save to Notes</button>`;
+        dctEl.appendChild(_dctAct);
+        document.getElementById('dct-copy-btn').addEventListener('click', () => { navigator.clipboard.writeText(_dctText).then(() => { const b = document.getElementById('dct-copy-btn'); const o = b.textContent; b.textContent = '✓ Copied'; setTimeout(() => b.textContent = o, 1800); }); });
+        document.getElementById('dct-save-btn').addEventListener('click', () => { const b = document.getElementById('dct-save-btn'); const fd = new FormData(); fd.append('action','save_dct_note'); fd.append('title',`Colour Theory: ${hLabels[hType]}: ${paint.name}`); fd.append('body',_dctBody); fetch('',{method:'POST',body:fd}).then(r=>r.json()).then(d => { if (d.ok) { const o = b.textContent; b.textContent = '✓ Saved'; setTimeout(() => b.textContent = o, 1800); } }); });
         dctEl.style.display = '';
       })();
 

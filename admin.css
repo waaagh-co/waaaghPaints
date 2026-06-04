@@ -1135,20 +1135,20 @@
 
     .as-group-label {
       font-family: var(--font-heading);
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: .22em;
       text-transform: uppercase;
-      color: #2a1e0a;
+      color: #7a6030;
       padding: 10px 14px 4px;
     }
 
     .as-link {
       display: block;
       font-family: var(--font-heading);
-      font-size: 13px;
+      font-size: 14px;
       letter-spacing: .07em;
       text-transform: uppercase;
-      color: #6a5a30;
+      color: #a88a40;
       text-decoration: none;
       padding: 10px 14px;
       border-left: 3px solid transparent;

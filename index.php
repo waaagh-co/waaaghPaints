@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/config.php';
 $paintsJsonFile = __DIR__ . '/data/paints.json';
 if (file_exists($paintsJsonFile)) {
@@ -521,6 +522,29 @@ unset($_ciOwned,$_stSc,$_bno,$noSc,$noRs,$_noM,$_nc,$_nc2,$_dS,$_pno,$_pnM,$_nc3
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 
+if (($_POST['action'] ?? '') === 'save_dct_note') {
+  header('Content-Type: application/json');
+  if (empty($_SESSION['admin'])) { echo json_encode(['ok' => false]); exit; }
+  $body  = trim($_POST['body']  ?? '');
+  $title = trim($_POST['title'] ?? '');
+  if ($body !== '') {
+    $file = __DIR__ . '/data/journal.json';
+    $all  = file_exists($file) ? (json_decode(file_get_contents($file), true) ?? []) : [];
+    $entry = ['id' => (string)time(), 'date' => date('Y-m-d'), 'body' => $body];
+    if ($title) $entry['title'] = $title;
+    $all[] = $entry;
+    usort($all, function($a, $b) {
+      $d = strcmp($b['date'] ?? '', $a['date'] ?? '');
+      return $d !== 0 ? $d : strcmp($b['id'] ?? '', $a['id'] ?? '');
+    });
+    file_put_contents($file, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
 if (($_POST['action'] ?? '') === 'track_tab') {
   header('Content-Type: application/json');
   $tab     = trim($_POST['tab'] ?? '');
@@ -597,7 +621,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=116">
+  <link rel="stylesheet" href="styles.css?v=121">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -922,7 +946,8 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       $jnSnipFull     = '';
       $showNotesPanel = false;
       if ($hasJournal && !empty($journalData)) {
-        $_jnRaw     = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $journalData[0]['body'] ?? '');
+        $_jnRaw     = preg_replace('/\[swatch:#[0-9a-fA-F]{6}\]\s*/', '', $journalData[0]['body'] ?? '');
+        $_jnRaw     = preg_replace('/@\[(?:\w+):[^\]|]+\|([^\]]+)\]/', '$1', $_jnRaw);
         $jnSnipFull = function_exists('mb_strimwidth') ? mb_strimwidth($_jnRaw, 0, 230, '…') : (strlen($_jnRaw) > 230 ? substr($_jnRaw, 0, 230) . '…' : $_jnRaw);
         $showNotesPanel = !empty($jnSnipFull);
         unset($_jnRaw);
@@ -1961,6 +1986,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   </div>
 
   <script>
+    const IS_ADMIN = <?= json_encode(!empty($_SESSION['admin'])) ?>;
     const PAINTS = <?= $paintsJson ?>;
     const PLANNED = <?= $plannedJson ?>;
     const CONVERSIONS_DATA = <?= $conversionsDataJson ?>;
@@ -1977,7 +2003,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
     const RESCUE_DATA = <?= $hasRescues ? json_encode($rescuesData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) : 'null' ?>;
     const MODELS = <?= $modelsJson ?>;
   </script>
-  <script src="js/index.js?v=22"></script>
+  <script src="js/index.js?v=26"></script>
 
   <?php if (!defined('SHOW_WC_NEWS') || SHOW_WC_NEWS): ?>
   <script>

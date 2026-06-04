@@ -3281,7 +3281,7 @@
     .wtn-card-prepped .wtn-type { color: #50a860; }
     /* Daily Colour Theory card — horizontal strip */
     .dct-panel { background: #0b0a08; border: 1px solid #2a1e18; border-top: 2px solid var(--gold); padding: 12px 18px; margin: 0 0 22px; }
-    .dct-strip { display: flex; align-items: center; gap: 0; flex-wrap: wrap; min-height: 64px; }
+    .dct-strip { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; min-height: 64px; }
     .dct-strip-label { flex-shrink: 0; padding-right: 18px; min-width: 160px; }
     .dct-eyebrow { font-family: var(--font-heading); font-size: .6rem; letter-spacing: .2em; color: #9a7abа; text-transform: uppercase; margin-bottom: 4px; }
     .dct-type-label { font-family: var(--font-heading); font-size: 1.15rem; color: #c9a227; letter-spacing: .06em; text-transform: uppercase; }
@@ -3299,6 +3299,10 @@
     .dct-strip-desc { font-size: .7rem; color: #5a4a38; font-style: italic; border-left: 1px solid #2a1e30; padding: 0 16px; flex: 1 1 160px; line-height: 1.4; }
     .dct-strip-wheel { flex-shrink: 0; border-left: 1px solid #2a1e30; padding-left: 14px; margin-left: auto; }
     .dct-strip-wheel svg { width: 90px; height: 90px; display: block; }
+    .dct-actions { display: flex; gap: 8px; padding: 8px 18px 4px; border-top: 1px solid #1a1408; }
+    .dct-act-btn { background: none; border: 1px solid #2a1e08; color: #6a5828; font-family: var(--font-heading); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; cursor: pointer; transition: color .12s, border-color .12s; }
+    .dct-act-btn:hover { color: #c9a227; border-color: #5a4010; }
+    .dct-act-btn:disabled { opacity: .3; cursor: not-allowed; }
     @media (max-width: 700px) {
       .dct-strip { flex-wrap: wrap; gap: 0; row-gap: 10px; }
       .dct-strip-label { flex: 0 0 auto; padding-right: 12px; min-width: 0; border-left: none; padding-left: 0; }
@@ -5986,6 +5990,7 @@
     .jn-mention-recipe { background:#2e1a4a; color:#b090e0; border:1px solid #4a2a6a; }
     .jn-mention-wd     { background:#3a2a08; color:#e8c040; border:1px solid #5a4010; }
     .jn-mention-bench  { background:#1a3a28; color:#80d0a0; border:1px solid #2a5a38; }
+    .jn-swatch { display: inline-block; width: 18px; height: 18px; border-radius: 50%; vertical-align: middle; border: 1px solid rgba(255,255,255,.18); margin-right: 4px; }
 
     #jn-empty {
       padding: 32px 16px;
@@ -6146,11 +6151,11 @@
   .sidebar-home a {
     display: block;
     font-family: var(--font-heading);
-    font-size: .8rem;
+    font-size: .88rem;
     font-weight: 700;
     letter-spacing: .1em;
     text-transform: uppercase;
-    color: #7a6030;
+    color: #b89050;
     text-decoration: none;
     padding: 8px 14px;
     transition: color .15s;
@@ -6177,11 +6182,11 @@
     border: none;
     cursor: pointer;
     font-family: var(--font-heading);
-    font-size: .68rem;
+    font-size: .76rem;
     font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    color: #7a6a4a;
+    color: #9a8060;
     transition: color .15s;
   }
 
@@ -6212,17 +6217,17 @@
   .sg-item a {
     display: block;
     font-family: var(--font-heading);
-    font-size: .74rem;
+    font-size: .82rem;
     letter-spacing: .07em;
     text-transform: uppercase;
-    color: #5a4828;
+    color: #8a7040;
     text-decoration: none;
     padding: 6px 14px 6px 28px;
     transition: color .15s, background .15s;
   }
 
   .sg-item a:hover {
-    color: #8a7040;
+    color: #b89050;
     background: rgba(201,162,39,.04);
   }
 
