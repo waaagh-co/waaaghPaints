@@ -93,4 +93,33 @@ if ($action === 'get_shopping_list') {
     exit;
 }
 
+// ── mark_bought ───────────────────────────────────────────────────────────────
+if ($action === 'mark_bought') {
+    $brand = trim($_POST['brand'] ?? '');
+    $name  = trim($_POST['name']  ?? '');
+    $layer = trim($_POST['layer'] ?? '');
+    if (!$brand || !$name) {
+        echo json_encode(['ok' => false, 'error' => 'missing fields']);
+        exit;
+    }
+    $file = __DIR__ . '/data/paints.json';
+    $paints = file_exists($file) ? (json_decode(file_get_contents($file), true) ?? []) : [];
+    $found = false;
+    foreach ($paints as &$p) {
+        if ($p['brand'] === $brand && $p['name'] === $name && ($layer === '' || ($p['layer'] ?? '') === $layer)) {
+            unset($p['stock']);
+            $found = true;
+            break;
+        }
+    }
+    unset($p);
+    if ($found) {
+        file_put_contents($file, json_encode($paints, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+        echo json_encode(['ok' => true]);
+    } else {
+        echo json_encode(['ok' => false, 'error' => 'paint not found']);
+    }
+    exit;
+}
+
 echo json_encode(['ok' => false, 'error' => 'unknown action']);
