@@ -23,6 +23,7 @@ if ($action === 'get_bench') {
         'id'    => $b['id'],
         'name'  => $b['name'],
         'stage' => ucfirst($b['stage'] ?? ''),
+        'image' => !empty($b['wip_images']) ? $b['wip_images'][0] : null,
     ], $active)]);
     exit;
 }
