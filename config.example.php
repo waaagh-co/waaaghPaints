@@ -7,6 +7,13 @@ define('SITE_AUTHOR',  'Your Name');
 define('SITE_EMAIL',   'you@yourdomain.com');
 define('SITE_URL',     'https://yourdomain.com/');  // trailing slash required
 
+// ── Social links (optional) ───────────────────────────────────────────────
+// Full URLs. Leave blank to hide that icon from the sidebar footer.
+define('SOCIAL_INSTAGRAM', '');   // e.g. 'https://www.instagram.com/yourhandle/'
+define('SOCIAL_FACEBOOK',  '');   // e.g. 'https://www.facebook.com/yourpage/'
+define('SOCIAL_THREADS',   '');   // e.g. 'https://www.threads.net/@yourhandle'
+define('SOCIAL_YOUTUBE',   '');   // e.g. 'https://www.youtube.com/@yourchannel'
+
 // ── Admin panel filename ──────────────────────────────────────────────────
 // For security, rename admin.php to something harder to guess, then set this
 // to match. Example: rename it to waaagh-control.php and set 'waaagh-control.php'.
