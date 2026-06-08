@@ -123,4 +123,65 @@ if ($action === 'mark_bought') {
     exit;
 }
 
+// ── get_schemes ───────────────────────────────────────────────────────────────
+if ($action === 'get_schemes') {
+    $file   = __DIR__ . '/data/models.json';
+    $models = file_exists($file) ? json_decode(file_get_contents($file), true) ?? [] : [];
+    usort($models, fn($a, $b) => strcmp($b['date'] ?? '', $a['date'] ?? ''));
+    echo json_encode(['ok' => true, 'schemes' => array_map(fn($m) => [
+        'id'      => $m['id'],
+        'name'    => $m['name'],
+        'faction' => $m['faction'] ?? '',
+        'count'   => max(1, (int)($m['count'] ?? 1)),
+        'image'   => !empty($m['images']) ? $m['images'][0] : null,
+    ], $models)]);
+    exit;
+}
+
+// ── log_model_count ───────────────────────────────────────────────────────────
+if ($action === 'log_model_count') {
+    $sid  = trim($_POST['scheme_id'] ?? '');
+    $cnt  = max(1, (int)($_POST['count'] ?? 1));
+    $note = trim($_POST['note'] ?? '');
+    $date = preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['date'] ?? '') ? $_POST['date'] : date('Y-m-d');
+
+    if (!$sid) {
+        echo json_encode(['ok' => false, 'error' => 'missing scheme_id']);
+        exit;
+    }
+
+    $file = __DIR__ . '/data/models.json';
+    if (!file_exists($file)) {
+        echo json_encode(['ok' => false, 'error' => 'no models data']);
+        exit;
+    }
+
+    $models = json_decode(file_get_contents($file), true) ?? [];
+    $found    = false;
+    $newCount = 1;
+    foreach ($models as &$m) {
+        if ($m['id'] === $sid) {
+            $sess = ['date' => $date, 'count' => $cnt];
+            if ($note !== '') $sess['note'] = $note;
+            if (!isset($m['sessions'])) $m['sessions'] = [];
+            $m['sessions'][] = $sess;
+            $existing = max(1, (int)($m['count'] ?? 1));
+            $newCount = $existing + $cnt;
+            if ($newCount > 1) $m['count'] = $newCount;
+            $found = true;
+            break;
+        }
+    }
+    unset($m);
+
+    if (!$found) {
+        echo json_encode(['ok' => false, 'error' => 'scheme not found']);
+        exit;
+    }
+
+    file_put_contents($file, json_encode($models, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true, 'new_count' => $newCount]);
+    exit;
+}
+
 echo json_encode(['ok' => false, 'error' => 'unknown action']);

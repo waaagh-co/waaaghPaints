@@ -196,6 +196,10 @@ never committed to git):
 | `SHOW_HEATMAP` | `false` to hide the Hobby Activity heatmap on the landing page |
 | `SHOW_WC_NEWS` | `false` to hide the Warhammer Community news widget |
 | `SHOW_COMMISSAR` | `false` to hide The Commissar's Dossier tab entirely |
+| `SOCIAL_INSTAGRAM` | Full URL to your Instagram profile; leave blank to hide the icon |
+| `SOCIAL_FACEBOOK` | Full URL to your Facebook page; leave blank to hide |
+| `SOCIAL_THREADS` | Full URL to your Threads profile; leave blank to hide |
+| `SOCIAL_YOUTUBE` | Full URL to your YouTube channel; leave blank to hide |
 
 ---
 
@@ -226,9 +230,14 @@ paint brands. It is used by `catalog.php` to populate swatches during import and
 used as a hex seed (Admin → Paint Inventory → Apply Hex Seed). Update it by running the
 extraction script after adding new paints with known hex values.
 
-`widget.php` is a lightweight public endpoint returning `{"minutes": N, "updated": "HH:MM"}` -
-the rolling 7-day bench session minute total. Used by the companion Android widget
+`widget.php` is a lightweight public endpoint returning rolling hobby stats as JSON - 7-day
+bench minutes, hobby streak, models painted this year, annual goal progress, active bench
+project snapshot, and pile of shame counts. Used by the companion Android home-screen widget
 ([WaaaghWidget](https://github.com/waaagh-co/waaaghWidget)).
+
+`api.php` is an authenticated endpoint (key = admin password) used by the companion Android
+app ([WaaaghQuick](https://github.com/waaagh-co/waaaghQuick)) for quick data entry: session
+logging, shopping list retrieval, and marking paints as purchased.
 
 Model photos go in `img/models/`; bench WIP photos go in `img/bench/`; rescue before-photos go in `img/rescues/`. All are excluded from git and created automatically on first use.
 

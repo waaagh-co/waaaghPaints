@@ -502,7 +502,8 @@ if (empty($_SESSION['admin'])) {
 
     <h3>Installing as an App</h3>
     <p>On Android/Chrome, a banner will offer to install Waaagh! Paint to your home screen as a standalone app - tap <strong>Install</strong>. On iPhone: open in Safari &rarr; Share &rarr; Add to Home Screen.</p>
-    <p><strong>Android home screen widget</strong> - a companion native widget (<a href="https://github.com/waaagh-co/waaaghWidget" target="_blank">WaaaghWidget</a>) shows this week's hobby minutes on your home screen and updates automatically every 30 minutes. Tap the widget to open the web app. Built with Kotlin and WorkManager; sideloaded as an APK. The data comes from <code>widget.php</code> on your server - enter that URL when the widget's config screen appears on first placement.</p>
+    <p><strong>Android home screen widget</strong> - a companion native widget (<a href="https://github.com/waaagh-co/waaaghWidget" target="_blank">WaaaghWidget</a>) shows a three-column strip on your home screen: this week's hobby minutes, your current streak in days, and models painted this year. Updates every 30 minutes automatically; tap to open the web app. Sideloaded as an APK. Enter your <code>widget.php</code> URL when the widget's config screen appears on first placement.</p>
+    <p><strong>WaaaghQuick Android app</strong> - a companion app (<a href="https://github.com/waaagh-co/waaaghQuick" target="_blank">WaaaghQuick</a>) for quick data entry without opening the admin panel. Log bench sessions (pick project, set duration, add a note), browse your paint shopping list (Out / Low / Wanted grouped by status), and mark paints as purchased directly from the list. Connects to <code>api.php</code> on your server using your admin password. Sideloaded as an APK.</p>
   </div>
 
   <div class="divider"></div>
