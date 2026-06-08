@@ -621,7 +621,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
   <meta name="twitter:image" content="<?= htmlspecialchars(SITE_URL) ?>img/logo_sm.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Caveat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=125">
+  <link rel="stylesheet" href="styles.css?v=126">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -706,7 +706,31 @@ if (($_POST['action'] ?? '') === 'track_tab') {
         <span class="gs-label">Search All</span>
         <span class="gs-hint">Ctrl+K</span>
       </button>
-      <p class="sidebar-disclaimer">Personal hobby journal &mdash; not an official or commercial resource.</p>
+      <?php
+        $socialLinks = [];
+        if (defined('SITE_EMAIL') && SITE_EMAIL !== '') $socialLinks['email'] = 'mailto:' . SITE_EMAIL;
+        if (defined('SOCIAL_INSTAGRAM') && SOCIAL_INSTAGRAM !== '') $socialLinks['instagram'] = SOCIAL_INSTAGRAM;
+        if (defined('SOCIAL_THREADS')   && SOCIAL_THREADS   !== '') $socialLinks['threads']   = SOCIAL_THREADS;
+        if (defined('SOCIAL_YOUTUBE')   && SOCIAL_YOUTUBE   !== '') $socialLinks['youtube']   = SOCIAL_YOUTUBE;
+        if (defined('SOCIAL_FACEBOOK')  && SOCIAL_FACEBOOK  !== '') $socialLinks['facebook']  = SOCIAL_FACEBOOK;
+        $socialSvgs = [
+          'email'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>',
+          'instagram' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
+          'threads'   => '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.474 12.01v-.017c.03-3.579.886-6.43 2.548-8.47C5.857 1.205 8.611.024 12.186 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-.556-1.989-1.487-3.518-2.77-4.542-1.357-1.073-3.168-1.634-5.532-1.652-3.018.025-5.31.936-6.814 2.698C4.2 6.395 3.458 8.795 3.43 12c.028 3.208.77 5.608 2.208 7.364 1.504 1.76 3.796 2.67 6.814 2.698 2.168-.022 3.802-.564 4.862-1.613.982-.973 1.498-2.386 1.537-4.194-.029-1.816-.539-3.24-1.518-4.23-.604-.617-1.395-1.034-2.349-1.23-.19 1.316-.59 2.374-1.194 3.145-.793 1.02-1.88 1.549-3.234 1.574-1.083-.018-1.98-.376-2.593-1.038-.657-.71-.986-1.706-.956-2.878.06-2.297 1.715-3.778 4.4-3.865.757-.025 1.483.03 2.16.163-.085-.672-.287-1.19-.61-1.538-.42-.46-1.083-.693-1.97-.693h-.042c-.758.006-1.382.208-1.858.6-.412.34-.668.813-.762 1.408l-1.994-.322c.155-.972.603-1.808 1.33-2.485.824-.764 1.931-1.172 3.306-1.184h.048c1.37 0 2.493.42 3.34 1.25.921.898 1.437 2.215 1.535 3.918.177.054.353.113.525.18 1.286.489 2.304 1.25 3.022 2.26.788 1.1 1.19 2.48 1.195 4.1v.025c-.042 2.364-.74 4.24-2.074 5.578-1.418 1.42-3.497 2.162-6.169 2.207z"/></svg>',
+          'youtube'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10,9 16,12 10,15" fill="currentColor" stroke="none"/></svg>',
+          'facebook'  => '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073C24 5.404 18.627 0 12 0S0 5.404 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>',
+        ];
+        if (!empty($socialLinks)):
+      ?>
+      <div class="social-links">
+        <?php foreach ($socialLinks as $key => $href): ?>
+        <a href="<?= htmlspecialchars($href) ?>" class="social-link" target="<?= $key === 'email' ? '_self' : '_blank' ?>" rel="noopener noreferrer" title="<?= ucfirst($key) ?>">
+          <?= $socialSvgs[$key] ?>
+        </a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+      <p class="sidebar-disclaimer">Personal hobby journal - not an official or commercial resource.</p>
     </div>
   </aside>
 
