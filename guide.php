@@ -508,6 +508,26 @@ if (empty($_SESSION['admin'])) {
 
   <div class="divider"></div>
 
+  <!-- ══════════════ SHOWCASE ══════════════ -->
+  <div class="page-section">
+    <div class="page-section-title"><span class="section-icon">🖼️</span> Public Showcase (<code>showcase.php</code>)</div>
+    <p>A password-free portfolio page showing only the models you have hand-picked. Share the URL on social media, in your painting club, or at a tournament - visitors see a clean masonry photo grid with no admin controls, no inventory data, nothing but your painted work.</p>
+    <ul>
+      <li><strong>Enabling</strong> - set <code>SHOWCASE_PUBLIC = true</code> in <code>config.php</code>. Off by default; navigating to <code>showcase.php</code> while disabled returns a 403</li>
+      <li><strong>Curating</strong> - in the Admin gallery list, each scheme now has a <strong>★</strong> button. Click it to feature that scheme; click again to remove it. Only starred entries appear on the showcase</li>
+      <li><strong>Per-photo selection</strong> - for schemes with multiple photos, clicking ★ selects all photos by default and reveals a row of small image thumbnails next to the star. Each thumbnail is gold when included and dim when excluded. Click a thumbnail to toggle that individual photo in or out of the showcase. This means a single "Flesh Tearers" scheme entry with four photos can contribute four separate cards - or just the two you want to highlight</li>
+      <li><strong>One card per photo</strong> - each selected photo appears as its own card in the masonry grid. Clicking any card opens the full lightbox for that scheme, starting at the photo you clicked, with arrows to browse the rest</li>
+      <li><strong>System filter pills</strong> - visitors can filter the grid by game system (40k, Kill Team, AoS, etc.) without a page reload</li>
+      <li><strong>Hover details</strong> - game system badge, faction, and the scheme's finish/technique summary appear on hover so the grid stays clean at first glance</li>
+      <li><strong>Each model's <code>theme_hex</code></strong> drives a coloured glow on the card border on hover - schemes with a warm theme glow warm, dark schemes glow dark</li>
+      <li><strong>Open Graph meta tags</strong> - the page generates <code>og:image</code>, <code>og:title</code>, and <code>og:description</code> so link previews in Discord, Slack, and social apps show a photo and caption automatically</li>
+      <li><strong>Title override</strong> - set <code>SHOWCASE_TITLE</code> in <code>config.php</code> to use a different heading on the showcase page (e.g. "Ray's Painted Army"); defaults to <code>SITE_TITLE</code></li>
+    </ul>
+    <p>The Admin gallery section header shows a running count - <em>★ N photos across M schemes</em> - so you always know exactly what is live on the showcase without leaving admin.</p>
+  </div>
+
+  <div class="divider"></div>
+
   <!-- ══════════════ ADMIN ══════════════ -->
   <div class="page-section">
     <div class="page-section-title"><span class="section-icon">⚙️</span> Admin (<?= ADMIN_FILENAME ?>)</div>

@@ -50,6 +50,12 @@ collapsible left-rail sidebar grouped into four sections.
   the ring and a side panel listing the best owned paints for each harmony position, temperature
   analysis (warm/cool/neutral), and role suggestion (Shadow/Foundation/Highlight/Transition);
   click any suggestion swatch to pivot the analysis to that paint
+- **Public Showcase** - a password-free portfolio page (`showcase.php`) showing only the
+  models you hand-pick. In admin, click the ★ button on any gallery entry to add it; for
+  multi-photo entries a thumbnail strip appears so you can choose which individual photos
+  show as separate cards. Each selected photo becomes its own masonry card on the showcase
+  page - clicking opens the full lightbox. Enable with `SHOWCASE_PUBLIC = true` in
+  `config.php`. Off by default
 - **Paint Schemes** - gallery of finished models with photos, color tagging, a pull-sheet
   checklist for repainting (missing paints show a nearest-owned color suggestion via RGB
   hex distance), **Scheme Doctor** (◎ Harmony button on each card) analyses the scheme's
@@ -196,6 +202,8 @@ never committed to git):
 | `SHOW_HEATMAP` | `false` to hide the Hobby Activity heatmap on the landing page |
 | `SHOW_WC_NEWS` | `false` to hide the Warhammer Community news widget |
 | `SHOW_COMMISSAR` | `false` to hide The Commissar's Dossier tab entirely |
+| `SHOWCASE_PUBLIC` | `true` to enable the public portfolio page at `showcase.php`; `false` (default) returns 403 |
+| `SHOWCASE_TITLE` | Override the page title shown on `showcase.php`; defaults to `SITE_TITLE` if blank |
 | `SOCIAL_INSTAGRAM` | Full URL to your Instagram profile; leave blank to hide the icon |
 | `SOCIAL_FACEBOOK` | Full URL to your Facebook page; leave blank to hide |
 | `SOCIAL_THREADS` | Full URL to your Threads profile; leave blank to hide |
