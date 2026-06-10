@@ -746,6 +746,17 @@
     .fo-pin-btn { color: #3a2a10; border-color: #2a2010; }
     .fo-pin-btn.fo-pin-active { color: #c9a227; border-color: #6a4a10; }
 
+    .mo-feature-btn { color: #3a2a10; border-color: #2a2010; }
+    .mo-feature-btn.mo-feature-active { color: #c9a227; border-color: #6a4a10; }
+
+    .sc-img-picks { display: inline-flex; gap: 3px; align-items: center; }
+    .sc-img-picks-hidden { display: none; }
+    .sc-img-pick { padding: 2px; border: 1px solid #2a2010; background: #080706; border-radius: 2px; cursor: pointer; }
+    .sc-img-pick img { width: 30px; height: 22px; object-fit: cover; display: block; border-radius: 1px; opacity: .45; transition: opacity .15s; }
+    .sc-img-pick.sc-img-pick-active { border-color: #c9a227; }
+    .sc-img-pick.sc-img-pick-active img { opacity: 1; }
+    .sc-img-pick:hover img { opacity: .8; }
+
     .brush-cond-btn.cond-prime {
       color: #5a9a3a;
       border-color: #2a5a1a;

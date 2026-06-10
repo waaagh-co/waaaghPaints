@@ -2189,6 +2189,58 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_force', 'edit_force'], tru
   exit;
 }
 
+if ($authed && ($_POST['action'] ?? '') === 'toggle_model_feature') {
+  header('Content-Type: application/json');
+  $mid = trim($_POST['model_id'] ?? '');
+  if (!$mid || !file_exists(MODELS_FILE)) { echo json_encode(['ok' => false]); exit; }
+  $all = json_decode(file_get_contents(MODELS_FILE), true) ?? [];
+  $targetIdx = -1;
+  foreach ($all as $i => $m) {
+    if ($m['id'] === $mid) { $targetIdx = $i; break; }
+  }
+  if ($targetIdx === -1) { echo json_encode(['ok' => false]); exit; }
+  $nowFeatured = empty($all[$targetIdx]['featured']);
+  if ($nowFeatured) {
+    $imgCount = count($all[$targetIdx]['images'] ?? []);
+    $all[$targetIdx]['featured'] = $imgCount > 0 ? range(0, $imgCount - 1) : [0];
+  } else {
+    unset($all[$targetIdx]['featured']);
+  }
+  file_put_contents(MODELS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  echo json_encode(['ok' => true, 'featured' => $nowFeatured ? ($all[$targetIdx]['featured'] ?? []) : false]);
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'toggle_model_showcase_image') {
+  header('Content-Type: application/json');
+  $mid = trim($_POST['model_id'] ?? '');
+  $idx = (int)($_POST['image_idx'] ?? -1);
+  if (!$mid || $idx < 0 || !file_exists(MODELS_FILE)) { echo json_encode(['ok' => false]); exit; }
+  $all = json_decode(file_get_contents(MODELS_FILE), true) ?? [];
+  $targetIdx = -1;
+  foreach ($all as $i => $m) {
+    if ($m['id'] === $mid) { $targetIdx = $i; break; }
+  }
+  if ($targetIdx === -1) { echo json_encode(['ok' => false]); exit; }
+  $current = is_array($all[$targetIdx]['featured'] ?? null) ? $all[$targetIdx]['featured'] : [];
+  if (in_array($idx, $current, true)) {
+    $current = array_values(array_filter($current, fn($v) => $v !== $idx));
+  } else {
+    $current[] = $idx;
+    sort($current);
+  }
+  if (empty($current)) {
+    unset($all[$targetIdx]['featured']);
+    $result = false;
+  } else {
+    $all[$targetIdx]['featured'] = $current;
+    $result = $current;
+  }
+  file_put_contents(MODELS_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+  echo json_encode(['ok' => true, 'active' => in_array($idx, $current, true), 'featured' => $result]);
+  exit;
+}
+
 if ($authed && ($_POST['action'] ?? '') === 'toggle_force_pin') {
   header('Content-Type: application/json');
   $fid = trim($_POST['force_id'] ?? '');
@@ -3145,9 +3197,17 @@ if ($authed && isset($_GET['edit_force'])) {
         </div>
       </form>
 
-      <?php if ($models): ?>
+      <?php if ($models):
+        $featuredCount  = count(array_filter($models, fn($m) => !empty($m['featured'])));
+        $showcaseImgCount = array_sum(array_map(fn($m) => is_array($m['featured'] ?? null) ? count($m['featured']) : (!empty($m['featured']) ? 1 : 0), $models)); ?>
         <h2 id="section-entries" style="margin-top:40px">Edit Scheme
           <span style="color:#4a3a1a;font-size:.75em;font-weight:400;letter-spacing:.04em">&nbsp;<?= count($models) ?> entr<?= count($models) !== 1 ? 'ies' : 'y' ?></span>
+          <?php if ($featuredCount > 0): ?>
+            <span style="color:#6a4f10;font-size:.7em;font-weight:400;letter-spacing:.04em">&nbsp;·&nbsp;★ <?= $showcaseImgCount ?> photo<?= $showcaseImgCount !== 1 ? 's' : '' ?> across <?= $featuredCount ?> scheme<?= $featuredCount !== 1 ? 's' : '' ?></span>
+          <?php endif; ?>
+          <?php if (defined('SHOWCASE_PUBLIC') && SHOWCASE_PUBLIC): ?>
+            <a href="showcase.php" target="_blank" style="font-size:.65em;font-weight:400;color:#6a4f10;text-decoration:none;letter-spacing:.04em;margin-left:10px">View Showcase →</a>
+          <?php endif; ?>
         </h2>
         <?php if ($hasRecipes): ?>
           <form method="post" style="margin-bottom:14px" onsubmit="return confirm('Remove paints from scheme color lists that are already covered by a linked recipe? This cannot be undone.')">
@@ -3191,6 +3251,28 @@ if ($authed && isset($_GET['edit_force'])) {
                 data-mid="<?= e($m['id'] ?? '') ?>"
                 data-mname="<?= e($m['name'] ?? '') ?>"
                 onclick="openGallerySessionModal(this)">+ Log</button>
+              <?php
+                $featuredArr = is_array($m['featured'] ?? null) ? $m['featured'] : (!empty($m['featured']) ? [0] : []);
+                $isFeatured  = !empty($featuredArr);
+                $imgList     = array_values(array_filter($m['images'] ?? []));
+              ?>
+              <button type="button" class="btn btn-sm mo-feature-btn<?= $isFeatured ? ' mo-feature-active' : '' ?>"
+                data-id="<?= e($m['id'] ?? '') ?>"
+                title="<?= $isFeatured ? 'Remove from showcase' : 'Add to showcase' ?>">★</button>
+              <?php if (count($imgList) > 1): ?>
+                <span class="sc-img-picks<?= $isFeatured ? '' : ' sc-img-picks-hidden' ?>"
+                      data-mid="<?= e($m['id'] ?? '') ?>">
+                  <?php foreach ($imgList as $imgIdx => $imgSrc): ?>
+                    <button type="button"
+                      class="sc-img-pick<?= in_array($imgIdx, $featuredArr, true) ? ' sc-img-pick-active' : '' ?>"
+                      data-id="<?= e($m['id'] ?? '') ?>"
+                      data-idx="<?= $imgIdx ?>"
+                      title="<?= in_array($imgIdx, $featuredArr, true) ? 'Remove photo ' . ($imgIdx+1) . ' from showcase' : 'Add photo ' . ($imgIdx+1) . ' to showcase' ?>">
+                      <img src="<?= e($imgSrc) ?>" alt="<?= $imgIdx + 1 ?>">
+                    </button>
+                  <?php endforeach; ?>
+                </span>
+              <?php endif; ?>
               <a href="<?= ADMIN_FILENAME ?>?edit=<?= e($m['id'] ?? '') ?>" class="btn btn-sm" style="text-decoration:none;<?= ($editModel && ($editModel['id'] ?? '') === ($m['id'] ?? '')) ? 'border-color:#c9a227;' : '' ?>">Edit</a>
               <form method="post" onsubmit="return confirm('Delete this entry?')">
                 <input type="hidden" name="action" value="delete_model">

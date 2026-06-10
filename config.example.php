@@ -38,3 +38,10 @@ define('SITE_TAGLINE', "Dis is not a blog. It's a paintin' tool. Use it. Steal f
 define('SHOW_HEATMAP',   true);   // Hobby Activity heatmap on the The Commissar page
 define('SHOW_WC_NEWS',   true);   // Latest from Warhammer Community widget
 define('SHOW_COMMISSAR', true);   // The Commissar's Dossier tab
+
+// ── Public showcase ───────────────────────────────────────────────────────
+// showcase.php is a password-free portfolio page showing only models you have
+// starred as "featured" in the admin gallery. Off by default — set to true to
+// enable. Curate which models appear using the ★ button on each scheme card.
+define('SHOWCASE_PUBLIC', false);
+define('SHOWCASE_TITLE',  '');    // Override the page/header title. Defaults to SITE_TITLE.

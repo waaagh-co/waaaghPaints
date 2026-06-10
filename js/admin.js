@@ -924,6 +924,55 @@
           }
         }
 
+        document.querySelectorAll('.mo-feature-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const fd = new FormData();
+            fd.append('action', 'toggle_model_feature');
+            fd.append('model_id', this.dataset.id);
+            const data = await fetch(ADMIN_PHP, { method: 'POST', body: fd }).then(r => r.json());
+            if (!data.ok) return;
+            const nowOn = !!data.featured;
+            this.classList.toggle('mo-feature-active', nowOn);
+            this.title = nowOn ? 'Remove from showcase' : 'Add to showcase';
+            // Show or hide the image pick strip for multi-image schemes
+            const picks = this.parentElement.querySelector('.sc-img-picks');
+            if (picks) {
+              picks.classList.toggle('sc-img-picks-hidden', !nowOn);
+              if (nowOn && Array.isArray(data.featured)) {
+                picks.querySelectorAll('.sc-img-pick').forEach(p => {
+                  const active = data.featured.includes(parseInt(p.dataset.idx));
+                  p.classList.toggle('sc-img-pick-active', active);
+                  p.title = active ? 'Remove photo ' + (parseInt(p.dataset.idx)+1) + ' from showcase' : 'Add photo ' + (parseInt(p.dataset.idx)+1) + ' to showcase';
+                });
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('.sc-img-pick').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const fd = new FormData();
+            fd.append('action', 'toggle_model_showcase_image');
+            fd.append('model_id', this.dataset.id);
+            fd.append('image_idx', this.dataset.idx);
+            const data = await fetch(ADMIN_PHP, { method: 'POST', body: fd }).then(r => r.json());
+            if (!data.ok) return;
+            this.classList.toggle('sc-img-pick-active', data.active);
+            this.title = data.active ? 'Remove photo ' + (parseInt(this.dataset.idx)+1) + ' from showcase' : 'Add photo ' + (parseInt(this.dataset.idx)+1) + ' to showcase';
+            // If all images deselected, also deactivate the star button
+            if (data.featured === false) {
+              const star = this.closest('.model-row, [class*="model-row"]')
+                           ? this.parentElement.previousElementSibling
+                           : null;
+              if (star && star.classList.contains('mo-feature-btn')) {
+                star.classList.remove('mo-feature-active');
+                star.title = 'Add to showcase';
+              }
+              this.closest('.sc-img-picks').classList.add('sc-img-picks-hidden');
+            }
+          });
+        });
+
         document.querySelectorAll('.fo-pin-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const fd = new FormData();
