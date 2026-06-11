@@ -25,7 +25,10 @@ $factionCounts  = [];
 $galleryCards   = [];
 
 foreach ($models as $m) {
-    $yearCount = 0;
+    $yearCount   = 0;
+    $hasSessions = !empty($m['sessions']);
+
+    // Primary: sessions logged in this year
     foreach ($m['sessions'] ?? [] as $s) {
         if (substr($s['date'] ?? '', 0, 4) !== $yearStr) continue;
         $cnt = max(1, (int)($s['count'] ?? 1));
@@ -33,6 +36,14 @@ foreach ($models as $m) {
         $mo = (int)substr($s['date'], 5, 2);
         if ($mo >= 1 && $mo <= 12) $modelsByMonth[$mo] += $cnt;
     }
+
+    // Fallback: no sessions logged at all — use the scheme's date + count fields
+    if ($yearCount === 0 && !$hasSessions && substr($m['date'] ?? '', 0, 4) === $yearStr) {
+        $yearCount = max(1, (int)($m['count'] ?? 1));
+        $mo = (int)substr($m['date'], 5, 2);
+        if ($mo >= 1 && $mo <= 12) $modelsByMonth[$mo] += $yearCount;
+    }
+
     if ($yearCount === 0) continue;
     $modelsThisYear += $yearCount;
 
@@ -58,7 +69,7 @@ foreach ($models as $m) {
 }
 arsort($factionCounts);
 usort($galleryCards, fn($a, $b) => $b['count'] - $a['count']);
-$galleryCards = array_filter(array_slice($galleryCards, 0, 8), fn($c) => !empty($c['thumb']));
+$galleryCards = array_filter(array_slice($galleryCards, 0, 24), fn($c) => !empty($c['thumb']));
 
 // ── Bench sessions ────────────────────────────────────────────────────────────
 $sessionsThisYear = 0;
