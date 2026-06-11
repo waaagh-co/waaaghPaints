@@ -688,6 +688,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <li class="sg-item"><a href="#" data-tab="equiv">Equivalency</a></li>
           <?php if ($hasBooks): ?><li class="sg-item"><a href="#" data-tab="books">Codices</a></li><?php endif; ?>
           <?php if ($hasJournal): ?><li class="sg-item"><a href="#" data-tab="journals">Scrap Notes</a></li><?php endif; ?>
+          <li class="sg-item"><a href="review.php">Year in Review</a></li>
         </ul>
       </div>
       <div class="nav-fade" id="nav-fade"></div>
