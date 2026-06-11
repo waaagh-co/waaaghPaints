@@ -184,4 +184,38 @@ if ($action === 'log_model_count') {
     exit;
 }
 
+// ── add_shame ─────────────────────────────────────────────────────────────────
+if ($action === 'add_shame') {
+    $name    = trim($_POST['name']    ?? '');
+    $faction = trim($_POST['faction'] ?? '');
+    $system  = trim($_POST['system']  ?? 'Other');
+    $count   = (int)($_POST['count']  ?? 0);
+    $status  = trim($_POST['status']  ?? 'sealed');
+
+    if (!$name) {
+        echo json_encode(['ok' => false, 'error' => 'missing name']);
+        exit;
+    }
+
+    if (!in_array($system, ['40k', '30k / HH', 'AoS', 'Old World', 'Epic', 'Blood Bowl', 'Necromunda', 'Kill Team', 'OPR', 'Other'], true)) {
+        $system = 'Other';
+    }
+    if (!in_array($status, ['sealed', 'opened', 'partial'], true)) {
+        $status = 'sealed';
+    }
+
+    $file = __DIR__ . '/data/shame.json';
+    $shame = file_exists($file) ? (json_decode(file_get_contents($file), true) ?? []) : [];
+
+    $entry = ['id' => (string)time(), 'name' => $name, 'system' => $system, 'status' => $status];
+    if ($faction) $entry['faction'] = $faction;
+    if ($count > 0) $entry['count'] = $count;
+    $entry['acquired'] = date('Y-m');
+
+    $shame[] = $entry;
+    file_put_contents($file, json_encode($shame, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
 echo json_encode(['ok' => false, 'error' => 'unknown action']);
