@@ -1934,7 +1934,7 @@ if ($authed && isset($_POST['action']) && $_POST['action'] === 'import_backup') 
     }
   }
   $_SESSION['flash'] = ($result['ok'] ? 'ok|' : 'err|') . $result['msg'];
-  header('Location: admin.php#section-stats');
+  header('Location: admin.php#section-bench');
   exit;
 }
 
@@ -2969,6 +2969,7 @@ if ($authed && isset($_GET['edit_force'])) {
         </div>
       </div>
 
+      <?php /* Gauge widget — hidden for now, logic preserved
       <div class="admin-wm-widget <?= $adMeterClass ?>">
         <img src="img/waaagh.png" class="wm-title-img" alt="Waaagh! Index">
         <div class="wm-gauge">
@@ -2980,6 +2981,7 @@ if ($authed && isset($_GET['edit_force'])) {
         <div class="wm-state"><?= htmlspecialchars($adMeterState) ?></div>
         <div class="wm-week"><?php if ($adWkActive): ?><?= implode(' &middot; ', $adWkParts) ?><?php else: ?>Nowt done yet&hellip;<?php endif; ?></div>
       </div>
+      */ ?>
 
       <?php if ($topPaints): ?>
         <div class="stats-sub-heading" style="margin-top:20px">Most Used Paints</div>
