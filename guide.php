@@ -161,10 +161,11 @@ if (empty($_SESSION['admin'])) {
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .dot.owned  { background: #22c55e; box-shadow: 0 0 5px #22c55e88; }
-    .dot.low    { background: #f97316; box-shadow: 0 0 5px #f9731688; }
-    .dot.out    { background: #ef4444; box-shadow: 0 0 5px #ef444488; }
-    .dot.wanted { background: #3b82f6; box-shadow: 0 0 5px #3b82f688; }
+    .dot.owned   { background: #22c55e; box-shadow: 0 0 5px #22c55e88; }
+    .dot.low     { background: #f97316; box-shadow: 0 0 5px #f9731688; }
+    .dot.out     { background: #ef4444; box-shadow: 0 0 5px #ef444488; }
+    .dot.wanted  { background: #3b82f6; box-shadow: 0 0 5px #3b82f688; }
+    .dot.retired { background: #4a4a4a; box-shadow: 0 0 5px #4a4a4a88; }
     .dot.missing { background: transparent; border: 2px solid #9ca3af; }
 
     /* ── Stock badge samples ── */
@@ -176,9 +177,10 @@ if (empty($_SESSION['admin'])) {
       border-radius: 3px;
       letter-spacing: .06em;
     }
-    .sbadge.low    { background: rgba(249,115,22,.18); color: #f97316; border: 1px solid #f9731644; }
-    .sbadge.out    { background: rgba(239,68,68,.18);  color: #ef4444; border: 1px solid #ef444444; }
-    .sbadge.wanted { background: rgba(59,130,246,.18); color: #6ea8fe; border: 1px solid #3b82f644; }
+    .sbadge.low     { background: rgba(249,115,22,.18); color: #f97316; border: 1px solid #f9731644; }
+    .sbadge.out     { background: rgba(239,68,68,.18);  color: #ef4444; border: 1px solid #ef444444; }
+    .sbadge.wanted  { background: rgba(59,130,246,.18); color: #6ea8fe; border: 1px solid #3b82f644; }
+    .sbadge.retired { background: rgba(74,74,74,.18);   color: #5a5a5a; border: 1px solid #4a4a4a44; }
 
     /* ── Divider ── */
     .divider {
@@ -306,8 +308,8 @@ if (empty($_SESSION['admin'])) {
       <li><strong>Click a row</strong> - opens a panel listing every paint scheme that uses that paint, with a "View →" button to jump straight to it</li>
       <li><strong>Stock badges</strong> - shown inline in the paint name cell</li>
       <li><strong>Notes / Stars button</strong> - a pencil icon appears on any paint with notes; a gold ★ appears on any paint with a quality rating. Click either to open a drawer showing the paint's notes and star rating. Both are read-only here - set them in Admin</li>
-      <li><strong>Flagged filter</strong> - click the <em>Flagged</em> button in the controls bar to show only paints marked low, out, or wanted. The button turns gold when active - useful for a quick restock check before sitting down to paint. Click again or hit Reset to clear it</li>
-      <li><strong>Restock List</strong> - click the <em>Restock List</em> button for a full-screen shopping list of every flagged paint, split into three sections: Out, Low, and Wanted, each grouped by brand. Print or Copy to take it to the hobby shop. The same list is also one tap away from the landing page - the flagged count on the Paint Inventory entry opens it directly</li>
+      <li><strong>Flagged filter</strong> - click the <em>Flagged</em> button in the controls bar to show only paints marked low, out, wanted, or retired. The button turns gold when active - useful for a quick restock check before sitting down to paint. Click again or hit Reset to clear it</li>
+      <li><strong>Restock List</strong> - click the <em>Restock List</em> button for a full-screen shopping list of every flagged paint, split into three sections: Out, Low, and Wanted, each grouped by brand. Print or Copy to take it to the hobby shop. The same list is also one tap away from the landing page - the flagged count on the Paint Inventory entry opens it directly. <em>Retired paints do not appear on the Restock List</em> — they are kept for historical reference only</li>
       <li><strong>Colour Wheel</strong> - click the <em>&#11044; Wheel</em> button to switch from the table to an SVG hue wheel plotting every chromatic paint you own as a coloured dot at its hue position. Gaps in the ring are hues you don't have covered. All active filters (brand, colour, layer, search) apply to the wheel in real time. Hover a dot for a tooltip; click a dot to jump to that paint in the list view. Achromatic paints (metallics, washes, shades, primers, greyscale) appear in grouped swatches below the wheel sorted by hue then lightness. A <em>&#128279; Copy link</em> button lets you share a direct URL that opens straight to the wheel view</li>
       <li><strong>Colour Harmony Advisor</strong> - once the Wheel is active, a <em>&#9678; Harmony</em> button appears. Click it to enter harmony mode, then click any paint dot on the wheel to analyse its colour relationships. A panel shows the selected paint's temperature (warm / cool / neutral) and role (Shadow / Foundation / Highlight / Transition), then lists owned paints that fill each harmony position. Switch between five harmony types using the tabs:
         <ul style="margin-top:6px;margin-left:16px">
@@ -323,8 +325,9 @@ if (empty($_SESSION['admin'])) {
       <span class="sbadge low">low</span>
       <span class="sbadge out">out</span>
       <span class="sbadge wanted">wanted</span>
+      <span class="sbadge retired">retired</span>
     </div>
-    <p style="font-size:.88rem;color:#7a6a50;margin-top:-6px;"><em>low = running low &middot; out = none left &middot; wanted = catalogued but not yet bought</em></p>
+    <p style="font-size:.88rem;color:#7a6a50;margin-top:-6px;"><em>low = running low &middot; out = none left &middot; wanted = catalogued but not yet bought &middot; retired = gone, not replacing</em></p>
 
     <h3>Brushes tab</h3>
     <p>A personal brush inventory - only visible if the inventory has been started in Admin.</p>
