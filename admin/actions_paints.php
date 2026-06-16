@@ -103,7 +103,7 @@ if ($authed && ($_POST['action'] ?? '') === 'set_stock') {
   header('Content-Type: application/json');
   $pid   = trim($_POST['paint_id'] ?? '');
   $stock = trim($_POST['stock']    ?? '');
-  if ($pid !== '' && in_array($stock, ['', 'low', 'out', 'wanted'], true)) {
+  if ($pid !== '' && in_array($stock, ['', 'low', 'out', 'wanted', 'retired'], true)) {
     $all = file_exists(PAINTS_FILE) ? (json_decode(file_get_contents(PAINTS_FILE), true) ?? []) : [];
     foreach ($all as &$p) {
       if (($p['brand'] . '|' . $p['name'] . '|' . ($p['layer'] ?? '')) === $pid) {

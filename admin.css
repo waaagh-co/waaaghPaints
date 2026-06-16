@@ -704,6 +704,11 @@
       border-color: #1a3a5a;
     }
 
+    .stock-btn.stock-retired {
+      color: #5a5a5a;
+      border-color: #2a2a2a;
+    }
+
     .bk-status-reading {
       font-size: 9px;
       font-family: 'Cinzel', serif;

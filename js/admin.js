@@ -123,7 +123,8 @@
           '': 'low',
           'low': 'out',
           'out': 'wanted',
-          'wanted': ''
+          'wanted': 'retired',
+          'retired': ''
         };
         const pid = btn.dataset.pid;
         const cur = btn.dataset.stock || '';

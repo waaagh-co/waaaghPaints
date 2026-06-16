@@ -653,6 +653,7 @@
     .stock-dot-out     { background: #ef4444; box-shadow: 0 0 4px #ef444488; }
     .stock-dot-wanted  { background: #3b82f6; box-shadow: 0 0 4px #3b82f688; }
     .stock-dot-owned   { background: #22c55e; box-shadow: 0 0 4px #22c55e88; }
+    .stock-dot-retired { background: #4a4a4a; box-shadow: 0 0 4px #4a4a4a88; }
 
     /* ── Empty state ── */
     #empty {
@@ -1953,6 +1954,11 @@
       color: var(--amber);
     }
 
+    .pull-flag.retired {
+      background: #1a1a1a;
+      color: #5a5a5a;
+    }
+
     .nearest-hint { display: block; font-size: .68rem; color: #4a3a18; font-style: italic; margin-top: 2px; padding-left: 2px; }
     .nh-swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; border: 1px solid rgba(255,255,255,.2); flex-shrink: 0; }
     .wp-step-body .nearest-hint { font-size: .8rem; margin-top: 4px; color: #5a4828; }
@@ -1988,6 +1994,11 @@
     .inv-stock-badge.inv-stock-wanted {
       background: #001a2a;
       color: #60a5fa;
+    }
+
+    .inv-stock-badge.inv-stock-retired {
+      background: #1a1a1a;
+      color: #5a5a5a;
     }
 
     @media print {
@@ -4889,6 +4900,11 @@
     .eq-dot.wanted {
       background: #2a5a9a;
       box-shadow: 0 0 4px rgba(42, 90, 154, .4);
+    }
+
+    .eq-dot.retired {
+      background: #3a3a3a;
+      box-shadow: 0 0 4px rgba(58, 58, 58, .4);
     }
 
     .eq-dot.missing {

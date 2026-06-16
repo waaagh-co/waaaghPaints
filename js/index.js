@@ -1237,6 +1237,7 @@
       if (!paintOwned.has(key)) return `<li>${esc(name)}<span class="pull-flag missing">missing</span>${nearestHintHtml(raw)}</li>`;
       if (stock === 'out') return `<li>${esc(name)}<span class="pull-flag out">out</span></li>`;
       if (stock === 'low') return `<li>${esc(name)}<span class="pull-flag low">low</span></li>`;
+      if (stock === 'retired') return `<li>${esc(name)}<span class="pull-flag retired">retired</span></li>`;
       return `<li>${esc(name)}</li>`;
     }
 
@@ -2276,6 +2277,7 @@
             if (st === 'low') return '<span class="stock-dot stock-dot-low" title="Low stock"></span>';
             if (st === 'out') return '<span class="stock-dot stock-dot-out" title="Out of stock"></span>';
             if (st === 'wanted') return '<span class="stock-dot stock-dot-wanted" title="Wanted"></span>';
+            if (st === 'retired') return '<span class="stock-dot stock-dot-retired" title="Retired"></span>';
             return '<span class="stock-dot stock-dot-owned" title="Owned"></span>';
           }
 
@@ -3177,6 +3179,7 @@
           if (s === 'low') return 'low';
           if (s === 'out') return 'out';
           if (s === 'wanted') return 'wanted';
+          if (s === 'retired') return 'retired';
           return 'owned';
         }
 
@@ -3672,6 +3675,7 @@
       if (s === 'out') return 'out';
       if (s === 'low') return 'low';
       if (s === 'wanted') return 'wanted';
+      if (s === 'retired') return 'retired';
       return 'owned';
     }
 
@@ -3682,6 +3686,7 @@
         low: 'Low stock',
         out: 'Out of stock',
         wanted: 'Wanted',
+        retired: 'Retired',
         missing: 'Not in inventory'
       };
       return `<span class="eq-dot ${st}" title="${labels[st]}"></span>`;
