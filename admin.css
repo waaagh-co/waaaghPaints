@@ -840,6 +840,105 @@
       border-color: #2a5a1a;
     }
 
+    /* Tonight's Bench — model count + step tracker (admin) */
+    .bench-model-count-label {
+      font-size: 10px;
+      color: #5a9a3a;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+      margin-right: 6px;
+    }
+    .bench-model-progress-wrap {
+      flex: 1 1 80px;
+      height: 4px;
+      background: #1a1408;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-right: 6px;
+      min-width: 60px;
+    }
+    .bench-model-progress-bar {
+      height: 100%;
+      background: #3a8a3a;
+      transition: width .3s;
+    }
+    .bench-model-done-btn {
+      background: none;
+      border: 1px solid #2a5a1a;
+      color: #5a9a3a;
+      font-size: 9px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .bench-model-done-btn:hover { background: #1a3a0a; }
+    .bench-model-all-done {
+      font-size: 10px;
+      color: #5a9a3a;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+    }
+
+    .bench-step-toggle-wrap {
+      margin-top: 4px;
+    }
+    .bench-step-toggle-btn {
+      background: none;
+      border: none;
+      color: #4a3a18;
+      font-size: 10px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .bench-step-toggle-btn:hover { color: #c9a227; }
+    .bench-step-list {
+      display: none;
+      margin-top: 6px;
+      padding: 6px 8px;
+      background: #0a0806;
+      border-left: 2px solid #2a5a1a;
+      border-radius: 0 3px 3px 0;
+    }
+    .bench-step-list.open { display: block; }
+    .bench-step-recipe-name {
+      font-size: 10px;
+      color: #4a7a3a;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+    .bench-step-recipe-name:first-child { margin-top: 0; }
+    .bench-step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 2px 0;
+      font-size: 10px;
+      color: #6a5a30;
+    }
+    .bench-step-row.step-done {
+      opacity: .4;
+      text-decoration: line-through;
+    }
+    .bench-step-row input[type="checkbox"] {
+      margin-top: 1px;
+      flex-shrink: 0;
+      accent-color: #5a9a3a;
+    }
+    .bench-step-note {
+      font-size: 9px;
+      color: #4a3a18;
+      font-style: italic;
+      margin-left: 18px;
+    }
+
     .bench-brush-picker {
       display: flex;
       flex-wrap: wrap;

@@ -1126,6 +1126,7 @@
           document.getElementById('bn_date_start').value = '';
           document.getElementById('bn_notes').value = '';
           document.getElementById('bn_codex_source').value = '';
+          document.getElementById('bn_count').value = '';
           document.getElementById('benchSubmitBtn').textContent = 'Add Entry';
           buildListBn('');
           updateHiddenBn();
@@ -1159,6 +1160,7 @@
           document.getElementById('bn_date_start').value = btn.dataset.date_start || '';
           document.getElementById('bn_notes').value = btn.dataset.notes || '';
           document.getElementById('bn_codex_source').value = btn.dataset.codex_source || '';
+          document.getElementById('bn_count').value = btn.dataset.count || '';
           document.getElementById('benchSubmitBtn').textContent = 'Save Changes';
           buildListBn('');
           updateHiddenBn();
@@ -1228,6 +1230,53 @@
             btn.textContent = BENCH_STAGE_LABEL[next];
             btn.className = 'bench-stage-btn stage-' + next;
           }
+        }
+
+        async function benchModelDone(btn) {
+          const bid   = btn.dataset.bid;
+          const count = parseInt(btn.dataset.count, 10) || 1;
+          const done  = parseInt(btn.dataset.done,  10) || 0;
+          const next  = done + 1;
+          if (!confirm(`Mark model ${next} of ${count} as done?\nThis will reset the step checklist for the next model.`)) return;
+          const fd = new FormData();
+          fd.append('action', 'bench_model_done');
+          fd.append('bench_id', bid);
+          const res  = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          const text = await res.text();
+          let data;
+          try { data = JSON.parse(text); } catch(e) { alert('PHP error — check console'); console.error('bench_model_done response:', text); return; }
+          if (!data.ok) return;
+          btn.dataset.done = data.models_done;
+          const label = document.getElementById('bmc-label-' + bid);
+          if (label) label.textContent = data.models_done + ' / ' + data.count + ' done';
+          const bar = btn.closest('.model-row').querySelector('.bench-model-progress-bar');
+          if (bar) bar.style.width = Math.min(100, Math.round(data.models_done / data.count * 100)) + '%';
+          if (data.all_done) {
+            btn.replaceWith(Object.assign(document.createElement('span'), {
+              textContent: 'All ' + data.count + ' done ✓',
+              style: 'font-size:10px;color:#60c060;font-family:\'Cinzel\',serif'
+            }));
+          } else {
+            btn.textContent = '+1 Done';
+          }
+          // Reset step checkboxes in the step list for this row
+          btn.closest('.model-row').querySelectorAll('.bench-step-check').forEach(cb => {
+            cb.checked = false;
+            cb.closest('.bench-step-row').classList.remove('step-done');
+          });
+        }
+
+        async function setRecipeStepDone(bid, rid, stepIndex, isDone, checkbox) {
+          const fd = new FormData();
+          fd.append('action', 'set_recipe_step_done');
+          fd.append('bench_id', bid);
+          fd.append('recipe_id', rid);
+          fd.append('step_index', stepIndex);
+          fd.append('done', isDone ? '1' : '0');
+          const res  = await fetch(ADMIN_PHP, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (!data.ok) { checkbox.checked = !isDone; return; }
+          checkbox.closest('.bench-step-row').classList.toggle('step-done', isDone);
         }
 
         const RC_TECHNIQUES = ['basecoat', 'wash', 'shade', 'layer', 'edge', 'highlight', 'glaze', 'drybrush', 'stipple', 'blend', 'special'];

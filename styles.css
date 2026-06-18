@@ -2776,6 +2776,28 @@
       transition: width .3s;
     }
 
+    .bench-model-count {
+      font-size: 10px;
+      color: var(--gold-dim);
+      font-family: 'Cinzel', serif;
+      letter-spacing: .04em;
+      margin-bottom: 3px;
+    }
+
+    .bench-model-progress {
+      height: 3px;
+      background: #1a1408;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .bench-model-progress-fill {
+      height: 100%;
+      background: #3a8a3a;
+      transition: width .3s;
+    }
+
     .bench-wip-row {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
@@ -3290,6 +3312,32 @@
     .wtn-progress-fill { height: 3px; background: #6080c0; border-radius: 1px; }
     .wtn-card-prepped { border-left-color: #50a860; }
     .wtn-card-prepped .wtn-type { color: #50a860; }
+    /* Tonight's Bench planner */
+    .tnb-panel { background: #0b0a08; border: 1px solid #1a2a1a; border-top: 2px solid #3a6a3a; border-radius: 3px; padding: 14px 20px 16px; margin: 0 0 22px; }
+    .tnb-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+    .tnb-title { font-family: var(--font-heading); font-size: .85rem; color: #6ab86a; letter-spacing: .06em; text-transform: uppercase; }
+    .tnb-sub { font-size: 11px; color: #4a6a4a; }
+    .tnb-body { display: flex; flex-direction: column; gap: 14px; }
+    .tnb-projects { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; width: 100%; }
+    .tnb-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a09080; cursor: pointer; padding: 4px 8px; border: 1px solid #1a1a10; border-radius: 2px; white-space: nowrap; }
+    .tnb-label:hover { border-color: #3a3a20; color: #c4b49a; }
+    .tnb-label input { accent-color: #6ab86a; }
+    .tnb-progress { font-size: 10px; color: #4a6a4a; font-family: 'Cinzel', serif; }
+    .tnb-palette { flex: 1; min-width: 200px; }
+    .tnb-palette-inner { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tnb-group { min-width: 140px; }
+    .tnb-tech-label { font-family: var(--font-heading); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: #6a5a3a; margin-bottom: 5px; }
+    .tnb-paints { display: flex; flex-direction: column; gap: 3px; }
+    .tnb-paint { font-size: 11px; color: #a09070; display: flex; align-items: center; gap: 5px; }
+    .tnb-brand { font-size: 10px; color: #5a5040; }
+    .tnb-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .tnb-dot-owned { background: #3a8a3a; }
+    .tnb-dot-low { background: #c97a20; }
+    .tnb-dot-missing { background: #c94040; }
+    .tnb-batch { font-size: 9px; color: #c9a227; font-family: 'Cinzel', serif; margin-left: 2px; }
+    .tnb-empty { font-size: 11px; color: #4a4a3a; font-style: italic; padding: 4px 0; }
+    @media (max-width: 600px) { .tnb-body { flex-direction: column; } }
+
     /* Daily Colour Theory card — horizontal strip */
     .dct-panel { background: #0b0a08; border: 1px solid #2a1e18; border-top: 2px solid var(--gold); padding: 12px 18px; margin: 0 0 32px; }
     .dct-strip { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; min-height: 64px; }

@@ -1122,6 +1122,19 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <?php endif; ?>
 
+      <?php if ($hasBench): ?>
+      <div class="tnb-panel" id="tnb-panel">
+        <div class="tnb-header">
+          <span class="tnb-title">Tonight&#8217;s Bench (Beta)</span>
+          <span class="tnb-sub">what to load on your palette</span>
+        </div>
+        <div class="tnb-body">
+          <div class="tnb-projects" id="tnb-projects"></div>
+          <div class="tnb-palette" id="tnb-palette" style="display:none"></div>
+        </div>
+      </div>
+      <?php endif; ?>
+
       <div class="contents-grid">
         <div class="armies-workbench-row">
           <?php if ($hasFactions || $hasForces || $hasBattles): ?>

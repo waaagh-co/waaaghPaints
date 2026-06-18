@@ -2706,6 +2706,7 @@
               ${b.last_touched ? `<span class="bench-touched">touched ${esc(daysAgoStr(b.last_touched))}</span>` : ''}
             </div>
             ${nextStep ? `<div class="bench-next-step">Next: ${esc(nextStep)}</div>` : ''}
+            ${(b.count > 1) ? `<div class="bench-model-count">${b.models_done || 0}/${b.count} done</div><div class="bench-model-progress"><div class="bench-model-progress-fill" style="width:${Math.min(100,Math.round(((b.models_done||0)/b.count)*100))}%"></div></div>` : ''}
             <div class="bench-progress"><div class="bench-progress-fill" style="width:${progress}%"></div></div>
             ${imgsHtml}
             ${b.notes ? `<div class="bench-card-notes">${esc(b.notes).replace(/\r?\n/g, '<br>')}</div>` : ''}
@@ -2736,14 +2737,23 @@
 
           function getBenchNextStep(b) {
             if (!b.recipes || !b.recipes.length || !window._RECIPE_BY_ID) return '';
-            const recipe = window._RECIPE_BY_ID.get(b.recipes[0]);
-            if (!recipe || !(recipe.steps || []).length) return '';
-            const step = recipe.steps[0];
-            const parts = (step.paint || '').split('|');
-            const paintName = parts[1] || step.paint || '';
-            const technique = step.technique || '';
-            return (technique ? technique + ': ' : '') + paintName;
+            const stepsDone = b.recipe_steps_done || {};
+            for (const rid of b.recipes) {
+              const recipe = window._RECIPE_BY_ID.get(rid);
+              if (!recipe || !(recipe.steps || []).length) continue;
+              const done = stepsDone[rid] || [];
+              for (let i = 0; i < recipe.steps.length; i++) {
+                if (done.includes(i)) continue;
+                const step = recipe.steps[i];
+                const parts = (step.paint || '').split('|');
+                const paintName = parts[1] || step.paint || '';
+                const technique = step.technique || '';
+                return (technique ? technique + ': ' : '') + paintName;
+              }
+            }
+            return '';
           }
+          window._getBenchNextStep = getBenchNextStep;
 
           document.querySelectorAll('.bench-filter-pill').forEach(pill => {
             pill.addEventListener('click', () => {
@@ -2756,6 +2766,115 @@
           searchEl.addEventListener('input', renderBench);
           window._renderBench = renderBench;
           renderBench();
+        })();
+
+        // Tonight's Bench planner
+        (function() {
+          const panel = document.getElementById('tnb-panel');
+          if (!panel) return;
+          if (!BENCH_DATA) return;
+          const active = BENCH_DATA.filter(b => (b.stage || 'built') !== 'done');
+          if (!active.length) { panel.style.display = 'none'; return; }
+
+          const _modelById = typeof MODELS !== 'undefined' ? new Map(MODELS.map(m => [m.id, m])) : new Map();
+
+          const projectsEl = document.getElementById('tnb-projects');
+          projectsEl.innerHTML = active.map(b => {
+            const cnt  = b.count > 1 ? ` <span class="tnb-progress">${b.models_done || 0}/${b.count}</span>` : '';
+            return `<label class="tnb-label"><input type="checkbox" class="tnb-check" value="${esc(b.id)}">${esc(b.name)}${cnt}</label>`;
+          }).join('');
+          projectsEl.addEventListener('change', render);
+
+          function getNextSteps(b) {
+            if (!window._RECIPE_BY_ID) return [];
+            // merge bench recipes with promoted gallery recipes
+            const recipeIds = [...(b.recipes || [])];
+            if (b.promoted_id) {
+              const g = _modelById.get(b.promoted_id);
+              for (const rid of (g && g.recipes || [])) {
+                if (!recipeIds.includes(rid)) recipeIds.push(rid);
+              }
+            }
+            if (!recipeIds.length) return [];
+            const stepsDone = b.recipe_steps_done || {};
+            const out = [];
+            for (const rid of recipeIds) {
+              const recipe = window._RECIPE_BY_ID.get(rid);
+              if (!recipe || !(recipe.steps || []).length) continue;
+              const done = stepsDone[rid] || [];
+              for (let i = 0; i < recipe.steps.length; i++) {
+                if (!done.includes(i)) { out.push({ step: recipe.steps[i], recipe }); break; }
+              }
+            }
+            return out;
+          }
+
+          function render() {
+            const paletteEl = document.getElementById('tnb-palette');
+            const selected  = [...projectsEl.querySelectorAll('.tnb-check:checked')].map(c => c.value);
+            if (!selected.length) { paletteEl.innerHTML = ''; paletteEl.style.display = 'none'; return; }
+
+            const paintMap = new Map();
+            for (const bid of selected) {
+              const b = BENCH_DATA.find(x => x.id === bid);
+              if (!b) continue;
+              const steps = getNextSteps(b);
+              if (!steps.length) {
+                // no recipes: merge bench colors with promoted gallery colors
+                const seen = new Set();
+                const allColors = [...(b.colors || [])];
+                if (b.promoted_id) {
+                  const g = _modelById.get(b.promoted_id);
+                  for (const c of (g && g.colors || [])) {
+                    if (!allColors.includes(c)) allColors.push(c);
+                  }
+                }
+                for (const c of allColors) {
+                  const key = upgradeKey(c);
+                  if (seen.has(key)) continue; seen.add(key);
+                  const parts = c.split('|');
+                  if (!paintMap.has(key)) paintMap.set(key, { key, name: parts[1] || c, brand: parts[0] || '', technique: '', projects: new Set() });
+                  paintMap.get(key).projects.add(b.name);
+                }
+              } else {
+                for (const { step } of steps) {
+                  if (!step.paint) continue;
+                  const key = upgradeKey(step.paint);
+                  const parts = step.paint.split('|');
+                  if (!paintMap.has(key)) paintMap.set(key, { key, name: parts[1] || step.paint, brand: parts[0] || '', technique: step.technique || '', projects: new Set() });
+                  paintMap.get(key).projects.add(b.name);
+                }
+              }
+            }
+
+            if (!paintMap.size) {
+              paletteEl.innerHTML = '<div class="tnb-empty">No paint data found for selected projects.</div>';
+              paletteEl.style.display = 'block'; return;
+            }
+
+            const byTech = new Map();
+            for (const entry of paintMap.values()) {
+              const t = entry.technique || 'colors';
+              if (!byTech.has(t)) byTech.set(t, []);
+              byTech.get(t).push(entry);
+            }
+
+            let html = '<div class="tnb-palette-inner">';
+            for (const [tech, paints] of byTech) {
+              html += `<div class="tnb-group"><div class="tnb-tech-label">${esc(tech)}</div><div class="tnb-paints">`;
+              for (const p of paints) {
+                const st  = paintStock.get(p.key) || '';
+                const own = paintOwned.has(p.key);
+                const dotCls = (!own || st === 'out') ? 'missing' : (st === 'low' ? 'low' : 'owned');
+                const batch  = p.projects.size > 1 ? ` <span class="tnb-batch" title="${esc([...p.projects].join(', '))}">&times;${p.projects.size}</span>` : '';
+                html += `<div class="tnb-paint"><span class="tnb-dot tnb-dot-${dotCls}"></span>${esc(p.name)}${p.brand ? ` <span class="tnb-brand">${esc(p.brand)}</span>` : ''}${batch}</div>`;
+              }
+              html += '</div></div>';
+            }
+            html += '</div>';
+            paletteEl.innerHTML = html;
+            paletteEl.style.display = 'block';
+          }
         })();
 
         (function() {

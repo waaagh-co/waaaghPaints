@@ -69,6 +69,10 @@
                 <label for="bn_date_start">Date Started (optional - YYYY-MM-DD)</label>
                 <input type="text" id="bn_date_start" name="bn_date_start" placeholder="e.g. 2026-04-12" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
               </div>
+              <div>
+                <label for="bn_count">Models in Box (optional)</label>
+                <input type="number" id="bn_count" name="bn_count" min="1" placeholder="e.g. 10" style="width:100%;padding:7px 10px;background:#130f08;border:1px solid #2a2010;border-radius:3px;color:#c4b49a;font-size:13px;font-family:inherit;outline:none">
+              </div>
               <div class="form-full">
                 <label for="bn_notes">Notes</label>
                 <textarea id="bn_notes" name="bn_notes" rows="3"
@@ -150,6 +154,11 @@
               $lt = !empty($bn['last_touched']) ? date('M j', strtotime($bn['last_touched'])) : '';
               $imgCount = count($bn['wip_images'] ?? []);
               $colorCount = count($bn['colors'] ?? []);
+              $bnCount = max(1, (int)($bn['count'] ?? 0));
+              $bnDone  = (int)($bn['models_done'] ?? 0);
+              $bnHasCount = !empty($bn['count']) && $bnCount > 1;
+              $bnAllDone  = $bnHasCount && $bnDone >= $bnCount;
+              $bnStepsDone = $bn['recipe_steps_done'] ?? [];
             ?>
               <div class="model-row">
                 <div class="model-row-info">
@@ -197,6 +206,7 @@
                   data-brushes="<?= e(json_encode($bn['brushes'] ?? [])) ?>"
                   data-recipes="<?= e(json_encode($bn['recipes'] ?? [])) ?>"
                   data-images="<?= e(json_encode($bn['wip_images'] ?? [])) ?>"
+                  data-count="<?= $bnHasCount ? $bnCount : '' ?>"
                   onclick="openBenchEdit(this)">Edit</button>
                 <?php if (empty($bn['promoted_to'])): ?>
                   <form method="post" style="display:inline" onsubmit="return confirm('Archive to Gallery? A draft gallery entry will be created - you can add images and description in the edit form.')">
@@ -207,12 +217,58 @@
                 <?php else: ?>
                   <span style="font-size:10px;color:#c9a227;font-family:'Cinzel',serif">Promoted &rarr; <?= ucfirst(e($bn['promoted_to'])) ?></span>
                 <?php endif; ?>
+                <?php if ($bnHasCount && !$bnAllDone): ?>
+                  <button type="button" class="btn btn-sm bench-model-done-btn"
+                    data-bid="<?= e($bn['id']) ?>"
+                    data-done="<?= $bnDone ?>"
+                    data-count="<?= $bnCount ?>"
+                    onclick="benchModelDone(this)"
+                    title="Mark one model as done, increment gallery count">+1 Done</button>
+                <?php elseif ($bnAllDone): ?>
+                  <span style="font-size:10px;color:#60c060;font-family:'Cinzel',serif">All <?= $bnCount ?> done &#10003;</span>
+                <?php endif; ?>
                 <form method="post" onsubmit="return confirm('Delete this bench entry and its photos?')" style="margin:0">
                   <input type="hidden" name="action" value="delete_bench">
                   <input type="hidden" name="bench_id" value="<?= e($bn['id']) ?>">
                   <button type="submit" class="btn btn-sm btn-danger">&times;</button>
                 </form>
               </div>
+              <?php if ($bnHasCount): ?>
+                <div class="bench-model-progress-wrap">
+                  <div class="bench-model-progress-bar" style="width:<?= min(100, $bnCount > 0 ? round($bnDone / $bnCount * 100) : 0) ?>%"></div>
+                </div>
+                <div class="bench-model-count-label" id="bmc-label-<?= e($bn['id']) ?>"><?= $bnDone ?> / <?= $bnCount ?> done</div>
+              <?php endif; ?>
+              <?php if (!empty($bn['recipes']) && $hasRecipes && $recipesData): ?>
+                <div class="bench-step-toggle-wrap">
+                  <button type="button" class="btn btn-sm bench-step-toggle-btn"
+                    onclick="this.closest('.model-row').querySelector('.bench-step-list').classList.toggle('open');this.textContent=this.closest('.model-row').querySelector('.bench-step-list').classList.contains('open')?'Steps ↑':'Steps ↓'">Steps ↓</button>
+                </div>
+                <div class="bench-step-list">
+                  <?php foreach ($bn['recipes'] as $rid):
+                    $rc = null;
+                    foreach ($recipesData as $r) { if ($r['id'] === $rid) { $rc = $r; break; } }
+                    if (!$rc) continue;
+                    $rcStepsDone = $bnStepsDone[$rid] ?? [];
+                  ?>
+                    <div class="bench-step-recipe-name"><?= e($rc['name']) ?></div>
+                    <?php foreach (($rc['steps'] ?? []) as $si => $step):
+                      $isDone = in_array($si, $rcStepsDone, true);
+                      $parts = explode('|', $step['paint'] ?? '');
+                      $paintName = $parts[1] ?? ($step['paint'] ?? '');
+                    ?>
+                      <label class="bench-step-row<?= $isDone ? ' step-done' : '' ?>">
+                        <input type="checkbox" class="bench-step-check"
+                          <?= $isDone ? 'checked' : '' ?>
+                          onchange="setRecipeStepDone('<?= e($bn['id']) ?>','<?= e($rid) ?>',<?= $si ?>,this.checked,this)">
+                        <span class="pb-<?= e(str_replace(' ', '', $step['technique'] ?? '')) ?> recipe-technique-badge"><?= e($step['technique'] ?? '') ?></span>
+                        <?= e($paintName) ?>
+                        <?php if (!empty($step['note'])): ?><span class="bench-step-note"><?= e($step['note']) ?></span><?php endif; ?>
+                      </label>
+                    <?php endforeach; ?>
+                  <?php endforeach; ?>
+                </div>
+              <?php endif; ?>
             <?php endforeach; ?>
           </div>
         <?php else: ?>

@@ -20,6 +20,7 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
   $colors       = array_values(array_filter($_POST['bench_colors'] ?? []));
   $brushes      = array_values(array_filter($_POST['bench_brushes'] ?? []));
   $recipes      = array_values(array_filter($_POST['bench_recipes'] ?? []));
+  $count        = max(0, (int)($_POST['bn_count'] ?? 0));
   if (!in_array($stage, BENCH_STAGES, true)) $stage = 'built';
 
   if ($name !== '' && (!$isEdit || $bid !== '')) {
@@ -82,8 +83,13 @@ if ($authed && in_array($_POST['action'] ?? '', ['add_bench', 'edit_bench'], tru
     if ($brushes)    $entry['brushes']    = $brushes;
     if ($recipes)    $entry['recipes']    = $recipes;
     if ($images)     $entry['wip_images'] = $images;
-    if (!empty($existing['history']))  $entry['history']  = $existing['history'];
-    if (!empty($existing['sessions'])) $entry['sessions'] = $existing['sessions'];
+    if ($count > 0)                              $entry['count']             = $count;
+    if (!empty($existing['models_done']))        $entry['models_done']       = (int)$existing['models_done'];
+    if (!empty($existing['recipe_steps_done']))  $entry['recipe_steps_done'] = $existing['recipe_steps_done'];
+    if (!empty($existing['promoted_to']))        $entry['promoted_to']       = $existing['promoted_to'];
+    if (!empty($existing['promoted_id']))        $entry['promoted_id']       = $existing['promoted_id'];
+    if (!empty($existing['history']))            $entry['history']           = $existing['history'];
+    if (!empty($existing['sessions']))           $entry['sessions']          = $existing['sessions'];
 
     if ($isEdit) {
       foreach ($all as &$b) if ($b['id'] === $bid) {
@@ -186,6 +192,78 @@ if ($authed && ($_POST['action'] ?? '') === 'set_bench_stage') {
     benchSort($all);
     file_put_contents(BENCH_FILE, json_encode($all, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
     echo json_encode(['ok' => true, 'stage' => $stage]);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'bench_model_done') {
+  header('Content-Type: application/json');
+  $bid = trim($_POST['bench_id'] ?? '');
+  if ($bid !== '') {
+    $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+    $result = ['ok' => false];
+    $promotedId = '';
+    foreach ($bench as &$b) {
+      if ($b['id'] === $bid) {
+        $count = max(1, (int)($b['count'] ?? 1));
+        $done  = (int)($b['models_done'] ?? 0) + 1;
+        $b['models_done'] = $done;
+        unset($b['recipe_steps_done']);
+        $b['last_touched'] = date('Y-m-d');
+        $promotedId = $b['promoted_id'] ?? '';
+        $result = ['ok' => true, 'models_done' => $done, 'count' => $count, 'all_done' => $done >= $count];
+        break;
+      }
+    }
+    unset($b);
+    benchSort($bench);
+    file_put_contents(BENCH_FILE, json_encode($bench, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    if ($promotedId !== '' && file_exists(MODELS_FILE)) {
+      $models = json_decode(file_get_contents(MODELS_FILE), true) ?? [];
+      foreach ($models as &$m) {
+        if ($m['id'] === $promotedId) {
+          $m['count'] = max(1, (int)($m['count'] ?? 1)) + 1;
+          break;
+        }
+      }
+      unset($m);
+      file_put_contents(MODELS_FILE, json_encode($models, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    }
+    echo json_encode($result);
+  } else {
+    echo json_encode(['ok' => false]);
+  }
+  exit;
+}
+
+if ($authed && ($_POST['action'] ?? '') === 'set_recipe_step_done') {
+  header('Content-Type: application/json');
+  $bid  = trim($_POST['bench_id']    ?? '');
+  $rid  = trim($_POST['recipe_id']   ?? '');
+  $step = (int)($_POST['step_index'] ?? -1);
+  $done = ($_POST['done'] ?? '0') === '1';
+  if ($bid !== '' && $rid !== '' && $step >= 0) {
+    $bench = file_exists(BENCH_FILE) ? (json_decode(file_get_contents(BENCH_FILE), true) ?? []) : [];
+    foreach ($bench as &$b) {
+      if ($b['id'] === $bid) {
+        $stepsDone   = $b['recipe_steps_done'] ?? [];
+        $recipeSteps = $stepsDone[$rid] ?? [];
+        if ($done) {
+          if (!in_array($step, $recipeSteps, true)) $recipeSteps[] = $step;
+        } else {
+          $recipeSteps = array_values(array_filter($recipeSteps, fn($s) => $s !== $step));
+        }
+        sort($recipeSteps);
+        if ($recipeSteps) $stepsDone[$rid] = $recipeSteps; else unset($stepsDone[$rid]);
+        if ($stepsDone) $b['recipe_steps_done'] = $stepsDone; else unset($b['recipe_steps_done']);
+        break;
+      }
+    }
+    unset($b);
+    file_put_contents(BENCH_FILE, json_encode($bench, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    echo json_encode(['ok' => true]);
   } else {
     echo json_encode(['ok' => false]);
   }
