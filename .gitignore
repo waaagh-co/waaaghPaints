@@ -1,7 +1,11 @@
 # Personal config - never commit your real config.php
 config.php
 
+# Local dev admin shim (live server uses nob.php directly)
+nob.php
+
 # Personal data - not committed
+bb7s/
 data/
 img/models/
 img/bench/
