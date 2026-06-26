@@ -115,6 +115,46 @@ $rescuesActive     = array_values(array_filter($rescuesData, fn($r) => empty($r[
 $cnt_rescues       = count($rescuesActive);
 $cnt_rescue_units  = array_sum(array_map(fn($r) => max(1, (int)($r['count'] ?? 1)), $rescuesActive));
 
+// BB7s status panel — personal only; gated by BB7S_URL in config.php
+$bb7sState = null; // 'live' | 'scheduled' | 'result'
+$bb7sData  = [];
+if (defined('BB7S_URL') && BB7S_URL !== '') {
+  $bb7sDir = __DIR__ . '/bb7s/data/';
+  // 1. Live game (has guest, not expired)
+  if (file_exists($bb7sDir . 'games.json')) {
+    $rawGames = @json_decode(file_get_contents($bb7sDir . 'games.json'), true) ?: [];
+    $cutoff   = time() - 86400;
+    foreach ($rawGames as $_bg) {
+      if (($_bg['created'] ?? 0) < $cutoff || empty($_bg['guest_roster_id'])) continue;
+      $rAll = [];
+      if (file_exists($bb7sDir . 'rosters.json'))       $rAll = array_merge($rAll, @json_decode(file_get_contents($bb7sDir . 'rosters.json'), true) ?: []);
+      if (file_exists($bb7sDir . 'guest_rosters.json')) $rAll = array_merge($rAll, @json_decode(file_get_contents($bb7sDir . 'guest_rosters.json'), true) ?: []);
+      $byId = []; foreach ($rAll as $_br) { $byId[$_br['id']] = $_br['name'] ?? 'Unknown'; }
+      $bb7sState = 'live';
+      $bb7sData  = [
+        'code'       => $_bg['code'],
+        'host_name'  => $byId[$_bg['host_roster_id']] ?? 'Unknown',
+        'guest_name' => $byId[$_bg['guest_roster_id']] ?? 'Unknown',
+        'scoreboard' => $_bg['scoreboard'] ?? ['half' => 1, 'turn' => 1, 'host_score' => 0, 'guest_score' => 0],
+      ];
+      break;
+    }
+  }
+  // 2. Scheduled game
+  if (!$bb7sState && file_exists($bb7sDir . 'schedule.json')) {
+    $sched = @json_decode(file_get_contents($bb7sDir . 'schedule.json'), true) ?: [];
+    if (!empty($sched['date']) && !empty($sched['time'])) { $bb7sState = 'scheduled'; $bb7sData = $sched; }
+  }
+  // 3. Latest result
+  if (!$bb7sState && file_exists($bb7sDir . 'history.json')) {
+    $hist = @json_decode(file_get_contents($bb7sDir . 'history.json'), true) ?: [];
+    if (!empty($hist)) {
+      usort($hist, fn($a, $b) => strcmp($b['date'] ?? '', $a['date'] ?? '') ?: strcmp($b['id'] ?? '', $a['id'] ?? ''));
+      $bb7sState = 'result'; $bb7sData = $hist[0];
+    }
+  }
+}
+
 $goalsData    = file_exists(__DIR__ . '/data/goals.json') ? (json_decode(file_get_contents(__DIR__ . '/data/goals.json'), true) ?? []) : [];
 $curYear      = date('Y');
 $rawGoal      = $goalsData[$curYear] ?? null;
@@ -1122,6 +1162,42 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       </div>
       <?php endif; ?>
 
+      <?php if ($bb7sState): ?>
+      <div class="bb7s-panel">
+        <div class="bb7s-header">
+          <span class="bb7s-icon">&#9874;</span>
+          <span class="bb7s-title">Blood Bowl 7s</span>
+        </div>
+        <div class="bb7s-body">
+          <?php if ($bb7sState === 'live'): ?>
+            <span class="bb7s-badge bb7s-live">LIVE</span>
+            <div class="bb7s-matchup">
+              <span class="bb7s-team"><?= htmlspecialchars($bb7sData['host_name']) ?></span>
+              <span class="bb7s-score"><?= (int)($bb7sData['scoreboard']['host_score'] ?? 0) ?></span>
+              <span class="bb7s-dash">&#8212;</span>
+              <span class="bb7s-score"><?= (int)($bb7sData['scoreboard']['guest_score'] ?? 0) ?></span>
+              <span class="bb7s-team"><?= htmlspecialchars($bb7sData['guest_name']) ?></span>
+            </div>
+            <span class="bb7s-meta">Half <?= (int)($bb7sData['scoreboard']['half'] ?? 1) ?> &middot; Turn <?= (int)($bb7sData['scoreboard']['turn'] ?? 1) ?></span>
+          <?php elseif ($bb7sState === 'scheduled'): ?>
+            <span class="bb7s-badge bb7s-next">NEXT</span>
+            <span class="bb7s-sched-date"><?= htmlspecialchars(date('D j M', strtotime($bb7sData['date']))) ?> &middot; <?= htmlspecialchars($bb7sData['time']) ?></span>
+            <?php if (!empty($bb7sData['note'])): ?><span class="bb7s-meta"><?= htmlspecialchars($bb7sData['note']) ?></span><?php endif; ?>
+          <?php elseif ($bb7sState === 'result'): ?>
+            <?php $hs = (int)($bb7sData['host_score'] ?? 0); $gs = (int)($bb7sData['guest_score'] ?? 0); ?>
+            <span class="bb7s-badge bb7s-result">LAST</span>
+            <div class="bb7s-matchup">
+              <span class="bb7s-team <?= $hs > $gs ? 'bb7s-winner' : '' ?>"><?= htmlspecialchars($bb7sData['host_name'] ?? '?') ?></span>
+              <span class="bb7s-result-score"><?= $hs ?> &#8212; <?= $gs ?></span>
+              <span class="bb7s-team <?= $gs > $hs ? 'bb7s-winner' : '' ?>"><?= htmlspecialchars($bb7sData['guest_name'] ?? '?') ?></span>
+            </div>
+            <?php if (!empty($bb7sData['date'])): ?><span class="bb7s-meta"><?= htmlspecialchars($bb7sData['date']) ?></span><?php endif; ?>
+          <?php endif; ?>
+        </div>
+        <a class="bb7s-link" href="<?= htmlspecialchars(rtrim(BB7S_URL, '/')) ?>/" target="_blank" rel="noopener">Open App &#8594;</a>
+      </div>
+      <?php endif; ?>
+
       <?php if ($hasBench): ?>
       <div class="tnb-panel" id="tnb-panel">
         <div class="tnb-header">
@@ -1570,11 +1646,12 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <?php else: ?>
             <ol class="ci-orders">
               <?php foreach ($ciNextOrders as $_oi => $_ord): ?>
-                <li class="ci-order">
+                <li class="ci-order" data-ci-type="<?= $_ord['type'] ?>" data-ci-id="<?= htmlspecialchars($_ord['id']) ?>">
                   <span class="ci-order-rank"><?= $_oi + 1 ?>.</span>
                   <span class="ci-order-name"><?= htmlspecialchars($_ord['name']) ?></span>
                   <span class="ci-badge-type <?= $_ord['type'] === 'bench' ? 'ci-type-bench' : 'ci-type-planned' ?>"><?= $_ord['type'] === 'bench' ? ucfirst(htmlspecialchars($_ord['stage'])) : 'Planned' ?></span>
                   <span class="ci-order-reasons"><?php foreach ($_ord['reasons'] as $_r): ?><span class="ci-reason"><?= htmlspecialchars($_r) ?></span><?php endforeach; ?></span>
+                  <span class="ci-order-arrow">&#8250;</span>
                 </li>
               <?php endforeach; ?>
             </ol>
@@ -1584,7 +1661,7 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <div class="ci-card <?= $ciShame['growing'] ? 'ci-alert' : '' ?>">
             <div class="ci-card-hd">Shame Debt</div>
             <div class="ci-big"><?= $ciShame['active_boxes'] ?></div>
-            <div class="ci-la bel"><?= $ciShame['active_boxes'] === 1 ? 'box' : 'boxes' ?> &middot; ~<?= $ciShame['active_units'] ?> units</div>
+            <div class="ci-label"><?= $ciShame['active_boxes'] === 1 ? 'box' : 'boxes' ?> &middot; ~<?= $ciShame['active_units'] ?> units</div>
             <div class="ci-sub">+<?= $ciShame['acq_rate'] ?>/mo in &nbsp;&middot;&nbsp; &minus;<?= $ciShame['comp_rate'] ?>/mo out &nbsp;&middot;&nbsp; <strong class="<?= $ciShame['growing'] ? 'ci-warn' : '' ?>">net <?= $ciShame['net_velocity'] > 0 ? '+' : '' ?><?= $ciShame['net_velocity'] ?></strong></div>
             <?php if ($ciShame['months_to_clear']): ?><div class="ci-sub">At current rate, clear in ~<?= $ciShame['months_to_clear'] ?> months</div>
             <?php elseif ($ciShame['growing']): ?><div class="ci-sub ci-warn">Pile growing faster than you paint</div><?php endif; ?>
@@ -1633,16 +1710,20 @@ if (($_POST['action'] ?? '') === 'track_tab') {
               $_maxBar = !empty($_barAvgs) ? max($_barAvgs) : 0;
               $_pipeTotal = array_sum($_barAvgs);
             ?>
+            <?php
+              $_stageBarClr = ['built'=>'#4a4a4a','primed'=>'#6a6a6a','basecoated'=>'#2a5a8a','washed'=>'#3a6a9a','highlighted'=>'#c9a227','based'=>'#6a4a2a','varnished'=>'#b0b088','done'=>'#3a8a3a'];
+            ?>
             <?php if ($_maxBar > 0): ?>
             <div class="ci-dow-chart" style="margin:12px 0 4px">
               <?php foreach ($_barStages as $_sb):
                 $bav = $ciBottleneck['stage_avgs'][$_sb] ?? null;
                 $bpx = $bav !== null ? max(4,(int)round($bav / $_maxBar * 44)) : 2;
                 $bisWorst = $_sb === $ciBottleneck['worst_stage'];
+                $bclr = $_stageBarClr[$_sb] ?? '#2a1e08';
               ?>
               <div class="ci-dow-bar-wrap" title="<?= ucfirst($_sb) ?>: <?= $bav !== null ? $bav.'d avg' : 'no data' ?>">
-                <div class="ci-dow-bar <?= $bisWorst ? 'best' : '' ?>" style="height:<?= $bpx ?>px;<?= $bav === null ? 'opacity:.15' : '' ?>"></div>
-                <div class="ci-dow-lbl"><?= $_stageShort[$_sb] ?></div>
+                <div class="ci-dow-bar" style="height:<?= $bpx ?>px;background:<?= $bclr ?>;<?= $bisWorst ? 'outline:1px solid #c9a227;' : '' ?><?= $bav === null ? 'opacity:.15' : '' ?>"></div>
+                <div class="ci-dow-lbl" style="<?= $bisWorst ? 'color:#c9a227;' : '' ?>"><?= $_stageShort[$_sb] ?></div>
               </div>
               <?php endforeach; ?>
             </div>
@@ -1693,7 +1774,10 @@ if (($_POST['action'] ?? '') === 'track_tab') {
             </div>
             <?php if ($ciBattles['best_army']): ?><div class="ci-sub">Best army: <strong><?= htmlspecialchars($ciBattles['best_army']) ?></strong> (<?= $ciBattles['army_wr'][$ciBattles['best_army']] ?>% win rate)</div><?php endif; ?>
             <?php foreach (array_slice($ciBattles['army_wr'],0,4,true) as $_bka => $_bkwr): ?>
-              <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#7a6a3a;padding:3px 0;border-bottom:1px solid #1a1408;"><span><?= htmlspecialchars($_bka) ?></span><span><?= $ciBattles['by_army'][$_bka]['w'] ?>W <?= $ciBattles['by_army'][$_bka]['l'] ?>L &middot; <?= $_bkwr ?>%</span></div>
+              <div style="padding:4px 0;border-bottom:1px solid #1a1408;">
+                <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#7a6a3a;margin-bottom:3px;"><span><?= htmlspecialchars($_bka) ?></span><span><?= $ciBattles['by_army'][$_bka]['w'] ?>W <?= $ciBattles['by_army'][$_bka]['l'] ?>L &middot; <?= $_bkwr ?>%</span></div>
+                <div style="background:#1a1508;height:3px;border-radius:2px;"><div style="height:100%;border-radius:2px;width:<?= $_bkwr ?>%;background:<?= $_bkwr >= 60 ? '#4a8a4a' : ($_bkwr >= 40 ? '#7a6a3a' : '#8a2020') ?>;"></div></div>
+              </div>
             <?php endforeach; ?>
           <?php else: ?><p class="ci-sub">No battle data.</p><?php endif; ?>
         </div>
@@ -1751,6 +1835,28 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <?php endif; ?>
     </div>
   </div><!-- #tab-commissar -->
+  <script>
+  (function(){
+    var ordersEl = document.querySelector('.ci-orders');
+    if (!ordersEl) return;
+    ordersEl.addEventListener('click', function(e) {
+      var li = e.target.closest('[data-ci-type]');
+      if (!li) return;
+      var type = li.dataset.ciType, id = li.dataset.ciId;
+      var tabName = type === 'bench' ? 'bench' : 'planned';
+      var sel = type === 'bench' ? '.bench-card[data-id="' + id + '"]' : '.planned-card[data-id="' + id + '"]';
+      switchToTab(tabName);
+      setTimeout(function() {
+        var el = document.querySelector(sel);
+        if (!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        var prev = el.style.boxShadow;
+        el.style.boxShadow = '0 0 0 2px #c9a227';
+        setTimeout(function() { el.style.boxShadow = prev; }, 1400);
+      }, 320);
+    });
+  })();
+  </script>
   <?php endif; // SHOW_COMMISSAR ?>
 
   <?php if ($hasBooks): ?>

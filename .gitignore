@@ -24,3 +24,6 @@ inventory/*.csv
 
 # Local build notes
 CLAUDE.md
+
+# paint organisera
+*.html

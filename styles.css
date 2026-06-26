@@ -3338,6 +3338,29 @@
     .tnb-empty { font-size: 11px; color: #4a4a3a; font-style: italic; padding: 4px 0; }
     @media (max-width: 600px) { .tnb-body { flex-direction: column; } }
 
+    /* Blood Bowl 7s status panel */
+    .bb7s-panel { background: #0b0a08; border: 1px solid #2a1010; border-left: 3px solid #7a1a1a; border-radius: 3px; padding: 10px 18px 12px; margin: 0 0 22px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .bb7s-header { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .bb7s-icon { font-size: .9rem; color: #7a1a1a; line-height: 1; }
+    .bb7s-title { font-family: var(--font-heading); font-size: .8rem; color: #b06060; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .bb7s-body { display: flex; align-items: center; gap: 10px; flex: 1; flex-wrap: wrap; min-width: 0; }
+    .bb7s-badge { font-family: var(--font-heading); font-size: .6rem; letter-spacing: .14em; padding: 2px 7px; border-radius: 2px; flex-shrink: 0; }
+    .bb7s-live { background: #6a0000; color: #ff8080; animation: bb7s-pulse 1.4s ease-in-out infinite; }
+    .bb7s-next { background: #3a2a00; color: #c9a227; }
+    .bb7s-result { background: #1a1a1a; color: #6a5a3a; }
+    @keyframes bb7s-pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+    .bb7s-matchup { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .bb7s-team { font-family: var(--font-heading); font-size: .78rem; color: #a09070; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .bb7s-winner { color: var(--gold); }
+    .bb7s-score { font-family: var(--font-heading); font-size: 1rem; color: #c4b49a; min-width: 14px; text-align: center; }
+    .bb7s-result-score { font-family: var(--font-heading); font-size: .9rem; color: #7a6a50; white-space: nowrap; }
+    .bb7s-dash { color: #4a3a2a; font-size: .8rem; }
+    .bb7s-sched-date { font-family: var(--font-heading); font-size: .78rem; color: #c9a227; }
+    .bb7s-meta { font-size: .7rem; color: #6a5a3a; font-style: italic; }
+    .bb7s-link { margin-left: auto; font-family: var(--font-heading); font-size: .65rem; letter-spacing: .1em; color: #7a1a1a; text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: color .12s; }
+    .bb7s-link:hover { color: #c04040; }
+    @media (max-width: 600px) { .bb7s-panel { flex-direction: column; align-items: flex-start; gap: 8px; } .bb7s-link { margin-left: 0; } .bb7s-team { max-width: 120px; } }
+
     /* Daily Colour Theory card — horizontal strip */
     .dct-panel { background: #0b0a08; border: 1px solid #2a1e18; border-top: 2px solid var(--gold); padding: 12px 18px; margin: 0 0 32px; }
     .dct-strip { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; min-height: 64px; }
@@ -6430,7 +6453,7 @@
 .ci-full { grid-column: 1 / -1; }
 .ci-card { background: #0e0c08; border: 1px solid #2a1e08; border-top: 3px solid #4a3010; padding: 14px 16px; }
 .ci-alert { border-top-color: #8a2020; }
-.ci-card-hd { font-family: var(--font-heading); font-size: .58rem; letter-spacing: .2em; color: #6a5020; text-transform: uppercase; border-bottom: 1px solid #2a1e08; padding-bottom: 6px; margin-bottom: 10px; }
+.ci-card-hd { font-family: var(--font-heading); font-size: .63rem; letter-spacing: .18em; color: #7a6030; text-transform: uppercase; border-bottom: 1px solid #2a1e08; padding-bottom: 6px; margin-bottom: 10px; }
 .ci-alert .ci-card-hd { color: #8a3020; }
 .ci-big { font-family: var(--font-heading); font-size: 2rem; color: #c9a227; line-height: 1.1; }
 .ci-label { font-size: .68rem; color: #7a6a3a; margin-top: 2px; }
@@ -6438,9 +6461,12 @@
 .ci-warn { color: #8a2020; }
 
 .ci-orders { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
-.ci-order { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: rgba(255,255,255,.02); border-left: 2px solid #3a2810; }
+.ci-order { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: rgba(255,255,255,.02); border-left: 2px solid #3a2810; cursor: pointer; transition: background .15s, border-left-color .15s; }
+.ci-order:hover { background: rgba(201,162,39,.06); border-left-color: #c9a227; }
 .ci-order-rank { font-family: var(--font-heading); font-size: .9rem; color: #4a3a18; min-width: 18px; }
 .ci-order-name { font-family: var(--font-heading); font-size: .75rem; color: #c4b49a; flex: 1; }
+.ci-order-arrow { font-size: 1rem; color: #4a3a18; transition: color .15s; flex-shrink: 0; }
+.ci-order:hover .ci-order-arrow { color: #c9a227; }
 .ci-badge-type { font-size: .58rem; padding: 2px 7px; border-radius: 2px; text-transform: uppercase; letter-spacing: .08em; flex-shrink: 0; }
 .ci-type-bench { background: #1a2a1a; color: #6a9a6a; }
 .ci-type-planned { background: #1a1a2a; color: #6a6a9a; }
