@@ -393,7 +393,7 @@ unset($_wtnOwned, $_wp, $_bActive, $_b, $_days, $_pl, $_miss, $_c, $_mById, $_m2
 // === COMMISSAR INTELLIGENCE ===
 $ciShame = null; $ciSessions = null; $ciBottleneck = null;
 $ciBattles = null; $ciForces = null; $ciSupply = []; $ciNextOrders = [];
-$ci_paints_owned = 0; $ci_wanted = 0; $ci_low_out = 0; $ci_by_brand = []; $ci_top_paints = [];
+$ciWeekDays = []; $ciWeekImages = []; $ciWeekTotalMins = 0; $ciWeekTotalH = 0; $ciWeekTotalM = 0; $ciWeekHas = false;
 if (!defined('SHOW_COMMISSAR') || SHOW_COMMISSAR) {
 $_ciOwned = [];
 foreach ($paints as $_p) {
@@ -404,19 +404,9 @@ foreach ($paints as $_p) {
 }
 unset($_p);
 
-$ci_paints_owned = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') !== 'wanted'));
-$ci_wanted       = count(array_filter($paints, fn($p) => ($p['stock'] ?? '') === 'wanted'));
-$ci_low_out      = count(array_filter($paints, fn($p) => in_array($p['stock'] ?? '', ['low','out'])));
-$ci_by_brand = [];
-foreach ($paints as $_p2) {
-  if (($_p2['stock'] ?? '') !== 'wanted') $ci_by_brand[$_p2['brand']] = ($ci_by_brand[$_p2['brand']] ?? 0) + 1;
-}
-arsort($ci_by_brand);
-unset($_p2);
 $_ciUsage = [];
 foreach ($models as $_m3) foreach ($_m3['colors'] ?? [] as $_ck) $_ciUsage[$_ck] = ($_ciUsage[$_ck] ?? 0) + 1;
 arsort($_ciUsage);
-$ci_top_paints = array_slice($_ciUsage, 0, 8, true);
 foreach (array_slice($_ciUsage, 0, 30, true) as $_sk => $_scnt) {
   $_sparts = explode('|', $_sk); $_sbrand = $_sparts[0] ?? ''; $_sname = $_sparts[1] ?? '';
   foreach ($paints as $_sp) {
@@ -557,6 +547,43 @@ foreach ($planned as $_pno) {
 usort($ciNextOrders, fn($a,$b) => $b['score'] - $a['score']);
 $ciNextOrders = array_slice($ciNextOrders,0,5);
 unset($_ciOwned,$_stSc,$_bno,$noSc,$noRs,$_noM,$_nc,$_nc2,$_dS,$_pno,$_pnM,$_nc3,$_nc4,$pnSc,$pnRs);
+
+// === COMMISSAR: Last 7 Days Recap ===
+for ($i = 6; $i >= 0; $i--) {
+  $_wd = date('Y-m-d', strtotime("-{$i} days"));
+  $ciWeekDays[$_wd] = ['label'=>date('D j', strtotime($_wd)),'bench_mins'=>0,'gallery_count'=>0,'battles'=>0,'journal'=>false,'notes'=>[]];
+}
+if ($hasBench) {
+  foreach ($benchData as $_wb) {
+    foreach ($_wb['sessions'] ?? [] as $_wbs) {
+      $_wd = $_wbs['date'] ?? ''; if (!isset($ciWeekDays[$_wd])) continue;
+      $_wm = (int)($_wbs['duration'] ?? 0);
+      $ciWeekDays[$_wd]['bench_mins'] += $_wm;
+      $ciWeekTotalMins += $_wm;
+      if (!empty($_wbs['note'])) $ciWeekDays[$_wd]['notes'][] = htmlspecialchars($_wbs['note']);
+      $_wimg = !empty($_wb['wip_images']) ? end($_wb['wip_images']) : null;
+      if ($_wimg && !in_array($_wimg, array_column($ciWeekImages, 'src'), true))
+        $ciWeekImages[] = ['src'=>$_wimg,'alt'=>htmlspecialchars($_wb['name']),'type'=>'bench'];
+    }
+  }
+}
+foreach ($models as $_wgm) {
+  foreach ($_wgm['sessions'] ?? [] as $_wgms) {
+    $_wd = $_wgms['date'] ?? ''; if (!isset($ciWeekDays[$_wd])) continue;
+    $ciWeekDays[$_wd]['gallery_count'] += max(1,(int)($_wgms['count'] ?? 1));
+    if (!empty($_wgms['note'])) $ciWeekDays[$_wd]['notes'][] = htmlspecialchars($_wgms['note']);
+    $_wimg = $_wgm['images'][0] ?? null;
+    if ($_wimg && !in_array($_wimg, array_column($ciWeekImages, 'src'), true))
+      $ciWeekImages[] = ['src'=>$_wimg,'alt'=>htmlspecialchars($_wgm['name']),'type'=>'gallery'];
+  }
+}
+if ($hasBattles) { foreach ($battlesData as $_wbt) { $_wd = $_wbt['date'] ?? ''; if (isset($ciWeekDays[$_wd])) $ciWeekDays[$_wd]['battles']++; } }
+if ($hasJournal) { foreach ($journalData as $_wj)  { $_wd = $_wj['date']  ?? ''; if (isset($ciWeekDays[$_wd])) $ciWeekDays[$_wd]['journal'] = true; } }
+$ciWeekImages    = array_slice($ciWeekImages, 0, 10);
+$ciWeekTotalH    = (int)floor($ciWeekTotalMins / 60);
+$ciWeekTotalM    = $ciWeekTotalMins % 60;
+$ciWeekHas       = $ciWeekTotalMins > 0 || !empty(array_filter($ciWeekDays, fn($day) => $day['gallery_count'] > 0 || $day['battles'] > 0 || $day['journal']));
+unset($i,$_wd,$_wb,$_wbs,$_wm,$_wimg,$_wgm,$_wgms,$_wbt,$_wj);
 } // end SHOW_COMMISSAR
 
 header('X-Frame-Options: DENY');
@@ -1639,6 +1666,71 @@ if (($_POST['action'] ?? '') === 'track_tab') {
       <?php endif; ?>
 
       <div class="ci-grid">
+        <div class="ci-card ci-full ci-week-card">
+          <div class="ci-card-hd">&#9773; Last 7 Days &mdash; Field Report</div>
+          <?php if ($ciWeekHas): ?>
+            <?php if (!empty($ciWeekImages)): ?>
+            <div class="ci-week-strip">
+              <?php foreach ($ciWeekImages as $_wsi): ?>
+              <div class="ci-week-strip-frame">
+                <img src="<?= htmlspecialchars($_wsi['src']) ?>" alt="<?= $_wsi['alt'] ?>" class="ci-week-strip-img ci-week-strip-<?= $_wsi['type'] ?>" loading="lazy">
+                <div class="ci-week-strip-cap"><?= $_wsi['alt'] ?></div>
+              </div>
+              <?php endforeach; unset($_wsi); ?>
+            </div>
+            <?php endif; ?>
+            <div class="ci-week-days">
+              <?php foreach ($ciWeekDays as $_wdate => $_wday):
+                $_wactive = $_wday['bench_mins'] > 0 || $_wday['gallery_count'] > 0 || $_wday['battles'] > 0 || $_wday['journal'];
+                $_wtitle  = !empty($_wday['notes']) ? ' title="' . implode(' / ', $_wday['notes']) . '"' : '';
+              ?>
+              <div class="ci-week-day <?= $_wactive ? 'ci-week-day--active' : 'ci-week-day--empty' ?>"<?= $_wtitle ?>>
+                <div class="ci-week-day-label"><?= $_wday['label'] ?></div>
+                <div class="ci-week-day-body">
+                  <?php if ($_wday['bench_mins'] > 0):
+                    $_wth = (int)floor($_wday['bench_mins'] / 60); $_wtm = $_wday['bench_mins'] % 60;
+                    $_wtdisp = ($_wth > 0 ? $_wth . 'h' : '') . ($_wtm > 0 ? $_wtm . 'm' : '');
+                  ?>
+                  <div class="ci-week-day-stat">
+                    <span class="ci-week-stat-val"><?= $_wtdisp ?></span>
+                    <span class="ci-week-stat-lbl">bench</span>
+                  </div>
+                  <?php endif; ?>
+                  <?php if ($_wday['gallery_count'] > 0): ?>
+                  <div class="ci-week-day-stat">
+                    <span class="ci-week-stat-val"><?= $_wday['gallery_count'] ?></span>
+                    <span class="ci-week-stat-lbl">model<?= $_wday['gallery_count'] !== 1 ? 's' : '' ?></span>
+                  </div>
+                  <?php endif; ?>
+                  <?php if ($_wday['battles'] > 0): ?>
+                  <div class="ci-week-day-stat">
+                    <span class="ci-week-stat-val"><?= $_wday['battles'] ?></span>
+                    <span class="ci-week-stat-lbl">battle<?= $_wday['battles'] !== 1 ? 's' : '' ?></span>
+                  </div>
+                  <?php endif; ?>
+                  <?php if ($_wday['journal']): ?>
+                  <div class="ci-week-day-stat">
+                    <span class="ci-week-stat-val ci-week-stat-journal">&#9998;</span>
+                    <span class="ci-week-stat-lbl">note</span>
+                  </div>
+                  <?php endif; ?>
+                  <?php if (!$_wactive): ?><div class="ci-week-day-nil">&mdash;</div><?php endif; ?>
+                </div>
+              </div>
+              <?php endforeach; unset($_wdate,$_wday,$_wactive,$_wtitle,$_wth,$_wtm,$_wtdisp); ?>
+            </div>
+            <div class="ci-week-footer">
+              <?php if ($ciWeekTotalMins > 0): ?>
+              <span class="ci-week-total-val"><?= ($ciWeekTotalH > 0 ? $ciWeekTotalH . 'h ' : '') . ($ciWeekTotalM > 0 ? $ciWeekTotalM . 'm' : '') ?></span>
+              <span class="ci-week-total-lbl">bench time this week</span>
+              <?php else: ?>
+              <span class="ci-week-total-lbl">No bench time logged this week</span>
+              <?php endif; ?>
+            </div>
+          <?php else: ?>
+            <p class="ci-sub">No activity recorded in the last 7 days. Get to work, soldier.</p>
+          <?php endif; ?>
+        </div>
         <div class="ci-card ci-full">
           <div class="ci-card-hd">&#9876; Next Orders</div>
           <?php if (empty($ciNextOrders)): ?>
@@ -1792,34 +1884,6 @@ if (($_POST['action'] ?? '') === 'track_tab') {
           <?php endif; ?>
         </div>
       </div>
-      <div class="ci-divider">Historical Record</div>
-      <div class="ci-legacy">
-        <div class="ci-legacy-stat-grid">
-          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_paints_owned ?></div><div class="ci-legacy-stat-lbl">Paints Owned</div></div>
-          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= count($models) ?></div><div class="ci-legacy-stat-lbl">Schemes</div></div>
-          <div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= count($planned) ?></div><div class="ci-legacy-stat-lbl">Planned</div></div>
-          <?php if ($ci_wanted > 0): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_wanted ?></div><div class="ci-legacy-stat-lbl">Wanted</div></div><?php endif; ?>
-          <?php if ($ci_low_out > 0): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $ci_low_out ?></div><div class="ci-legacy-stat-lbl">Low/Out</div></div><?php endif; ?>
-          <?php if ($hasBattles): ?><div class="ci-legacy-stat"><div class="ci-legacy-stat-num"><?= $cnt_battles ?></div><div class="ci-legacy-stat-lbl">Battles</div></div><?php endif; ?>
-        </div>
-        <?php if (!empty($ci_by_brand)): $maxBrand = max($ci_by_brand); ?>
-          <div style="margin-bottom:16px;">
-            <div class="ci-card-hd" style="margin-bottom:8px;">Collection by Brand</div>
-            <?php foreach ($ci_by_brand as $brand => $bCnt): ?>
-              <div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;font-size:.68rem;color:#7a6a3a;margin-bottom:2px;"><span><?= htmlspecialchars($brand) ?></span><span><?= $bCnt ?></span></div><div style="background:#1a1508;height:4px;border-radius:2px;"><div style="height:100%;background:#c9a227;border-radius:2px;width:<?= (int)round($bCnt/$maxBrand*100) ?>%;"></div></div></div>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
-        <?php if (!empty($ci_top_paints)): $ciPaintRank = 1; ?>
-          <div style="padding-bottom:8px;">
-            <div class="ci-card-hd" style="margin-bottom:8px;">Most Used Paints</div>
-            <?php foreach ($ci_top_paints as $pk => $pCnt): $_pkP = explode('|',$pk); ?>
-              <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1a1408;font-size:.7rem;color:#c4b49a;"><span style="color:#4a3a18;min-width:16px;"><?= $ciPaintRank++ ?></span><span style="flex:1"><?= htmlspecialchars($_pkP[1] ?? $pk) ?></span><span style="color:#5a4828;font-size:.62rem;"><?= htmlspecialchars($_pkP[0] ?? '') ?></span><span style="color:#c9a227;font-family:'Cinzel',serif;"><?= $pCnt ?>&#215;</span></div>
-            <?php endforeach; ?>
-          </div>
-        <?php endif; ?>
-      </div>
-
       <?php if (!empty($milestones)): ?>
       <div class="ms-strip ms-commissar">
         <div class="ms-strip-hd">Campaign Honours &mdash; <?= $_msUnlocked ?> of <?= count($milestones) ?> earned</div>
